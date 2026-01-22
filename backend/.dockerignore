@@ -1,0 +1,24 @@
+.git
+.github
+.idea
+.venv
+venv
+env
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache
+.coverage
+coverage.xml
+htmlcov
+.env
+.DS_Store
+*.log
+
+# Docker itself
+Dockerfile
+.dockerignore
+
+# Docs not needed in runtime image
+README.md
