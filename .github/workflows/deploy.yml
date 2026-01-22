@@ -1,0 +1,113 @@
+name: Build and Deploy to Azure Container Apps
+
+on:
+  push:
+    branches: ["master"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  RESOURCE_GROUP: rg-stakr-prod
+  CONTAINER_APP_NAME: stakr-backend
+  IMAGE_NAME: stakr-backend
+  CONTAINER_ENV: env-stakr
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Etape Login Azure SUPPRIMÉE (pour éviter le conflit de versions)
+
+      - name: Log in to Azure Container Registry
+        uses: azure/docker-login@v1
+        with:
+          login-server: ${{ secrets.AZURE_CONTAINER_REGISTRY }}
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./backend
+          push: true
+          tags: |
+            ${{ secrets.AZURE_CONTAINER_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+            ${{ secrets.AZURE_CONTAINER_REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+
+      - name: Deploy to Azure Container Apps
+        uses: azure/CLI@v1
+        with:
+          azcliversion: 2.55.0
+          inlineScript: |
+            set -euo pipefail
+
+            echo "1. Manual Login to ensure version compatibility..."
+            # On extrait les infos du secret JSON pour se connecter manuellement
+            # Cela garantit que le token est généré par la version 2.55.0
+            echo '${{ secrets.AZURE_CREDENTIALS }}' > azure_creds.json
+            AZ_USER=$(jq -r .clientId azure_creds.json)
+            AZ_PASS=$(jq -r .clientSecret azure_creds.json)
+            AZ_TENANT=$(jq -r .tenantId azure_creds.json)
+            
+            az login --service-principal -u "$AZ_USER" -p "$AZ_PASS" --tenant "$AZ_TENANT"
+            rm azure_creds.json
+
+            echo "2. Installing Extension..."
+            # Pas de --allow-preview car on est en 2.55.0
+            az extension add --name containerapp --upgrade --yes
+
+            IMAGE="${{ secrets.AZURE_CONTAINER_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}"
+            echo "Target Image: ${IMAGE}"
+
+            echo "3. Checking if Container App exists..."
+            if az containerapp show \
+              --name "${{ env.CONTAINER_APP_NAME }}" \
+              --resource-group "${{ env.RESOURCE_GROUP }}" \
+              --only-show-errors \
+              1>/dev/null; then
+
+              echo "✅ App exists. Updating..."
+              
+              az containerapp ingress enable \
+                --name "${{ env.CONTAINER_APP_NAME }}" \
+                --resource-group "${{ env.RESOURCE_GROUP }}" \
+                --target-port 8000 \
+                --type external \
+                --only-show-errors
+
+              az containerapp update \
+                --name "${{ env.CONTAINER_APP_NAME }}" \
+                --resource-group "${{ env.RESOURCE_GROUP }}" \
+                --image "${IMAGE}" \
+                --only-show-errors
+
+            else
+
+              echo "🆕 App does not exist. Creating it..."
+              az containerapp create \
+                --name "${{ env.CONTAINER_APP_NAME }}" \
+                --resource-group "${{ env.RESOURCE_GROUP }}" \
+                --environment "${CONTAINER_ENV}" \
+                --image "${IMAGE}" \
+                --registry-server "${{ secrets.AZURE_CONTAINER_REGISTRY }}" \
+                --registry-username "${{ secrets.REGISTRY_USERNAME }}" \
+                --registry-password "${{ secrets.REGISTRY_PASSWORD }}" \
+                --ingress external \
+                --target-port 8000 \
+                --only-show-errors
+            fi
+
+            echo "Retrieving URL..."
+            FQDN=$(az containerapp show \
+              --name "${{ env.CONTAINER_APP_NAME }}" \
+              --resource-group "${{ env.RESOURCE_GROUP }}" \
+              --query properties.configuration.ingress.fqdn \
+              -o tsv)
+
+            echo "🚀 Deployed successfully at: https://${FQDN}"
