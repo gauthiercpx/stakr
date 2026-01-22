@@ -16,7 +16,7 @@ concurrency:
 
 jobs:
   build-and-analyze:
-    name: Check Style & Scan
+    name: Check Style and Scan
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
