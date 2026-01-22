@@ -1,5 +1,6 @@
 fastapi[standard]
 uvicorn
+click
 sqlalchemy
 psycopg2-binary
 pydantic
