@@ -7,10 +7,6 @@ class HealthResponse(BaseModel):
     status: str
 
 
-class PingResponse(BaseModel):
-    message: str
-
-
 class VersionResponse(BaseModel):
     version: str
 
@@ -18,3 +14,13 @@ class VersionResponse(BaseModel):
 class Item(BaseModel):
     id: int
     name: str
+
+
+class DatabaseTestResponse(BaseModel):
+    status: str
+
+
+class ErrorResponse(BaseModel):
+    """Generic error payload (matches FastAPI's default HTTPException shape)."""
+
+    detail: str
