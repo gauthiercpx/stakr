@@ -1,6 +1,9 @@
 .idea/
 .venv/
+.venv-py314/
 __pycache__/
 *.pyc
 .env
 .DS_Store
+backend/.coverage
+backend/coverage.xml

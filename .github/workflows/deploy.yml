@@ -12,7 +12,6 @@ env:
   RESOURCE_GROUP: rg-stakr-prod
   CONTAINER_APP_NAME: stakr-backend
   CONTAINER_ENV: env-stakr
-  MIGRATION_JOB_NAME: stakr-backend-migrate
   IMAGE_NAME: stakr-backend
 
 jobs:
@@ -22,6 +21,11 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Log in to Azure
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       - name: Log in to Azure Container Registry
         uses: azure/docker-login@v1
@@ -40,146 +44,51 @@ jobs:
             ${{ secrets.AZURE_CONTAINER_REGISTRY }}/${{ env.IMAGE_NAME }}:latest
 
       - name: Deploy (migrate then update)
-        uses: azure/CLI@v1
-        with:
-          azcliversion: 2.55.0
-          inlineScript: |
-            set -euo pipefail
+        shell: bash
+        run: |
+          set -euo pipefail
 
-            # Tools
-            command -v jq >/dev/null 2>&1 || { sudo apt-get update; sudo apt-get install -y jq; }
+          IMAGE="${{ secrets.AZURE_CONTAINER_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}"
+          echo "Image: ${IMAGE}"
 
-            # Azure login (service principal)
-            echo '${{ secrets.AZURE_CREDENTIALS }}' > azure_creds.json
-            AZ_USER=$(jq -r .clientId azure_creds.json)
-            AZ_PASS=$(jq -r .clientSecret azure_creds.json)
-            AZ_TENANT=$(jq -r .tenantId azure_creds.json)
-            AZ_SUB=$(jq -r .subscriptionId azure_creds.json)
-            rm azure_creds.json
+          az version
 
-            az login --service-principal -u "$AZ_USER" -p "$AZ_PASS" --tenant "$AZ_TENANT"
-            az account set --subscription "$AZ_SUB"
+          # Container Apps CLI extension (preview required)
+          az extension add --name containerapp --version 0.3.53 --upgrade --yes
 
-            # Container Apps CLI extension
-            az extension add --name containerapp --upgrade --yes
-
-            IMAGE="${{ secrets.AZURE_CONTAINER_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}"
-            echo "Image: ${IMAGE}"
-
-            # Ensure the Container App exists (create once)
-            if ! az containerapp show --name "${{ env.CONTAINER_APP_NAME }}" --resource-group "${{ env.RESOURCE_GROUP }}" --only-show-errors 1>/dev/null; then
-              az containerapp create \
-                --name "${{ env.CONTAINER_APP_NAME }}" \
-                --resource-group "${{ env.RESOURCE_GROUP }}" \
-                --environment "${{ env.CONTAINER_ENV }}" \
-                --image "${IMAGE}" \
-                --registry-server "${{ secrets.AZURE_CONTAINER_REGISTRY }}" \
-                --registry-username "${{ secrets.REGISTRY_USERNAME }}" \
-                --registry-password "${{ secrets.REGISTRY_PASSWORD }}" \
-                --ingress external \
-                --target-port 8000 \
-                --only-show-errors
-            fi
-
-            # --- Migrations ---
-            # Your app has DATABASE_URL configured as: env var -> secretRef -> secret value.
-            # We reuse the same secret value for the migration job.
-
-            DB_SECRET_NAME=$(az containerapp show \
+          # Ensure the Container App exists (create once)
+          if ! az containerapp show --name "${{ env.CONTAINER_APP_NAME }}" --resource-group "${{ env.RESOURCE_GROUP }}" --only-show-errors 1>/dev/null; then
+            az containerapp create \
               --name "${{ env.CONTAINER_APP_NAME }}" \
               --resource-group "${{ env.RESOURCE_GROUP }}" \
-              --query "properties.template.containers[0].env[?name=='DATABASE_URL'].secretRef | [0]" \
-              -o tsv)
-
-            if [ -z "$DB_SECRET_NAME" ]; then
-              echo "DATABASE_URL is not configured as a secretRef on the Container App."
-              echo "Expected DATABASE_URL=secretref:<secret-name> (e.g. db-connection-string)."
-              exit 1
-            fi
-
-            DB_SECRET_VALUE=$(az containerapp secret show \
-              --name "${{ env.CONTAINER_APP_NAME }}" \
-              --resource-group "${{ env.RESOURCE_GROUP }}" \
-              --secret-name "$DB_SECRET_NAME" \
-              --query value \
-              -o tsv)
-
-            if [ -z "$DB_SECRET_VALUE" ]; then
-              echo "Can't read secret '$DB_SECRET_NAME'. Ensure your service principal has permission to read Container App secrets."
-              exit 1
-            fi
-
-            # Mask secret in GitHub logs (safety belt)
-            echo "::add-mask::$DB_SECRET_VALUE"
-
-            # Create/update the migration job (manual trigger) with the DB secret
-            if az containerapp job show --name "${{ env.MIGRATION_JOB_NAME }}" --resource-group "${{ env.RESOURCE_GROUP }}" --only-show-errors 1>/dev/null; then
-              az containerapp job update \
-                --name "${{ env.MIGRATION_JOB_NAME }}" \
-                --resource-group "${{ env.RESOURCE_GROUP }}" \
-                --image "${IMAGE}" \
-                --secrets "$DB_SECRET_NAME=$DB_SECRET_VALUE" \
-                --env-vars DATABASE_URL=secretref:$DB_SECRET_NAME \
-                --command "python" \
-                --args "-m" "alembic" "upgrade" "head" \
-                --only-show-errors
-            else
-              az containerapp job create \
-                --name "${{ env.MIGRATION_JOB_NAME }}" \
-                --resource-group "${{ env.RESOURCE_GROUP }}" \
-                --environment "${{ env.CONTAINER_ENV }}" \
-                --trigger-type Manual \
-                --parallelism 1 \
-                --replica-completion-count 1 \
-                --replica-retry-limit 1 \
-                --replica-timeout 1800 \
-                --image "${IMAGE}" \
-                --secrets "$DB_SECRET_NAME=$DB_SECRET_VALUE" \
-                --env-vars DATABASE_URL=secretref:$DB_SECRET_NAME \
-                --command "python" \
-                --args "-m" "alembic" "upgrade" "head" \
-                --registry-server "${{ secrets.AZURE_CONTAINER_REGISTRY }}" \
-                --registry-username "${{ secrets.REGISTRY_USERNAME }}" \
-                --registry-password "${{ secrets.REGISTRY_PASSWORD }}" \
-                --only-show-errors
-            fi
-
-            EXEC_ID=$(az containerapp job start --name "${{ env.MIGRATION_JOB_NAME }}" --resource-group "${{ env.RESOURCE_GROUP }}" --query name -o tsv)
-            echo "Migration execution: ${EXEC_ID}"
-
-            # Wait until migration succeeds/fails
-            for i in $(seq 1 60); do
-              STATUS=$(az containerapp job execution show \
-                --name "${{ env.MIGRATION_JOB_NAME }}" \
-                --resource-group "${{ env.RESOURCE_GROUP }}" \
-                --execution-name "${EXEC_ID}" \
-                --query properties.status -o tsv)
-
-              echo "Migration status: ${STATUS}"
-              [ "$STATUS" = "Succeeded" ] && break
-              if [ "$STATUS" = "Failed" ]; then
-                az containerapp job logs show \
-                  --name "${{ env.MIGRATION_JOB_NAME }}" \
-                  --resource-group "${{ env.RESOURCE_GROUP }}" \
-                  --execution-name "${EXEC_ID}" \
-                  --only-show-errors || true
-                exit 1
-              fi
-              sleep 10
-            done
-
-            [ "${STATUS:-}" = "Succeeded" ] || { echo "Migration timed out"; exit 1; }
-
-            # --- Deploy app ---
-            az containerapp update \
-              --name "${{ env.CONTAINER_APP_NAME }}" \
-              --resource-group "${{ env.RESOURCE_GROUP }}" \
+              --environment "${{ env.CONTAINER_ENV }}" \
               --image "${IMAGE}" \
+              --registry-server "${{ secrets.AZURE_CONTAINER_REGISTRY }}" \
+              --registry-username "${{ secrets.REGISTRY_USERNAME }}" \
+              --registry-password "${{ secrets.REGISTRY_PASSWORD }}" \
+              --ingress external \
+              --target-port 8000 \
               --only-show-errors
+          fi
 
-            FQDN=$(az containerapp show \
-              --name "${{ env.CONTAINER_APP_NAME }}" \
-              --resource-group "${{ env.RESOURCE_GROUP }}" \
-              --query properties.configuration.ingress.fqdn -o tsv)
+          # --- Migrations ---
+          # Run migrations inside the existing Container App.
+          # This avoids the containerapp Job API (often version-dependent).
+          echo "Running Alembic migrations (in-app exec)..."
+          # `az containerapp exec` may require a TTY (and CI runners don't provide one by default).
+          # `script` allocates a pseudo-TTY so the command can run non-interactively.
+          script -q -e -c "az containerapp exec --name '${{ env.CONTAINER_APP_NAME }}' --resource-group '${{ env.RESOURCE_GROUP }}' --command 'python -m alembic upgrade head' --only-show-errors" /dev/null
 
-            echo "Deployed: https://${FQDN}"
+          # --- Deploy app ---
+          az containerapp update \
+            --name "${{ env.CONTAINER_APP_NAME }}" \
+            --resource-group "${{ env.RESOURCE_GROUP }}" \
+            --image "${IMAGE}" \
+            --only-show-errors
+
+          FQDN=$(az containerapp show \
+            --name "${{ env.CONTAINER_APP_NAME }}" \
+            --resource-group "${{ env.RESOURCE_GROUP }}" \
+            --query properties.configuration.ingress.fqdn -o tsv)
+
+          echo "Deployed: https://${FQDN}"
