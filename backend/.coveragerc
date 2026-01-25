@@ -1,0 +1,11 @@
+[run]
+branch = True
+omit =
+    main.py
+    models/*
+    alembic/*
+    tests/*
+    */__init__.py
+
+[report]
+show_missing = True
