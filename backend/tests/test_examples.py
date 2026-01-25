@@ -1,6 +1,3 @@
-from app import app
-
-
 def test_version_endpoint(client):
     response = client.get("/version")
     assert response.status_code == 200
