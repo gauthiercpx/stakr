@@ -28,6 +28,17 @@ def test_get_engine_success(monkeypatch):
         session.close()
 
 
+def test_get_db_generator(monkeypatch):
+    db = reload_db(monkeypatch, url="sqlite:///:memory:")
+    gen = db.get_db()
+    session = next(gen)
+    try:
+        result = session.execute(text("SELECT 1")).scalar()
+        assert result == 1
+    finally:
+        gen.close()
+
+
 def test_get_engine_missing_url(monkeypatch):
     db = reload_db(monkeypatch, url=None)
     with pytest.raises(RuntimeError):
