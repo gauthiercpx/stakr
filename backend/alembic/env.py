@@ -2,8 +2,9 @@ import os
 import sys
 from logging.config import fileConfig
 
-from alembic import context
 from sqlalchemy import engine_from_config, pool
+
+from alembic import context
 
 # Ensure the backend/ folder (which contains the `app/` package) is importable.
 BACKEND_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
@@ -20,8 +21,8 @@ except Exception:
     # dotenv is optional at runtime
     pass
 
-from app.core.database import Base, SQLALCHEMY_DATABASE_URL  # noqa: E402
 import models  # noqa: F401, E402  (register ORM models on Base.metadata)
+from app.core.database import SQLALCHEMY_DATABASE_URL, Base  # noqa: E402
 
 config = context.config
 

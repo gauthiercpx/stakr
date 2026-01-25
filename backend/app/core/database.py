@@ -1,10 +1,13 @@
 import os
-from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
-from dotenv import load_dotenv
+from pathlib import Path
 
-load_dotenv()
+from dotenv import load_dotenv
+from sqlalchemy import create_engine
+from sqlalchemy.orm import declarative_base, sessionmaker
+
+# Load .env from backend directory
+env_path = Path(__file__).parent.parent.parent / ".env"
+load_dotenv(dotenv_path=env_path)
 
 # Récupère l'URL de ton secret ou de ton .env
 SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL")
@@ -17,6 +20,7 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 # C'est CE "Base" que tout le monde cherche !
 Base = declarative_base()
+
 
 # Utilitaire pour obtenir la DB dans tes routes FastAPI
 def get_db():
