@@ -8,9 +8,9 @@ Minimal skeleton (FastAPI backend + tests + GitHub Actions) to start cleanly.
 backend/
   app/
     __init__.py           # exports `app`
-    main.py               # FastAPI app factory / router wiring
+    main.py               # FastAPI app wiring
     routes/
-      health.py           # /health, /ping
+      health.py           # /health, /ready
       examples.py         # /version, /items/{id}, /echo
     schemas/
       common.py           # Pydantic response models
@@ -49,22 +49,31 @@ python -m uvicorn app:app --app-dir backend --reload --port 8000
 ```
 
 Endpoints:
-- Health: http://127.0.0.1:8000/health
-- Ping: http://127.0.0.1:8000/ping
+- Liveness: http://127.0.0.1:8000/health
+- Readiness (DB check): http://127.0.0.1:8000/ready
 - Version: http://127.0.0.1:8000/version
 - Swagger UI: http://127.0.0.1:8000/docs
 
 ## Run tests
 
+If `pytest` is not found, it usually means your venv is not activated or the tool isn't installed.
+Use `python -m ...` to always run the tool from the current interpreter.
+
 ```powershell
+# Option A (recommended): run from backend/ (uses backend/pyproject.toml)
+cd backend
+python -m pytest
+
+# Option B: run from repo root
 python -m pytest -q backend
 ```
 
 ## Lint & formatting
 
 ```powershell
-python -m black backend --check
-python -m isort backend --check-only
+# Run from repo root
+python -m black backend
+python -m isort backend
 python -m flake8 backend
 ```
 
@@ -82,3 +91,4 @@ GitHub Actions runs:
 - Black / isort / flake8
 - pytest (+ coverage.xml)
 - SonarCloud scan
+

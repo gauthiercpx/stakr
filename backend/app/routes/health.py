@@ -22,7 +22,9 @@ router = APIRouter(tags=["Health"])
 @router.get(
     "/health",
     summary="Liveness probe",
-    description="Indicates whether the API process is running (does not check dependencies).",
+    description=(
+        "Indicates whether the API process is running " "(does not check dependencies)."
+    ),
     response_model=HealthResponse,
     status_code=status.HTTP_200_OK,
 )
@@ -33,7 +35,9 @@ def health() -> HealthResponse:
 @router.get(
     "/ready",
     summary="Readiness probe",
-    description="Checks whether dependencies are ready (currently: database connectivity).",
+    description=(
+        "Checks whether dependencies are ready " "(currently: database connectivity)."
+    ),
     response_model=DatabaseTestResponse,
     status_code=status.HTTP_200_OK,
     responses={
