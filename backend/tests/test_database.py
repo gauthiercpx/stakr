@@ -27,6 +27,10 @@ def test_get_engine_success(monkeypatch):
     finally:
         session.close()
 
+    # cached path
+    SessionLocal_cached = db.get_session_factory()
+    assert SessionLocal_cached is SessionLocal
+
 
 def test_get_db_generator(monkeypatch):
     db = reload_db(monkeypatch, url="sqlite:///:memory:")
