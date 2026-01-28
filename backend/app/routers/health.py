@@ -42,7 +42,7 @@ def health() -> HealthResponse:
     status_code=status.HTTP_200_OK,
     responses={
         200: {"description": "Service is ready"},
-        500: {"description": "Dependency check failed", "model": ErrorResponse},
+        503: {"description": "Service is not ready", "model": ErrorResponse},
     },
 )
 def ready(db: Session = Depends(get_db)) -> DatabaseTestResponse:
@@ -52,7 +52,7 @@ def ready(db: Session = Depends(get_db)) -> DatabaseTestResponse:
     except Exception:
         logger.exception("Readiness check failed")
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail="Service not ready",
         )
 

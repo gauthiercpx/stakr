@@ -21,7 +21,6 @@ except Exception:
     # dotenv is optional at runtime
     pass
 
-import models  # noqa: F401, E402  (register ORM models on Base.metadata)
 from app.core.database import SQLALCHEMY_DATABASE_URL, Base  # noqa: E402
 
 config = context.config
