@@ -22,7 +22,7 @@ except Exception:
     pass
 
 from app.core.database import SQLALCHEMY_DATABASE_URL, Base  # noqa: E402
-
+import app.models  # noqa: F401, E402
 config = context.config
 
 # Alembic's config uses ConfigParser interpolation, where '%' is special.

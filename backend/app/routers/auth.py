@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 
 from app.api import deps
 from app.core import security
+from app.core.database import get_db
 from app.schemas import crud as crud_user
 from app.schemas import user as schemas_user
 
@@ -24,7 +25,7 @@ router = APIRouter(tags=["Auth"])
     },
 )
 def register(
-    user_in: schemas_user.UserCreate, db: Session = Depends(deps.get_db)
+    user_in: schemas_user.UserCreate, db: Session = Depends(get_db)
 ) -> schemas_user.User:
     user = crud_user.get_user_by_email(db, email=user_in.email)
     if user:
@@ -46,7 +47,7 @@ def register(
 )
 def login_access_token(
     form_data: OAuth2PasswordRequestForm = Depends(),
-    db: Session = Depends(deps.get_db),
+    db: Session = Depends(get_db),
 ) -> dict:
     user = crud_user.get_user_by_email(db, email=form_data.username)
     if not user or not security.verify_password(
