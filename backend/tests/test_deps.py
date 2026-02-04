@@ -1,7 +1,8 @@
 """Tests for API dependencies."""
 
-import pytest
 from unittest.mock import MagicMock, patch
+
+import pytest
 from fastapi import HTTPException
 
 from app.api.deps import get_current_user
@@ -22,10 +23,7 @@ class TestGetCurrentUser:
         with patch("app.api.deps.jwt.decode") as mock_decode:
             mock_decode.return_value = {"sub": "user@example.com"}
 
-            result = get_current_user(
-                db=mock_db,
-                token="valid.jwt.token"
-            )
+            result = get_current_user(db=mock_db, token="valid.jwt.token")
 
         assert result == mock_user
         mock_decode.assert_called_once()
@@ -38,10 +36,7 @@ class TestGetCurrentUser:
             mock_decode.return_value = {"exp": 12345}  # Missing 'sub'
 
             with pytest.raises(HTTPException) as exc_info:
-                get_current_user(
-                    db=mock_db,
-                    token="valid.jwt.token"
-                )
+                get_current_user(db=mock_db, token="valid.jwt.token")
 
         assert exc_info.value.status_code == 401
 
@@ -51,13 +46,11 @@ class TestGetCurrentUser:
 
         with patch("app.api.deps.jwt.decode") as mock_decode:
             from jose import JWTError
+
             mock_decode.side_effect = JWTError()
 
             with pytest.raises(HTTPException) as exc_info:
-                get_current_user(
-                    db=mock_db,
-                    token="invalid.token"
-                )
+                get_current_user(db=mock_db, token="invalid.token")
 
         assert exc_info.value.status_code == 401
 
@@ -71,10 +64,7 @@ class TestGetCurrentUser:
             mock_decode.return_value = {"sub": "nonexistent@example.com"}
 
             with pytest.raises(HTTPException) as exc_info:
-                get_current_user(
-                    db=mock_db,
-                    token="valid.jwt.token"
-                )
+                get_current_user(db=mock_db, token="valid.jwt.token")
 
         assert exc_info.value.status_code == 401
 
@@ -84,13 +74,11 @@ class TestGetCurrentUser:
 
         with patch("app.api.deps.jwt.decode") as mock_decode:
             from jose import JWTError
+
             mock_decode.side_effect = JWTError()
 
             with pytest.raises(HTTPException) as exc_info:
-                get_current_user(
-                    db=mock_db,
-                    token="invalid"
-                )
+                get_current_user(db=mock_db, token="invalid")
 
         assert "WWW-Authenticate" in exc_info.value.headers
 
@@ -104,9 +92,6 @@ class TestGetCurrentUser:
             mock_decode.return_value = {"sub": "nonexistent@example.com"}
 
             with pytest.raises(HTTPException) as exc_info:
-                get_current_user(
-                    db=mock_db,
-                    token="valid.jwt.token"
-                )
+                get_current_user(db=mock_db, token="valid.jwt.token")
 
         assert exc_info.value.status_code == 401

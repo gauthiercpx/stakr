@@ -1,12 +1,11 @@
 """Tests for CRUD operations."""
 
-import pytest
 from unittest.mock import MagicMock, patch
 
 from app.schemas.crud import (
+    create_user,
     get_user,
     get_user_by_email,
-    create_user,
 )
 from app.schemas.user import UserCreate
 
@@ -92,13 +91,9 @@ class TestCreateUser:
     def test_create_user_success(self):
         """Test successful user creation."""
         mock_db = MagicMock()
-        mock_user_obj = MagicMock()
-
-        user_in = UserCreate(email="newuser@example.com", password="password123")
 
         with patch("app.schemas.crud.get_password_hash") as mock_hash:
             mock_hash.return_value = "hashed_password"
-            result = create_user(mock_db, user_in)
 
         # Verify password was hashed
         mock_hash.assert_called_once_with("password123")
@@ -123,7 +118,7 @@ class TestCreateUser:
 
             with patch("app.schemas.crud.get_password_hash") as mock_hash:
                 mock_hash.return_value = "hashed_password"
-                result = create_user(mock_db, user_in)
+                create_user(mock_db, user_in)
 
             mock_db.add.assert_called()
 

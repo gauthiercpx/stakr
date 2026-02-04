@@ -1,13 +1,10 @@
 """Tests for authentication routes."""
 
-import pytest
 from unittest.mock import MagicMock, patch
-from fastapi import HTTPException, status
+
 from fastapi.testclient import TestClient
 
 from app import app
-from app.schemas.user import UserCreate
-
 
 client = TestClient(app)
 
@@ -24,10 +21,7 @@ class TestRegister:
 
                 response = client.post(
                     "/auth/register",
-                    json={
-                        "email": "existing@example.com",
-                        "password": "password123"
-                    }
+                    json={"email": "existing@example.com", "password": "password123"},
                 )
 
         assert response.status_code == 400
@@ -36,11 +30,7 @@ class TestRegister:
     def test_register_with_invalid_email(self):
         """Test registration with invalid email format."""
         response = client.post(
-            "/auth/register",
-            json={
-                "email": "not-an-email",
-                "password": "password123"
-            }
+            "/auth/register", json={"email": "not-an-email", "password": "password123"}
         )
 
         # Pydantic validation should reject this
@@ -69,8 +59,8 @@ class TestLogin:
                         "/auth/token",
                         data={
                             "username": "user@example.com",
-                            "password": "password123"
-                        }
+                            "password": "password123",
+                        },
                     )
 
         assert response.status_code == 200
@@ -84,10 +74,7 @@ class TestLogin:
 
             response = client.post(
                 "/auth/token",
-                data={
-                    "username": "nonexistent@example.com",
-                    "password": "password123"
-                }
+                data={"username": "nonexistent@example.com", "password": "password123"},
             )
 
         assert response.status_code == 401
@@ -104,10 +91,7 @@ class TestLogin:
 
                 response = client.post(
                     "/auth/token",
-                    data={
-                        "username": "user@example.com",
-                        "password": "wrongpassword"
-                    }
+                    data={"username": "user@example.com", "password": "wrongpassword"},
                 )
 
         assert response.status_code == 401
@@ -127,8 +111,8 @@ class TestLogin:
                     "/auth/token",
                     data={
                         "username": "inactive@example.com",
-                        "password": "password123"
-                    }
+                        "password": "password123",
+                    },
                 )
 
         assert response.status_code == 401
@@ -147,14 +131,18 @@ class TestLogin:
                     mock_get.return_value = mock_user
                     mock_verify.return_value = True
                     # Return a real JWT-like structure
-                    mock_token.return_value = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyIiwiaWF0IjoxfQ.test"
+                    # Return a real JWT-like structure
+                    mock_token.return_value = (
+                        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9."
+                        "eyJzdWIiOiJ1c2VyIiwiaWF0IjoxfQ.test"
+                    )
 
                     response = client.post(
                         "/auth/token",
                         data={
                             "username": "user@example.com",
-                            "password": "password123"
-                        }
+                            "password": "password123",
+                        },
                     )
 
         data = response.json()
@@ -162,5 +150,3 @@ class TestLogin:
         assert "token_type" in data
         # JWT tokens have 3 parts separated by dots
         assert len(data["access_token"].split(".")) == 3
-
-
