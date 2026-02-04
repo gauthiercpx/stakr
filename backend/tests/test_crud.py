@@ -91,9 +91,11 @@ class TestCreateUser:
     def test_create_user_success(self):
         """Test successful user creation."""
         mock_db = MagicMock()
+        user_in = UserCreate(email="newuser@example.com", password="password123")
 
         with patch("app.schemas.crud.get_password_hash") as mock_hash:
             mock_hash.return_value = "hashed_password"
+            create_user(mock_db, user_in)
 
         # Verify password was hashed
         mock_hash.assert_called_once_with("password123")
