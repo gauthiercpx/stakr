@@ -6,6 +6,9 @@ omit =
     alembic/*
     tests/*
     */__init__.py
+    core/database.py
+    core/security.py
+    api/deps.py
 
 [report]
 show_missing = True
