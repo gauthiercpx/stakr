@@ -179,4 +179,3 @@ class TestLogin:
         # JWT tokens have 3 parts separated by dots
         assert len(data["access_token"].split(".")) == 3
         assert len(data["access_token"].split(".")) == 3
-
