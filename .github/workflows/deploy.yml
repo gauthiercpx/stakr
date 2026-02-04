@@ -21,6 +21,19 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get semantic version
+        id: version
+        run: |
+          if git describe --tags --exact-match 2>/dev/null; then
+            VERSION=$(git describe --tags --exact-match | sed 's/^v//')
+          else
+            VERSION=$(grep -oP '(?<=APP_VERSION = ")[^"]+' backend/app/core/version.py)
+          fi
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Version: $VERSION"
 
       - name: Log in to Azure
         uses: azure/login@v2
@@ -41,6 +54,7 @@ jobs:
           push: true
           tags: |
             ${{ secrets.AZURE_CONTAINER_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+            ${{ secrets.AZURE_CONTAINER_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.version.outputs.version }}
             ${{ secrets.AZURE_CONTAINER_REGISTRY }}/${{ env.IMAGE_NAME }}:latest
 
       - name: Deploy (migrate then update)
@@ -68,44 +82,78 @@ jobs:
               --registry-password "${{ secrets.REGISTRY_PASSWORD }}" \
               --ingress external \
               --target-port 8000 \
+              --min-replicas 1 \
               --only-show-errors
           fi
 
+          # We'll scale to 0 when we're done (off-traffic), but we need at least 1 replica for exec.
+          DESIRED_MIN_REPLICAS_AFTER_DEPLOY=0
+
           # --- Migrations ---
-          # `az containerapp exec` requires at least 1 running replica.
           echo "Ensuring at least one running replica for migrations..."
           az containerapp update \
             --name "${{ env.CONTAINER_APP_NAME }}" \
             --resource-group "${{ env.RESOURCE_GROUP }}" \
             --min-replicas 1 \
+            --image "${IMAGE}" \
             --only-show-errors
 
-          echo "Waiting for a healthy replica..."
+          echo "Waiting for the app to be ready and have a ready revision..."
+          READY_REVISION=""
           for i in {1..60}; do
-            READY_COUNT=$(az containerapp replica list \
+            READY_REVISION=$(az containerapp show \
               --name "${{ env.CONTAINER_APP_NAME }}" \
               --resource-group "${{ env.RESOURCE_GROUP }}" \
-              --query "[?properties.runningState=='Running' && properties.healthState=='Healthy'] | length(@)" \
-              -o tsv 2>/dev/null || echo 0)
+              --query "properties.latestReadyRevisionName" \
+              -o tsv 2>/dev/null || true)
 
-            if [ "${READY_COUNT:-0}" -ge 1 ]; then
-              echo "Replica is running and healthy."
+            RUNNING_STATUS=$(az containerapp show \
+              --name "${{ env.CONTAINER_APP_NAME }}" \
+              --resource-group "${{ env.RESOURCE_GROUP }}" \
+              --query "properties.runningStatus" \
+              -o tsv 2>/dev/null || true)
+
+            if [ -n "${READY_REVISION}" ] && [ "${READY_REVISION}" != "null" ] && [ "${RUNNING_STATUS}" = "Running" ]; then
+              echo "App is running. latestReadyRevisionName=${READY_REVISION}"
               break
             fi
 
-            echo "Not ready yet (${i}/60). Sleeping 5s..."
+            echo "Not ready yet (${i}/60). runningStatus=${RUNNING_STATUS:-?} latestReadyRevisionName=${READY_REVISION:-?}. Sleeping 5s..."
             sleep 5
           done
 
-          if [ "${READY_COUNT:-0}" -lt 1 ]; then
-            echo "ERROR: No healthy replica found after waiting."
+          if [ -z "${READY_REVISION}" ] || [ "${READY_REVISION}" = "null" ]; then
+            echo "ERROR: No ready revision found after waiting."
+            az containerapp show --name "${{ env.CONTAINER_APP_NAME }}" --resource-group "${{ env.RESOURCE_GROUP }}" -o json || true
+            exit 3
+          fi
+
+          echo "Waiting for at least one Running replica (healthState is not reliable on all CLI versions)..."
+          REPLICA_NAME=""
+          for i in {1..60}; do
+            REPLICA_NAME=$(az containerapp replica list \
+              --name "${{ env.CONTAINER_APP_NAME }}" \
+              --resource-group "${{ env.RESOURCE_GROUP }}" \
+              --query "[?properties.runningState=='Running'] | [0].name" \
+              -o tsv 2>/dev/null || true)
+
+            if [ -n "${REPLICA_NAME}" ] && [ "${REPLICA_NAME}" != "null" ]; then
+              echo "Found running replica: ${REPLICA_NAME}"
+              break
+            fi
+
+            echo "No running replica yet (${i}/60). Sleeping 5s..."
+            sleep 5
+          done
+
+          if [ -z "${REPLICA_NAME}" ] || [ "${REPLICA_NAME}" = "null" ]; then
+            echo "ERROR: No running replica found after waiting."
             az containerapp replica list --name "${{ env.CONTAINER_APP_NAME }}" --resource-group "${{ env.RESOURCE_GROUP }}" -o table || true
             exit 3
           fi
 
-          echo "Running Alembic migrations (in-app exec)..."
-          # `az containerapp exec` may require a TTY (and CI runners don't provide one by default).
-          # `script` allocates a pseudo-TTY so the command can run non-interactively.
+          echo "Running Alembic migrations (in-app exec). latestReadyRevisionName=${READY_REVISION} replica=${REPLICA_NAME}"
+          # `az containerapp exec` may require a TTY.
           script -q -e -c "az containerapp exec --name '${{ env.CONTAINER_APP_NAME }}' --resource-group '${{ env.RESOURCE_GROUP }}' --command 'python -m alembic upgrade head' --only-show-errors" /dev/null
 
           # --- Deploy app ---
@@ -121,3 +169,19 @@ jobs:
             --query properties.configuration.ingress.fqdn -o tsv)
 
           echo "Deployed: https://${FQDN}"
+
+          # Scale to 0 off-traffic (as requested)
+          echo "Scaling to minReplicas=${DESIRED_MIN_REPLICAS_AFTER_DEPLOY} (off-traffic)..."
+          az containerapp update \
+            --name "${{ env.CONTAINER_APP_NAME }}" \
+            --resource-group "${{ env.RESOURCE_GROUP }}" \
+            --min-replicas ${DESIRED_MIN_REPLICAS_AFTER_DEPLOY} \
+            --only-show-errors
+
+      - name: Summary
+        if: always()
+        run: |
+          echo "## Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Version:** \`${{ steps.version.outputs.version }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit:** \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
