@@ -1,9 +1,24 @@
+# IDE
 .idea/
+
+# Python
 .venv/
 .venv-py314/
 __pycache__/
 *.pyc
+
+# Environment files
 .env
-.DS_Store
+backend/.env
+backend/.env.docker
+
+# Test/coverage artifacts
 backend/.coverage
 backend/coverage.xml
+
+# OS
+.DS_Store
+
+# Alembic migrations (tracked)
+!backend/alembic/versions/*.py
+

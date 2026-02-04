@@ -4,4 +4,3 @@ flake8
 isort
 pytest
 pytest-cov
-python-dotenv

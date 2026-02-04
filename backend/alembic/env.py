@@ -21,9 +21,8 @@ except Exception:
     # dotenv is optional at runtime
     pass
 
-import models  # noqa: F401, E402  (register ORM models on Base.metadata)
 from app.core.database import SQLALCHEMY_DATABASE_URL, Base  # noqa: E402
-
+import app.models  # noqa: F401, E402
 config = context.config
 
 # Alembic's config uses ConfigParser interpolation, where '%' is special.

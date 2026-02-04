@@ -79,11 +79,67 @@ python -m flake8 backend
 
 ## Docker (backend)
 
+The container runs `backend/entrypoint.sh` which will:
+- run `alembic upgrade head` **only if** `DATABASE_URL` is set
+- then start Uvicorn
+
+Because of that, if you run the container without env vars you will see:
+`DATABASE_URL is not set; skipping migrations.`
+
+### Run (local)
+
+We intentionally **do not** bake `.env` into the Docker image (secrets must not be shipped in images).
+Instead, inject config at runtime.
+
+We keep two env files:
+- `backend/.env` for local commands (uses `localhost`)
+- `backend/.env.docker` for containers (uses `host.docker.internal`)
+
 ```powershell
 cd backend
+
 docker build -t stakr-backend:local .
-docker run --rm -p 8000:8000 stakr-backend:local
+
+# Run with env vars loaded from backend/.env.docker
+# (DATABASE_URL must be present in this file)
+docker run --rm -p 8000:8000 --env-file .env.docker stakr-backend:local
 ```
+
+### Run (Azure)
+
+In Azure Container Apps, set `DATABASE_URL` as an environment variable (often backed by a secret).
+The same entrypoint will then run migrations on startup.
+
+## Migrations (Alembic)
+
+Alembic uses `DATABASE_URL`. Run these from `backend/` so it picks up the local `alembic.ini`.
+
+```powershell
+cd backend
+
+# Generate a new migration from model changes
+python -m alembic revision --autogenerate -m "your message"
+
+# Apply all pending migrations
+python -m alembic upgrade head
+
+# Downgrade one revision
+python -m alembic downgrade -1
+
+# Downgrade to a specific revision
+python -m alembic downgrade <revision_id>
+
+# Show current revision in the database
+python -m alembic current
+
+# Show history
+python -m alembic history
+```
+
+Notes:
+- If `DATABASE_URL` is missing or points to the wrong host/port, `upgrade`/`downgrade` will fail.
+- For Docker runs, prefer `--env-file .env.docker` so migrations use the same connection string as the app.
+- Use `revision --autogenerate` only after your SQLAlchemy models are updated.
 
 ## CI
 
@@ -91,4 +147,3 @@ GitHub Actions runs:
 - Black / isort / flake8
 - pytest (+ coverage.xml)
 - SonarCloud scan
-

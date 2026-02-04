@@ -48,7 +48,7 @@ def test_ready_failure(client):
     app.dependency_overrides[get_db] = override_get_db_fail
     try:
         response = client.get("/ready")
-        assert response.status_code == 500
+        assert response.status_code == 503
         assert response.json()["detail"] == "Service not ready"
     finally:
         app.dependency_overrides.pop(get_db, None)
