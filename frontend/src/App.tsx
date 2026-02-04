@@ -1,15 +1,41 @@
 import { useState, useEffect } from 'react';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
+import { api, ACCESS_TOKEN_KEY, clearAuthTokens } from './api/client';
+import ServerWakingUp from './components/ServerWakingUp';
 
 function App() {
-  // On regarde si un token existe déjà dans le stockage du navigateur
+  // Track whether the user is authenticated (based on stored token).
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  // Au démarrage, on vérifie le token
+  // Track whether the backend server is reachable.
+  const [isServerReady, setIsServerReady] = useState(false);
+
+  // On startup, check if a token already exists.
   useEffect(() => {
-    const token = localStorage.getItem('access_token');
+    const token = localStorage.getItem(ACCESS_TOKEN_KEY);
     setIsAuthenticated(!!token);
+  }, []);
+
+  // On startup, wait for the backend (+ database) to be ready.
+  useEffect(() => {
+    let cancelled = false;
+
+    const pingReady = async () => {
+      try {
+        await api.get('/ready');
+        if (!cancelled) setIsServerReady(true);
+      } catch {
+        if (cancelled) return;
+        window.setTimeout(pingReady, 1500);
+      }
+    };
+
+    pingReady();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const login = () => {
@@ -17,11 +43,14 @@ function App() {
   };
 
   const logout = () => {
-    localStorage.removeItem('access_token');
+    clearAuthTokens();
     setIsAuthenticated(false);
   };
 
-  // C'est ici que le switch se fait
+  if (!isServerReady) {
+    return <ServerWakingUp />;
+  }
+
   return (
     <>
       {isAuthenticated ? (

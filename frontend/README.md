@@ -66,3 +66,4 @@ You normally don't run a separate frontend container.
 The root `Dockerfile` builds the frontend and copies `dist/` into the backend image at `/app/static`.
 
 See `../README.md` for Docker usage.
+If you want, I can also add an automated GitHub Actions workflow for Static Web Apps or Container Apps (CD). For now this README documents manual deploy steps only.

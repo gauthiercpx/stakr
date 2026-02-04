@@ -1,6 +1,19 @@
 /* Import de Baloo 2 */
 @import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700;800&display=swap');
 
+/* Prevent layout shifts/overflows when elements use padding/border widths */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  width: 100%;
+  overflow-x: hidden;
+}
+
 body {
   margin: 0;
   font-family: 'Baloo 2', cursive;
@@ -19,4 +32,10 @@ h1, h2, h3 {
 button, input {
   font-family: 'Baloo 2', cursive;
   font-weight: 700;
+}
+
+@keyframes stakr-spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
