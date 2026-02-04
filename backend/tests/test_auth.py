@@ -40,10 +40,13 @@ class TestRegister:
 
     def test_register_with_invalid_email(self):
         """Test registration with invalid email format."""
+        app.dependency_overrides[get_db] = override_get_db
+
         response = client.post(
             "/auth/register", json={"email": "not-an-email", "password": "password123"}
         )
 
+        app.dependency_overrides.clear()
         # Pydantic validation should reject this
         assert response.status_code == 422
 
