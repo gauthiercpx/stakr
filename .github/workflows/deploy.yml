@@ -72,8 +72,37 @@ jobs:
           fi
 
           # --- Migrations ---
-          # Run migrations inside the existing Container App.
-          # This avoids the containerapp Job API (often version-dependent).
+          # `az containerapp exec` requires at least 1 running replica.
+          echo "Ensuring at least one running replica for migrations..."
+          az containerapp update \
+            --name "${{ env.CONTAINER_APP_NAME }}" \
+            --resource-group "${{ env.RESOURCE_GROUP }}" \
+            --min-replicas 1 \
+            --only-show-errors
+
+          echo "Waiting for a healthy replica..."
+          for i in {1..60}; do
+            READY_COUNT=$(az containerapp replica list \
+              --name "${{ env.CONTAINER_APP_NAME }}" \
+              --resource-group "${{ env.RESOURCE_GROUP }}" \
+              --query "[?properties.runningState=='Running' && properties.healthState=='Healthy'] | length(@)" \
+              -o tsv 2>/dev/null || echo 0)
+
+            if [ "${READY_COUNT:-0}" -ge 1 ]; then
+              echo "Replica is running and healthy."
+              break
+            fi
+
+            echo "Not ready yet (${i}/60). Sleeping 5s..."
+            sleep 5
+          done
+
+          if [ "${READY_COUNT:-0}" -lt 1 ]; then
+            echo "ERROR: No healthy replica found after waiting."
+            az containerapp replica list --name "${{ env.CONTAINER_APP_NAME }}" --resource-group "${{ env.RESOURCE_GROUP }}" -o table || true
+            exit 3
+          fi
+
           echo "Running Alembic migrations (in-app exec)..."
           # `az containerapp exec` may require a TTY (and CI runners don't provide one by default).
           # `script` allocates a pseudo-TTY so the command can run non-interactively.
