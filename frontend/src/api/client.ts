@@ -20,7 +20,6 @@ export const api = axios.create({
 
 // Dev-only: log base URL once so we can validate the env wiring.
 if (import.meta.env.DEV) {
-    // eslint-disable-next-line no-console
     console.info('[API] baseURL =', BASE_URL);
 }
 
@@ -38,7 +37,6 @@ api.interceptors.request.use((config) => {
     if (import.meta.env.DEV) {
         const method = config.method?.toUpperCase?.() ?? 'GET';
         const url = config.url ?? '';
-        // eslint-disable-next-line no-console
         console.debug(`[API] ${method} ${url}`, {
             baseURL: config.baseURL,
             hasToken: !!token,
@@ -55,7 +53,6 @@ api.interceptors.response.use(
         if (import.meta.env.DEV) {
             const method = response.config?.method?.toUpperCase?.() ?? 'GET';
             const url = response.config?.url ?? '';
-            // eslint-disable-next-line no-console
             console.debug(`[API] ${method} ${url} -> ${response.status}`);
         }
         return response;
@@ -65,7 +62,6 @@ api.interceptors.response.use(
             const method = error?.config?.method?.toUpperCase?.() ?? 'UNKNOWN';
             const url = error?.config?.url ?? 'UNKNOWN_URL';
             const status = error?.response?.status;
-            // eslint-disable-next-line no-console
             console.error(`[API] ${method} ${url} failed`, { status, error });
         }
         return Promise.reject(error);
