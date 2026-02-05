@@ -26,10 +26,24 @@ jobs:
         run: |
           set -euo pipefail
 
-          IMAGE="${{ secrets.ACR_LOGIN_SERVER }}/stakr-backend:latest"
+          if [[ -z "${{ secrets.AZURE_CONTAINER_REGISTRY }}" ]]; then
+            echo "Missing secret: AZURE_CONTAINER_REGISTRY (example: stakrregistry.azurecr.io)"
+            exit 1
+          fi
+
+          IMAGE="${{ secrets.AZURE_CONTAINER_REGISTRY }}/stakr-backend:latest"
           echo "Deploying image: ${IMAGE}"
 
           az extension add --name containerapp --upgrade --yes
+
+          # Ensure the Container App knows how to pull from the private registry
+          az containerapp registry set \
+            --name "${{ env.CONTAINER_APP_NAME }}" \
+            --resource-group "${{ env.RESOURCE_GROUP }}" \
+            --server "${{ secrets.AZURE_CONTAINER_REGISTRY }}" \
+            --username "${{ secrets.REGISTRY_USERNAME }}" \
+            --password "${{ secrets.REGISTRY_PASSWORD }}" \
+            --only-show-errors
 
           az containerapp update \
             --name "${{ env.CONTAINER_APP_NAME }}" \
@@ -42,4 +56,4 @@ jobs:
         run: |
           echo "## Deploy Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "- **Image:** `${{ secrets.ACR_LOGIN_SERVER }}/stakr-backend:latest`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Image:** `${{ secrets.AZURE_CONTAINER_REGISTRY }}/stakr-backend:latest`" >> $GITHUB_STEP_SUMMARY

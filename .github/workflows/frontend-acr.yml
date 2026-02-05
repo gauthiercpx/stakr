@@ -4,12 +4,19 @@ on:
   push:
     branches:
       - main
+      - master
     paths:
       - "frontend/**"
       - ".github/workflows/frontend-acr.yml"
+  workflow_dispatch:
 
 permissions:
   contents: read
+
+env:
+  IMAGE_NAME: stakr-frontend
+  RESOURCE_GROUP: rg-stakr-prod
+  FRONTEND_CONTAINER_APP_NAME: stakr-frontend
 
 jobs:
   build-and-push:
@@ -19,15 +26,28 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Get frontend version
+        id: version
+        shell: bash
+        run: |
+          set -euo pipefail
+          VERSION=$(node -p "require('./frontend/package.json').version")
+          if [[ -z "$VERSION" ]]; then
+            echo "Could not read version from frontend/package.json" >&2
+            exit 1
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Frontend version: $VERSION"
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
       - name: Log in to Azure Container Registry
         uses: docker/login-action@v3
         with:
-          registry: ${{ secrets.ACR_LOGIN_SERVER }}
-          username: ${{ secrets.ACR_USERNAME }}
-          password: ${{ secrets.ACR_PASSWORD }}
+          registry: ${{ secrets.AZURE_CONTAINER_REGISTRY }}
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
 
       - name: Build & push frontend image
         uses: docker/build-push-action@v6
@@ -38,5 +58,108 @@ jobs:
           build-args: |
             VITE_API_URL=https://api.stakr.me
           tags: |
-            ${{ secrets.ACR_LOGIN_SERVER }}/stakr-frontend:sha-${{ github.sha }}
-            ${{ secrets.ACR_LOGIN_SERVER }}/stakr-frontend:latest
+            ${{ secrets.AZURE_CONTAINER_REGISTRY }}/${{ env.IMAGE_NAME }}:sha-${{ github.sha }}
+            ${{ secrets.AZURE_CONTAINER_REGISTRY }}/${{ env.IMAGE_NAME }}:v${{ steps.version.outputs.version }}
+            ${{ secrets.AZURE_CONTAINER_REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+
+  deploy:
+    name: Deploy frontend to Azure Container Apps
+    needs: build-and-push
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Log in to Azure
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Deploy (update Container App)
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          IMAGE="${{ secrets.AZURE_CONTAINER_REGISTRY }}/${{ env.IMAGE_NAME }}:sha-${{ github.sha }}"
+          echo "Deploying image: ${IMAGE}"
+
+          az extension add --name containerapp --upgrade --yes --allow-preview true
+
+          # Ensure the Container App can pull the private image
+          az containerapp registry set \
+            --name "${{ env.FRONTEND_CONTAINER_APP_NAME }}" \
+            --resource-group "${{ env.RESOURCE_GROUP }}" \
+            --server "${{ secrets.AZURE_CONTAINER_REGISTRY }}" \
+            --username "${{ secrets.REGISTRY_USERNAME }}" \
+            --password "${{ secrets.REGISTRY_PASSWORD }}" \
+            --only-show-errors
+
+          # Deploy new revision
+          az containerapp update \
+            --name "${{ env.FRONTEND_CONTAINER_APP_NAME }}" \
+            --resource-group "${{ env.RESOURCE_GROUP }}" \
+            --image "${IMAGE}" \
+            --only-show-errors
+
+          # Wait for readiness
+          echo "Waiting for the app to be ready and have a ready revision..."
+          READY_REVISION=""
+          RUNNING_STATUS=""
+          for i in {1..60}; do
+            READY_REVISION=$(az containerapp show \
+              --name "${{ env.FRONTEND_CONTAINER_APP_NAME }}" \
+              --resource-group "${{ env.RESOURCE_GROUP }}" \
+              --query "properties.latestReadyRevisionName" \
+              -o tsv 2>/dev/null || true)
+
+            RUNNING_STATUS=$(az containerapp show \
+              --name "${{ env.FRONTEND_CONTAINER_APP_NAME }}" \
+              --resource-group "${{ env.RESOURCE_GROUP }}" \
+              --query "properties.runningStatus" \
+              -o tsv 2>/dev/null || true)
+
+            if [ -n "${READY_REVISION}" ] && [ "${READY_REVISION}" != "null" ] && [ "${RUNNING_STATUS}" = "Running" ]; then
+              echo "App is running. latestReadyRevisionName=${READY_REVISION}"
+              break
+            fi
+
+            echo "Not ready yet (${i}/60). runningStatus=${RUNNING_STATUS:-?} latestReadyRevisionName=${READY_REVISION:-?}. Sleeping 5s..."
+            sleep 5
+          done
+
+          if [ -z "${READY_REVISION}" ] || [ "${READY_REVISION}" = "null" ]; then
+            echo "ERROR: No ready revision found after waiting."
+            az containerapp show --name "${{ env.FRONTEND_CONTAINER_APP_NAME }}" --resource-group "${{ env.RESOURCE_GROUP }}" -o json || true
+            exit 3
+          fi
+
+          echo "Waiting for at least one Running replica..."
+          REPLICA_NAME=""
+          for i in {1..60}; do
+            REPLICA_NAME=$(az containerapp replica list \
+              --name "${{ env.FRONTEND_CONTAINER_APP_NAME }}" \
+              --resource-group "${{ env.RESOURCE_GROUP }}" \
+              --query "[?properties.runningState=='Running'] | [0].name" \
+              -o tsv 2>/dev/null || true)
+
+            if [ -n "${REPLICA_NAME}" ] && [ "${REPLICA_NAME}" != "null" ]; then
+              echo "Found running replica: ${REPLICA_NAME}"
+              break
+            fi
+
+            echo "No running replica yet (${i}/60). Sleeping 5s..."
+            sleep 5
+          done
+
+          if [ -z "${REPLICA_NAME}" ] || [ "${REPLICA_NAME}" = "null" ]; then
+            echo "ERROR: No running replica found after waiting."
+            az containerapp replica list --name "${{ env.FRONTEND_CONTAINER_APP_NAME }}" --resource-group "${{ env.RESOURCE_GROUP }}" -o table || true
+            echo "Recent logs (best-effort):"
+            az containerapp logs show --name "${{ env.FRONTEND_CONTAINER_APP_NAME }}" --resource-group "${{ env.RESOURCE_GROUP }}" --tail 200 || true
+            exit 3
+          fi
+
+          FQDN=$(az containerapp show \
+            --name "${{ env.FRONTEND_CONTAINER_APP_NAME }}" \
+            --resource-group "${{ env.RESOURCE_GROUP }}" \
+            --query properties.configuration.ingress.fqdn -o tsv)
+
+          echo "Deployed: https://${FQDN}"

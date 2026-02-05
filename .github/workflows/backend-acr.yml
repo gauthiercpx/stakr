@@ -4,21 +4,67 @@ on:
   push:
     branches:
       - main
+      - master
     paths:
       - "backend/**"
       - "Dockerfile"
       - ".github/workflows/backend-acr.yml"
+  workflow_dispatch:
 
 permissions:
   contents: read
+
+env:
+  RESOURCE_GROUP: rg-stakr-prod
+  CONTAINER_APP_NAME: stakr-backend
+  CONTAINER_ENV: env-stakr
+  IMAGE_NAME: stakr-backend
 
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Debug context
+        shell: bash
+        run: |
+          echo "ref=${GITHUB_REF}"
+          echo "ref_name=${GITHUB_REF_NAME}"
+          echo "sha=${GITHUB_SHA}"
+          echo "event=${GITHUB_EVENT_NAME}"
+
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Get backend version
+        id: version
+        shell: bash
+        run: |
+          set -euo pipefail
+          VERSION=$(python -c "import re; p='backend/app/core/version.py'; s=open(p,'r',encoding='utf-8').read(); m=re.search(r'APP_VERSION\s*=\s*\"([^\"]+)\"', s); print(m.group(1) if m else '')")
+          if [[ -z "$VERSION" ]]; then
+            echo "Could not extract APP_VERSION from backend/app/core/version.py" >&2
+            exit 1
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Backend version: $VERSION"
+
+      - name: Debug changed files
+        shell: bash
+        run: |
+          set -euo pipefail
+          # For push events, GitHub provides before/after SHAs.
+          BEFORE='${{ github.event.before }}'
+          AFTER='${{ github.sha }}'
+          echo "before=${BEFORE}"
+          echo "after=${AFTER}"
+          # If this is the first commit on a branch, BEFORE can be all zeros.
+          if [[ "${BEFORE}" =~ ^0{40}$ ]]; then
+            echo "First commit on branch (before is zeros). Listing files from HEAD:" 
+            git show --name-only --pretty=format: | sed '/^$/d' || true
+          else
+            git diff --name-only "${BEFORE}" "${AFTER}" || true
+          fi
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -26,9 +72,9 @@ jobs:
       - name: Log in to Azure Container Registry
         uses: docker/login-action@v3
         with:
-          registry: ${{ secrets.ACR_LOGIN_SERVER }}
-          username: ${{ secrets.ACR_USERNAME }}
-          password: ${{ secrets.ACR_PASSWORD }}
+          registry: ${{ secrets.AZURE_CONTAINER_REGISTRY }}
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
 
       - name: Build & push backend image
         uses: docker/build-push-action@v6
@@ -37,5 +83,66 @@ jobs:
           file: ./Dockerfile
           push: true
           tags: |
-            ${{ secrets.ACR_LOGIN_SERVER }}/stakr-backend:sha-${{ github.sha }}
-            ${{ secrets.ACR_LOGIN_SERVER }}/stakr-backend:latest
+            ${{ secrets.AZURE_CONTAINER_REGISTRY }}/${{ env.IMAGE_NAME }}:sha-${{ github.sha }}
+            ${{ secrets.AZURE_CONTAINER_REGISTRY }}/${{ env.IMAGE_NAME }}:v${{ steps.version.outputs.version }}
+            ${{ secrets.AZURE_CONTAINER_REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+
+  deploy:
+    name: Deploy to Azure Container Apps
+    needs: build-and-push
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Log in to Azure
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Deploy (update Container App)
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          IMAGE="${{ secrets.AZURE_CONTAINER_REGISTRY }}/${{ env.IMAGE_NAME }}:sha-${{ github.sha }}"
+          echo "Deploying image: ${IMAGE}"
+
+          az extension add --name containerapp --upgrade --yes --allow-preview true
+
+          # Ensure the Container App exists (create once)
+          if ! az containerapp show --name "${{ env.CONTAINER_APP_NAME }}" --resource-group "${{ env.RESOURCE_GROUP }}" --only-show-errors 1>/dev/null; then
+            az containerapp create \
+              --name "${{ env.CONTAINER_APP_NAME }}" \
+              --resource-group "${{ env.RESOURCE_GROUP }}" \
+              --environment "${{ env.CONTAINER_ENV }}" \
+              --image "${IMAGE}" \
+              --registry-server "${{ secrets.AZURE_CONTAINER_REGISTRY }}" \
+              --registry-username "${{ secrets.REGISTRY_USERNAME }}" \
+              --registry-password "${{ secrets.REGISTRY_PASSWORD }}" \
+              --ingress external \
+              --target-port 8000 \
+              --only-show-errors
+          fi
+
+          # Ensure the Container App can pull the private image
+          az containerapp registry set \
+            --name "${{ env.CONTAINER_APP_NAME }}" \
+            --resource-group "${{ env.RESOURCE_GROUP }}" \
+            --server "${{ secrets.AZURE_CONTAINER_REGISTRY }}" \
+            --username "${{ secrets.REGISTRY_USERNAME }}" \
+            --password "${{ secrets.REGISTRY_PASSWORD }}" \
+            --only-show-errors
+
+          # Deploy new revision.
+          # Migrations are handled by backend/entrypoint.sh on startup when DATABASE_URL is set.
+          az containerapp update \
+            --name "${{ env.CONTAINER_APP_NAME }}" \
+            --resource-group "${{ env.RESOURCE_GROUP }}" \
+            --image "${IMAGE}" \
+            --only-show-errors
+
+          FQDN=$(az containerapp show \
+            --name "${{ env.CONTAINER_APP_NAME }}" \
+            --resource-group "${{ env.RESOURCE_GROUP }}" \
+            --query properties.configuration.ingress.fqdn -o tsv)
+
+          echo "Deployed: https://${FQDN}"
