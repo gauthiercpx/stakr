@@ -1,7 +1,9 @@
 import type {CSSProperties} from 'react';
+import {useState} from 'react';
 
 import {useI18n} from '../i18n/useI18n';
 import NeonButton from './NeonButton';
+import {usePrefersReducedMotion} from './usePrefersReducedMotion';
 
 type LanguageToggleMode = 'default' | 'login';
 
@@ -15,6 +17,9 @@ export default function LanguageToggle({
 }) {
     const {locale, toggleLocale, t} = useI18n();
     const tooltipText = t('common.languageToggle');
+    const [isHovered, setIsHovered] = useState(false);
+    const [isFocused, setIsFocused] = useState(false);
+    const prefersReducedMotion = usePrefersReducedMotion();
 
     const isLogin = mode === 'login';
 
@@ -65,7 +70,9 @@ export default function LanguageToggle({
                         borderRadius: '999px',
                         backgroundColor: '#000',
                         transform: isEn ? 'translateX(100%)' : 'translateX(0%)',
-                        transition: 'transform 220ms cubic-bezier(0.2, 0.8, 0.2, 1)',
+                        transition: prefersReducedMotion
+                            ? 'none'
+                            : 'transform 220ms cubic-bezier(0.2, 0.8, 0.2, 1)',
                     }}
                 />
 
@@ -110,7 +117,9 @@ export default function LanguageToggle({
                 display: 'grid',
                 gridTemplateColumns: '1fr 1fr',
                 alignItems: 'center',
-                width: '4.6rem',
+                width: '100%',
+                maxWidth: '4.6rem',
+                margin: '0 auto',
                 height: '100%',
             }}
         >
@@ -124,11 +133,15 @@ export default function LanguageToggle({
                     bottom: '-0.2rem',
                     height: '2px',
                     borderRadius: '999px',
-                    background:
-                        'linear-gradient(to right, transparent 0%, transparent 15%, #bff104 15%, #bff104 85%, transparent 85%, transparent 100%)',
+                    background: (() => {
+                        const color = isHovered || isFocused ? '#000' : '#bff104';
+                        return `linear-gradient(to right, transparent 0%, transparent 15%, ${color} 15%, ${color} 85%, transparent 85%, transparent 100%)`;
+                    })(),
                     width: '50%',
                     transform: `translateX(${locale === 'en' ? '100%' : '0%'})`,
-                    transition: 'transform 220ms cubic-bezier(0.2, 0.8, 0.2, 1)',
+                    transition: prefersReducedMotion
+                        ? 'none'
+                        : 'transform 220ms cubic-bezier(0.2, 0.8, 0.2, 1)',
                 }}
             />
 
@@ -158,19 +171,27 @@ export default function LanguageToggle({
     );
 
     return (
-        <NeonButton
-            label={label}
-            onClick={toggleLocale}
-            variant="outline"
-            title={tooltipText}
-            disableOutlineHover={false}
-            subtleHover={false}
-            style={{
-                // Keep sizing identical to other outline NeonButtons.
-                minWidth: '6.2rem',
-                ...baseStyle,
-                ...style,
-            }}
-        />
+        <span
+            style={{display: 'inline-flex'}}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+            onFocus={() => setIsFocused(true)}
+            onBlur={() => setIsFocused(false)}
+        >
+            <NeonButton
+                label={label}
+                onClick={toggleLocale}
+                variant="outline"
+                title={tooltipText}
+                disableOutlineHover={false}
+                subtleHover={false}
+                style={{
+                    // Keep sizing identical to other outline NeonButtons.
+                    minWidth: '6.2rem',
+                    ...baseStyle,
+                    ...style,
+                }}
+            />
+        </span>
     );
 }

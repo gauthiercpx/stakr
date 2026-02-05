@@ -2,6 +2,7 @@ import LanguageToggle from '../components/LanguageToggle';
 import NeonButton from '../components/NeonButton';
 import {useI18n} from '../i18n/useI18n';
 import {Link} from 'react-router-dom';
+import {useEffect, useId, useRef, useState} from 'react';
 
 interface LandingPageProps {
     onLoginRequested: () => void;
@@ -9,6 +10,45 @@ interface LandingPageProps {
 
 export default function LandingPage({onLoginRequested}: LandingPageProps) {
     const {t} = useI18n();
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const menuId = useId();
+    const mobilePanelId = `stakr-mobile-menu-${menuId}`;
+    const burgerButtonRef = useRef<HTMLButtonElement | null>(null);
+    const mobilePanelRef = useRef<HTMLDivElement | null>(null);
+
+    useEffect(() => {
+        if (!isMenuOpen) return;
+        const onKeyDown = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') setIsMenuOpen(false);
+        };
+        window.addEventListener('keydown', onKeyDown);
+        return () => window.removeEventListener('keydown', onKeyDown);
+    }, [isMenuOpen]);
+
+    useEffect(() => {
+        if (!isMenuOpen) return;
+        const onPointerDown = (e: PointerEvent) => {
+            const target = e.target as Node | null;
+            if (!target) return;
+
+            const panel = mobilePanelRef.current;
+            const burger = burgerButtonRef.current;
+            const clickedInsidePanel = !!panel && panel.contains(target);
+            const clickedBurger = !!burger && burger.contains(target);
+            if (!clickedInsidePanel && !clickedBurger) {
+                setIsMenuOpen(false);
+            }
+        };
+
+        window.addEventListener('pointerdown', onPointerDown);
+        return () => window.removeEventListener('pointerdown', onPointerDown);
+    }, [isMenuOpen]);
+
+    useEffect(() => {
+        if (isMenuOpen) return;
+        // When closing, give focus back to the burger button (keyboard users).
+        burgerButtonRef.current?.focus();
+    }, [isMenuOpen]);
 
     const pillStyle: React.CSSProperties = {
         padding: '0.6rem 0.95rem',
@@ -36,34 +76,17 @@ export default function LandingPage({onLoginRequested}: LandingPageProps) {
                 fontFamily: "'Baloo 2', cursive",
             }}
         >
-            <nav
-                style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    padding: '1rem 2rem',
-                    backgroundColor: '#000000',
-                    color: 'white',
-                    boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
-                    position: 'relative',
-                }}
-            >
+            <nav className="stakr-nav">
                 <Link
                     to="/"
-                    style={{
-                        fontSize: '1.8rem',
-                        fontWeight: 800,
-                        letterSpacing: '-1px',
-                        color: 'inherit',
-                        textDecoration: 'none',
-                        cursor: 'pointer',
-                    }}
+                    className="stakr-nav__brand"
                     aria-label="Go to home"
                 >
                     STAKR<span style={{color: '#bff104'}}>.</span>
                 </Link>
 
-                <div style={{display: 'flex', alignItems: 'center', gap: '0.75rem'}}>
+                {/* Desktop actions */}
+                <div className="stakr-nav__desktop">
                     <LanguageToggle/>
 
                     <NeonButton
@@ -80,6 +103,53 @@ export default function LandingPage({onLoginRequested}: LandingPageProps) {
                         variant="outline"
                         style={{minWidth: '10.5rem'}}
                     />
+                </div>
+
+                {/* Mobile burger */}
+                <button
+                    type="button"
+                    className="stakr-nav__burgerBtn"
+                    aria-label="Menu"
+                    aria-expanded={isMenuOpen}
+                    aria-controls={mobilePanelId}
+                    ref={burgerButtonRef}
+                    onClick={() => setIsMenuOpen((v) => !v)}
+                >
+                    <span className="stakr-nav__burgerLines" aria-hidden>
+                        <span />
+                        <span />
+                        <span />
+                    </span>
+                </button>
+
+                <div
+                    id={mobilePanelId}
+                    ref={mobilePanelRef}
+                    className={`stakr-nav__mobilePanel ${isMenuOpen ? 'is-open' : ''}`}
+                    role="menu"
+                    aria-label="Mobile menu"
+                >
+                    <div className="stakr-nav__mobileRow">
+                        <NeonButton
+                            label={t('nav.signup')}
+                            disabled
+                            title={t('common.comingSoon')}
+                            variant="outline"
+                            style={{width: '100%'}}
+                        />
+                        <NeonButton
+                            label={t('nav.login')}
+                            onClick={() => {
+                                setIsMenuOpen(false);
+                                onLoginRequested();
+                            }}
+                            variant="outline"
+                            style={{width: '100%'}}
+                        />
+
+                        {/* Language toggle last */}
+                        <LanguageToggle style={{width: '100%'}} />
+                    </div>
                 </div>
             </nav>
 

@@ -39,3 +39,127 @@ button, input {
     transform: rotate(360deg);
   }
 }
+
+/* --- Responsive navbar (burger) --- */
+.stakr-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: clamp(0.75rem, 2.5vw, 1rem) clamp(1rem, 4vw, 2rem);
+  background-color: #000000;
+  color: white;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  position: relative;
+}
+
+.stakr-nav__brand {
+  font-size: 1.8rem;
+  font-weight: 800;
+  letter-spacing: -1px;
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.stakr-nav__desktop {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+.stakr-nav__burgerBtn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 0.9rem;
+  border: 1px solid rgba(255,255,255,0.18);
+  background: rgba(255,255,255,0.06);
+  color: white;
+  cursor: pointer;
+}
+
+.stakr-nav__burgerLines {
+  width: 1.2rem;
+  height: 0.9rem;
+  position: relative;
+}
+
+.stakr-nav__burgerLines span {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: white;
+  border-radius: 999px;
+  transition: transform 180ms ease, top 180ms ease, opacity 180ms ease;
+}
+
+.stakr-nav__burgerLines span:nth-child(1) { top: 0; }
+.stakr-nav__burgerLines span:nth-child(2) { top: 0.4rem; }
+.stakr-nav__burgerLines span:nth-child(3) { top: 0.8rem; }
+
+.stakr-nav__burgerBtn[aria-expanded="true"] .stakr-nav__burgerLines span:nth-child(1) {
+  top: 0.4rem;
+  transform: rotate(45deg);
+}
+.stakr-nav__burgerBtn[aria-expanded="true"] .stakr-nav__burgerLines span:nth-child(2) {
+  opacity: 0;
+}
+.stakr-nav__burgerBtn[aria-expanded="true"] .stakr-nav__burgerLines span:nth-child(3) {
+  top: 0.4rem;
+  transform: rotate(-45deg);
+}
+
+.stakr-nav__mobilePanel {
+  display: none;
+  position: absolute;
+  left: 1rem;
+  right: 1rem;
+  top: calc(100% + 0.75rem);
+  background: rgba(0,0,0,0.92);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 1.2rem;
+  padding: 0.9rem;
+  box-shadow: 0 18px 40px rgba(0,0,0,0.35);
+  z-index: 100;
+}
+
+.stakr-nav__mobilePanel.is-open {
+  display: grid;
+  gap: 0.75rem;
+  align-items: stretch;
+}
+
+.stakr-nav__mobileRow {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.stakr-nav__mobileRow > * {
+  width: 100%;
+}
+
+@media (max-width: 640px) {
+  .stakr-nav {
+    flex-wrap: wrap;
+    row-gap: 0.75rem;
+  }
+
+  .stakr-nav__desktop {
+    display: none;
+  }
+
+  .stakr-nav__burgerBtn {
+    display: inline-flex;
+  }
+
+  .stakr-nav__mobilePanel {
+    left: 0.75rem;
+    right: 0.75rem;
+  }
+}

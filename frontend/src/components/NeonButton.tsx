@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 
 export type NeonButtonVariant = 'outline' | 'solid';
 
@@ -23,6 +23,9 @@ export default function NeonButton({
   disableOutlineHover = false,
   subtleHover = false,
 }: NeonButtonProps) {
+  const [isHovered, setIsHovered] = useState(false);
+  const [isFocused, setIsFocused] = useState(false);
+
   const baseStyle = useMemo<React.CSSProperties>(() => {
     const common: React.CSSProperties = {
       padding: '1rem 1.2rem',
@@ -59,8 +62,55 @@ export default function NeonButton({
     };
   }, [disabled, variant]);
 
+  const isOutline = variant === 'outline';
+  const isSolid = variant === 'solid';
+  const shouldApplyOutlineActive =
+    !disabled && isOutline && !disableOutlineHover && (isHovered || isFocused);
+
+  const isSubtleActive =
+    !disabled && isOutline && disableOutlineHover && subtleHover && (isHovered || isFocused);
+
+  const shouldApplySolidActive = !disabled && isSolid && (isHovered || isFocused);
+
+  const interactionStyle = useMemo<React.CSSProperties>(() => {
+    if (shouldApplyOutlineActive) {
+      return {
+        backgroundColor: '#bff104',
+        color: '#000',
+        outline: '3px solid rgba(191,241,4,0.55)',
+        outlineOffset: '3px',
+      };
+    }
+
+    if (isSubtleActive) {
+      return {
+        transform: 'translateY(-1px)',
+        boxShadow: '0 6px 14px rgba(0,0,0,0.12)',
+        outline: '3px solid rgba(191,241,4,0.35)',
+        outlineOffset: '3px',
+      };
+    }
+
+    if (shouldApplySolidActive) {
+      return {
+        transform: 'translateY(-1px)',
+        boxShadow: '0 12px 24px rgba(0,0,0,0.28)',
+        outline: '3px solid rgba(191,241,4,0.55)',
+        outlineOffset: '3px',
+        filter: 'brightness(1.02)',
+      };
+    }
+
+    return {
+      outline: 'none',
+      outlineOffset: '0',
+      transform: 'none',
+    };
+  }, [isSubtleActive, shouldApplyOutlineActive, shouldApplySolidActive]);
+
   const mergedStyle: React.CSSProperties = {
     ...baseStyle,
+    ...interactionStyle,
     ...style,
   };
 
@@ -71,32 +121,10 @@ export default function NeonButton({
       onClick={disabled ? undefined : onClick}
       title={title}
       style={mergedStyle}
-      onMouseOver={(e) => {
-        if (disabled) return;
-        if (variant !== 'outline') return;
-        if (disableOutlineHover) {
-          if (subtleHover) {
-            e.currentTarget.style.transform = 'translateY(-1px)';
-            e.currentTarget.style.boxShadow = '0 6px 14px rgba(0,0,0,0.12)';
-          }
-          return;
-        }
-        e.currentTarget.style.backgroundColor = '#bff104';
-        e.currentTarget.style.color = '#000';
-      }}
-      onMouseOut={(e) => {
-        if (disabled) return;
-        if (variant !== 'outline') return;
-        if (disableOutlineHover) {
-          if (subtleHover) {
-            e.currentTarget.style.transform = 'none';
-            e.currentTarget.style.boxShadow = mergedStyle.boxShadow as string || 'none';
-          }
-          return;
-        }
-        e.currentTarget.style.backgroundColor = 'transparent';
-        e.currentTarget.style.color = '#bff104';
-      }}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      onFocus={() => setIsFocused(true)}
+      onBlur={() => setIsFocused(false)}
     >
       {label}
     </button>
