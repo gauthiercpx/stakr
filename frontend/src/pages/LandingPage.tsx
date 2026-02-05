@@ -53,7 +53,7 @@ export default function LandingPage({onLoginRequested}: LandingPageProps) {
     const pillStyle: React.CSSProperties = {
         padding: '0.6rem 0.95rem',
         minHeight: '40px',
-        minWidth: '18rem',
+        minWidth: 'min(18rem, 100%)',
         borderRadius: '0.9rem',
         border: '1px solid rgba(0,0,0,0.08)',
         backgroundColor: 'white',
@@ -223,35 +223,44 @@ export default function LandingPage({onLoginRequested}: LandingPageProps) {
                             <div
                                 style={{
                                     display: 'flex',
-                                    gap: '0.6rem',
-                                    alignItems: 'center',
-                                    flexWrap: 'wrap',
+                                    justifyContent: 'center',
                                     width: '100%',
-                                    justifyContent: 'flex-start',
                                 }}
                             >
-                                <NeonButton
-                                    label={t('landing.cta.signup')}
-                                    disabled
-                                    title={t('common.comingSoon')}
-                                    variant="solid"
+                                <div
                                     style={{
-                                        backgroundColor: '#bff104',
-                                        color: '#000',
-                                        minWidth: '10.5rem',
+                                        display: 'inline-flex',
+                                        gap: '0.6rem',
+                                        alignItems: 'center',
+                                        flexWrap: 'wrap',
+                                        justifyContent: 'center',
                                     }}
-                                />
+                                >
+                                     <NeonButton
+                                         label={t('landing.cta.signup')}
+                                         disabled
+                                         title={t('common.comingSoon')}
+                                         variant="solid"
+                                         style={{
+                                             backgroundColor: '#bff104',
+                                             color: '#000',
+                                             minWidth: 'clamp(9rem, 40vw, 10.5rem)',
+                                         }}
+                                     />
 
-                                <NeonButton
-                                    label={t('landing.cta.login')}
-                                    onClick={onLoginRequested}
-                                    variant="solid"
-                                    style={{minWidth: '10.5rem'}}
-                                />
+                                     <NeonButton
+                                         label={t('landing.cta.login')}
+                                         onClick={onLoginRequested}
+                                         variant="solid"
+                                         style={{minWidth: 'clamp(9rem, 40vw, 10.5rem)'}}
+                                     />
+                                </div>
+                             </div>
+
+                            <div style={{display: 'flex', justifyContent: 'center', width: '100%'}}>
+                                <div style={pillStyle}>{t('landing.cta.dashboardReady')}</div>
                             </div>
-
-                            <div style={pillStyle}>{t('landing.cta.dashboardReady')}</div>
-                        </div>
+                         </div>
                     </div>
 
                     <div
