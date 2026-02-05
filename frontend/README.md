@@ -66,4 +66,50 @@ You normally don't run a separate frontend container.
 The root `Dockerfile` builds the frontend and copies `dist/` into the backend image at `/app/static`.
 
 See `../README.md` for Docker usage.
-If you want, I can also add an automated GitHub Actions workflow for Static Web Apps or Container Apps (CD). For now this README documents manual deploy steps only.
+
+## Manual deployment (Azure Container Registry)
+
+This project currently uses a manual ACR flow for the frontend image.
+
+### Login to ACR
+
+```powershell
+az acr login --name stakrregistry
+```
+
+### Build & tag the image (set API URL)
+
+> Replace `vX` with the version you want to publish (e.g. `v2`) to ensure the platform pulls the new image.
+
+```powershell
+docker build -t stakrregistry.azurecr.io/stakr-frontend:vX --build-arg VITE_API_URL="https://api.stakr.me" ./frontend
+```
+
+### Push the image
+
+```powershell
+docker push stakrregistry.azurecr.io/stakr-frontend:vX
+```
+
+## Versioning
+
+Frontend and backend are deployed independently, so version them independently.
+
+You can still use SemVer for your own release notes (`X.Y.Z`), but the current CD flow does **not** rely on git tags.
+
+## CD (automatic ACR push)
+
+The GitHub Actions workflow builds and pushes the frontend image to ACR when:
+- a commit is pushed/merged to `main`, and
+- something under `frontend/` changed.
+
+### Required GitHub secrets
+
+- `ACR_LOGIN_SERVER` (example: `stakrregistry.azurecr.io`)
+- `ACR_USERNAME`
+- `ACR_PASSWORD`
+
+### Image tags published
+
+- `stakr-frontend:sha-<full git sha>` (immutable)
+- `stakr-frontend:latest`

@@ -95,3 +95,20 @@ docker run --rm -p 8000:8000 --env-file .env.docker stakr-backend:local
 ```
 
 > The container runs `entrypoint.sh` which runs migrations only when `DATABASE_URL` is set.
+
+## CD (automatic ACR push)
+
+The GitHub Actions workflow builds and pushes the backend image to ACR when:
+- a commit is pushed/merged to `main`, and
+- something under `backend/` changed (or the root `Dockerfile` changed).
+
+### Required GitHub secrets
+
+- `ACR_LOGIN_SERVER` (example: `stakrregistry.azurecr.io`)
+- `ACR_USERNAME`
+- `ACR_PASSWORD`
+
+### Image tags published
+
+- `stakr-backend:sha-<full git sha>` (immutable)
+- `stakr-backend:latest`
