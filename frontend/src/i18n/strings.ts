@@ -4,6 +4,10 @@ export type MessageKey =
   | 'app.serverWaking.title'
   | 'app.serverWaking.subtitle'
   | 'app.serverWaking.tip'
+  | 'notFound.title'
+  | 'notFound.subtitle'
+  | 'notFound.goHome'
+  | 'notFound.goBack'
   | 'nav.signup'
   | 'nav.login'
   | 'nav.logout'
@@ -53,6 +57,11 @@ const MESSAGES: Record<Locale, Record<MessageKey, string>> = {
       "L’API (et la base de données) démarrent. Ça prend généralement quelques secondes.",
     'app.serverWaking.tip':
       'Astuce : si ça tourne indéfiniment, la base de données est peut-être arrêtée.',
+
+    'notFound.title': 'Page introuvable',
+    'notFound.subtitle': "Le lien que tu as suivi n’existe pas (ou plus).",
+    'notFound.goHome': "Retour à l’accueil",
+    'notFound.goBack': 'Page précédente',
 
     'nav.signup': 'Créer un compte',
     'nav.login': 'Se connecter',
@@ -111,6 +120,11 @@ const MESSAGES: Record<Locale, Record<MessageKey, string>> = {
       'The API (and database) are starting. This usually takes a few seconds.',
     'app.serverWaking.tip':
       'Tip: if this keeps spinning, your database container may be down.',
+
+    'notFound.title': 'Page not found',
+    'notFound.subtitle': 'The page you are looking for does not exist.',
+    'notFound.goHome': 'Go to home',
+    'notFound.goBack': 'Go back',
 
     'nav.signup': 'Create account',
     'nav.login': 'Sign in',

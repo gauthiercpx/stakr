@@ -4,6 +4,7 @@ import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import LandingPage from './pages/LandingPage';
+import NotFound from './pages/NotFound';
 import { api, ACCESS_TOKEN_KEY, clearAuthTokens } from './api/client';
 import ServerWakingUp from './components/ServerWakingUp';
 
@@ -121,7 +122,7 @@ function App() {
         }
       />
 
-      <Route path="*" element={<Navigate to="/" replace />} />
+      <Route path="*" element={<NotFound />} />
     </Routes>
   );
 }

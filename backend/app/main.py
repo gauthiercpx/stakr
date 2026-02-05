@@ -69,8 +69,8 @@ if SERVE_FRONTEND:
     # In Docker, the root Dockerfile (if used) copies Vite's dist to /app/static.
     _docker_static_dir = Path("/app/static")
 
-    # When running outside Docker (e.g. local dev), try a repo-relative
-    # `static/` directory.
+    # When running outside Docker (e.g. local dev),
+    # try a repo-relative `static/` directory.
     _repo_root = Path(__file__).resolve().parent
     while _repo_root.name not in {"backend", "app"} and _repo_root.parent != _repo_root:
         _repo_root = _repo_root.parent
@@ -95,16 +95,4 @@ if SERVE_FRONTEND:
         # SPA fallback: send index.html for unknown (non-API) routes.
         @app.get("/{full_path:path}", include_in_schema=False)
         def spa_fallback(full_path: str):
-            # Do not hijack API/docs/OpenAPI paths.
-            if full_path.startswith(
-                (
-                    "auth/",
-                    "health",
-                    "ready",
-                    "docs",
-                    "redoc",
-                    "openapi.json",
-                )
-            ):
-                return {"detail": "Not Found"}
             return FileResponse(str(_index_file))
