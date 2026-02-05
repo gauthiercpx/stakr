@@ -4,6 +4,7 @@ import { api } from '../api/client';
 interface User {
   id: number;
   email: string;
+  first_name: string;
   is_active: boolean;
 }
 
@@ -84,7 +85,7 @@ export default function Dashboard({ onLogout }: DashboardProps) {
             <>
                 <h1 style={{ fontSize: '2.5rem', marginBottom: '0.5rem', color: '#000' }}>
                     Hello <span style={{ color: '#000', backgroundColor: '#bff104', padding: '0 5px' }}>
-                        {user?.email.split('@')[0]}
+                        {user?.first_name || user?.email.split('@')[0]}
                     </span> 👋
                 </h1>
                 <p style={{ color: '#666', marginBottom: '3rem', fontSize: '1.1rem' }}>

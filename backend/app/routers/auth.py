@@ -25,7 +25,7 @@ router = APIRouter(tags=["Auth"])
     },
 )
 def register(
-    user_in: schemas_user.UserCreate, db: Session = Depends(get_db)
+        user_in: schemas_user.UserCreate, db: Session = Depends(get_db)
 ) -> schemas_user.User:
     user = crud_user.get_user_by_email(db, email=user_in.email)
     if user:
@@ -46,12 +46,12 @@ def register(
     },
 )
 def login_access_token(
-    form_data: OAuth2PasswordRequestForm = Depends(),
-    db: Session = Depends(get_db),
+        form_data: OAuth2PasswordRequestForm = Depends(),
+        db: Session = Depends(get_db),
 ) -> dict:
     user = crud_user.get_user_by_email(db, email=form_data.username)
     if not user or not security.verify_password(
-        form_data.password, user.hashed_password
+            form_data.password, user.hashed_password
     ):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -76,3 +76,4 @@ def login_access_token(
 )
 def read_users_me(current_user=Depends(deps.get_current_user)) -> schemas_user.User:
     return current_user
+
