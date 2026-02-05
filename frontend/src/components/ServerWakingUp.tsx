@@ -1,5 +1,5 @@
-import type { CSSProperties } from 'react';
-import { useI18n } from '../i18n/I18nProvider';
+import type React from 'react';
+import { useI18n } from '../i18n/useI18n';
 import LanguageToggle from './LanguageToggle';
 
 interface ServerWakingUpProps {
@@ -8,7 +8,7 @@ interface ServerWakingUpProps {
   tip?: string;
 }
 
-const wrapperStyle: CSSProperties = {
+const wrapperStyle: React.CSSProperties = {
   minHeight: '100vh',
   display: 'flex',
   alignItems: 'center',
@@ -18,7 +18,7 @@ const wrapperStyle: CSSProperties = {
   position: 'relative',
 };
 
-const overlayStyle: CSSProperties = {
+const overlayStyle: React.CSSProperties = {
   position: 'absolute',
   inset: 0,
   background:
@@ -28,7 +28,7 @@ const overlayStyle: CSSProperties = {
   pointerEvents: 'none',
 };
 
-const cardStyle: CSSProperties = {
+const cardStyle: React.CSSProperties = {
   padding: '2.25rem',
   backgroundColor: 'white',
   borderRadius: '1.5rem',
@@ -41,7 +41,7 @@ const cardStyle: CSSProperties = {
   boxSizing: 'border-box',
 };
 
-const loaderStyle: CSSProperties = {
+const loaderStyle: React.CSSProperties = {
   width: '3.375rem',
   height: '3.375rem',
   borderRadius: '50%',
@@ -66,7 +66,7 @@ export default function ServerWakingUp({
     <div style={wrapperStyle}>
       <div style={overlayStyle} />
       <div style={cardStyle}>
-        <LanguageToggle style={{ position: 'absolute', top: '1rem', right: '1rem' }} />
+        <LanguageToggle mode="login" style={{ position: 'absolute', top: '1rem', right: '1rem' }} />
 
         <h1 style={{ margin: 0, fontSize: '2.25rem', color: '#000' }}>
           STAKR<span style={{ color: '#bff104' }}>.</span>

@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { api } from '../api/client';
-import { useI18n } from '../i18n/I18nProvider';
+import { useI18n } from '../i18n/useI18n';
 import LanguageToggle from '../components/LanguageToggle';
 
 // Props provided by App.tsx
@@ -51,30 +51,32 @@ export default function Login({ onLoginSuccess }: LoginProps) {
 
         localStorage.setItem('access_token', response.data.access_token);
         onLoginSuccess();
-      } catch (err: any) {
+      } catch (err: unknown) {
         // Helpful in dev, but we keep UI messages user-friendly.
-        // eslint-disable-next-line no-console
-        console.error('Login error:', err);
+        if (import.meta.env.DEV) {
+          console.error('Login error:', err);
+        }
 
-        const status = err?.response?.status;
+        const axiosErr = err as { response?: { status?: number; data?: { detail?: string } } };
+        const status = axiosErr?.response?.status;
         if (status === 503) {
           setError(t('login.error.serverStarting'));
           return;
         }
-        if (status >= 500) {
+        if (typeof status === 'number' && status >= 500) {
           setError(t('login.error.serverError'));
           return;
         }
 
         // Try to show the backend error detail when available.
         const message =
-          err?.response?.data?.detail || t('login.error.incorrectCredentials');
+          axiosErr?.response?.data?.detail || t('login.error.incorrectCredentials');
         setError(message);
       } finally {
         setIsLoading(false);
       }
     },
-    [email, password, onLoginSuccess],
+    [email, password, onLoginSuccess, t],
   );
 
   // Enable submit only when fields are filled AND email is valid.
@@ -120,7 +122,7 @@ export default function Login({ onLoginSuccess }: LoginProps) {
           position: 'relative',
         }}
       >
-        <LanguageToggle style={{ position: 'absolute', top: '1rem', right: '1rem' }} />
+        <LanguageToggle mode="login" style={{ position: 'absolute', top: '1rem', right: '1rem' }} />
 
         {/* Reserve height to avoid layout jump between locales */}
         <div style={{ minHeight: '5.6rem' }}>
