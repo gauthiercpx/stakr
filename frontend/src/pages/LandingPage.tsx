@@ -220,7 +220,16 @@ export default function LandingPage({onLoginRequested}: LandingPageProps) {
                                 width: '100%',
                             }}
                         >
-                            <div style={{display: 'flex', gap: '0.6rem', alignItems: 'center'}}>
+                            <div
+                                style={{
+                                    display: 'flex',
+                                    gap: '0.6rem',
+                                    alignItems: 'center',
+                                    flexWrap: 'wrap',
+                                    width: '100%',
+                                    justifyContent: 'flex-start',
+                                }}
+                            >
                                 <NeonButton
                                     label={t('landing.cta.signup')}
                                     disabled
