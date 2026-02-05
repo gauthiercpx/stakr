@@ -1,6 +1,44 @@
 # Stakr
 
-FastAPI backend + Vite/React frontend skeleton (tests + CI/CD) to start cleanly.
+Stakr helps you organize and track your development stacks in one place — fast to set up, simple to extend.
+
+Think of it as a clean full‑stack starting point (FastAPI + React) with solid defaults: auth, tests, linting, Docker, and CI/CD.
+
+---
+
+## Product
+
+## Screenshots
+
+Add screenshots to `docs/screenshots/` and reference them here.
+
+Example:
+
+```markdown
+<!-- ![Landing page](docs/screenshots/your-landing.png) -->
+<!-- ![Dashboard](docs/screenshots/your-dashboard.png) -->
+```
+
+### What you get
+
+- A modern **React (Vite + TypeScript)** frontend
+- A robust **FastAPI** backend with **Alembic** migrations
+- A split production architecture (frontend + API deployed independently)
+- Linting + tests + CI/CD workflows
+
+### Environments
+
+- **Frontend (dev):** `http://localhost:5173`
+- **API (dev):** `http://localhost:8000` (Swagger docs at `/docs`)
+
+### Production
+
+- App: https://stakr.me
+- API: https://api.stakr.me
+
+---
+
+## Technical
 
 ## Architecture
 
@@ -16,7 +54,7 @@ Production is **split**:
 - Frontend docs: `frontend/README.md`
 - Backend docs: `backend/README.md`
 
-## Quickstart (local dev)
+## Local development (Quickstart)
 
 ### Option A (recommended): frontend with Vite, backend with Docker
 
@@ -44,7 +82,7 @@ npm install
 npm run dev
 ```
 
-Urls:
+URLs:
 - Frontend: http://localhost:5173
 - Backend API: http://localhost:8000
 - API docs: http://localhost:8000/docs
@@ -80,6 +118,15 @@ cd frontend
 npm install
 npm run dev
 ```
+
+## Deployment
+
+This repo’s production setup is split:
+
+- the **frontend** is a static build (see `frontend/README.md`)
+- the **backend** is deployed as an API container (see `backend/README.md`)
+
+CI/CD details and required secrets are documented in the service READMEs.
 
 ## Docker notes (Windows)
 

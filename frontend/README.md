@@ -1,15 +1,17 @@
 # Stakr Frontend (Vite + React)
 
-## Overview
-
-This is the frontend application for **Stakr**.
+The Stakr frontend is a lightweight React app (Vite + TypeScript) that talks to the Stakr API.
 
 - Build tool: **Vite**
 - UI: **React**
 - Language: **TypeScript**
 
 In local development, the frontend runs on Vite's dev server (default: `http://localhost:5173`).
-In production (Docker/Azure), the frontend is built and served by the backend container via `/`.
+In production, the frontend is deployed independently from the API.
+
+---
+
+## Technical
 
 ## Project structure
 
@@ -58,18 +60,16 @@ Depending on how `api` is implemented (e.g. `src/api/client.ts`), you typically 
 
 - `VITE_API_URL=http://localhost:8000`
 
-If you don't use env vars yet, you can hardcode it in the API client for now and improve later.
+## Docker
 
-## Docker / Production
+For local development, prefer Vite (`npm run dev`) + Docker Compose for the API/DB.
+See the root `README.md`.
 
-You normally don't run a separate frontend container.
-The root `Dockerfile` builds the frontend and copies `dist/` into the backend image at `/app/static`.
+## Deployment
 
-See `../README.md` for Docker usage.
+### Manual deployment (Azure Container Registry)
 
-## Manual deployment (Azure Container Registry)
-
-This project currently uses a manual ACR flow for the frontend image.
+This project supports a manual ACR flow for the frontend image.
 
 ### Login to ACR
 
@@ -79,16 +79,16 @@ az acr login --name stakrregistry
 
 ### Build & tag the image (set API URL)
 
-> Replace `vX` with the version you want to publish (e.g. `v2`) to ensure the platform pulls the new image.
+> Replace `vX.X.X` with the version you want to publish.
 
 ```powershell
-docker build -t stakrregistry.azurecr.io/stakr-frontend:vX --build-arg VITE_API_URL="https://api.stakr.me" ./frontend
+docker build -t stakrregistry.azurecr.io/stakr-frontend:vX.X.X --build-arg VITE_API_URL="https://api.stakr.me" ./frontend
 ```
 
 ### Push the image
 
 ```powershell
-docker push stakrregistry.azurecr.io/stakr-frontend:vX
+docker push stakrregistry.azurecr.io/stakr-frontend:vX.X.X
 ```
 
 ## Versioning
@@ -97,9 +97,10 @@ Frontend and backend are deployed independently, so version them independently.
 
 You can still use SemVer for your own release notes (`X.Y.Z`), but the current CD flow does **not** rely on git tags.
 
-## CD (automatic ACR push)
+## CI/CD (automatic ACR push)
 
 The GitHub Actions workflow builds and pushes the frontend image to ACR when:
+
 - a commit is pushed/merged to `main`, and
 - something under `frontend/` changed.
 

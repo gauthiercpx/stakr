@@ -1,15 +1,18 @@
 # Stakr Backend (FastAPI)
 
-## Overview
-
-This is the backend service for **Stakr**.
+The Stakr backend is a FastAPI service that powers authentication and stack data.
 
 - Runtime: **Python 3.12**
 - Framework: **FastAPI**
 - DB migrations: **Alembic**
 - Tests: **pytest**
 
-The backend can optionally serve the built frontend when `/app/static/index.html` is present (this happens in the **root Docker image** build).
+> Note: In this repository, production is split. The backend is deployed as an API.
+> The backend can *also* serve a built frontend when `/app/static/index.html` is present (root Docker image build).
+
+---
+
+## Technical
 
 ## Project structure
 
@@ -96,7 +99,7 @@ docker run --rm -p 8000:8000 --env-file .env.docker stakr-backend:local
 
 > The container runs `entrypoint.sh` which runs migrations only when `DATABASE_URL` is set.
 
-## CD (automatic ACR push)
+## CI/CD (automatic ACR push)
 
 The GitHub Actions workflow builds and pushes the backend image to ACR when:
 - a commit is pushed/merged to `main`, and

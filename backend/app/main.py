@@ -24,7 +24,7 @@ app = FastAPI(
     ),
     contact={
         "name": "STAKR Team",
-        "url": "https://stakr.me",
+        "url": "https://www.stakr.me/",
         "email": "gauthier.coppeaux@gmail.com",
     },
     openapi_tags=[
