@@ -35,6 +35,8 @@ export type MessageKey =
   | 'dashboard.stacks.title'
   | 'dashboard.stacks.count'
   | 'dashboard.stacks.create'
+  | 'common.signedOut'
+  | 'common.cancel'
   | 'common.loading'
   | 'common.comingSoon'
   | 'common.languageToggle'
@@ -96,6 +98,8 @@ const MESSAGES: Record<Locale, Record<MessageKey, string>> = {
     'dashboard.stacks.title': 'Mes Stacks',
     'dashboard.stacks.count': '0',
     'dashboard.stacks.create': '+ Créer une Stack',
+    'common.signedOut': 'Tu as bien été déconnecté.',
+    'common.cancel': 'Annuler',
     'common.loading': 'Chargement... ⏳',
     'common.comingSoon': 'Bientôt disponible',
     'common.languageToggle': 'Changer de langue',
@@ -160,6 +164,8 @@ const MESSAGES: Record<Locale, Record<MessageKey, string>> = {
     'dashboard.stacks.title': 'My stacks',
     'dashboard.stacks.count': '0',
     'dashboard.stacks.create': '+ Create a stack',
+    'common.signedOut': 'You have been signed out.',
+    'common.cancel': 'Cancel',
     'common.loading': 'Loading... ⏳',
     'common.comingSoon': 'Coming soon',
     'common.languageToggle': 'Switch language',

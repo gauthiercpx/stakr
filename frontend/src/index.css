@@ -12,6 +12,12 @@ html,
 body {
   width: 100%;
   overflow-x: hidden;
+  background-color: #f4f4f4;
+}
+
+#root {
+  min-height: 100vh;
+  background-color: #f4f4f4;
 }
 
 body {
@@ -19,8 +25,8 @@ body {
   font-family: 'Baloo 2', cursive;
   -webkit-font-smoothing: antialiased;
 
-  /* Tes couleurs */
-  background-color: #bff104;
+  /* App background */
+  background-color: #f4f4f4;
   color: #000000;
 }
 
@@ -37,6 +43,28 @@ button, input {
 @keyframes stakr-spin {
   to {
     transform: rotate(360deg);
+  }
+}
+
+@keyframes stakr-page-enter-right {
+  from {
+    opacity: 0;
+    transform: translateX(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes stakr-page-enter-left {
+  from {
+    opacity: 0;
+    transform: translateX(-18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
   }
 }
 

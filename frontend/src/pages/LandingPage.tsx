@@ -10,6 +10,7 @@ interface LandingPageProps {
 
 export default function LandingPage({onLoginRequested}: LandingPageProps) {
     const {t} = useI18n();
+
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const menuId = useId();
     const mobilePanelId = `stakr-mobile-menu-${menuId}`;
@@ -116,9 +117,9 @@ export default function LandingPage({onLoginRequested}: LandingPageProps) {
                     onClick={() => setIsMenuOpen((v) => !v)}
                 >
                     <span className="stakr-nav__burgerLines" aria-hidden>
-                        <span />
-                        <span />
-                        <span />
+                        <span/>
+                        <span/>
+                        <span/>
                     </span>
                 </button>
 
@@ -148,7 +149,7 @@ export default function LandingPage({onLoginRequested}: LandingPageProps) {
                         />
 
                         {/* Language toggle last */}
-                        <LanguageToggle style={{width: '100%'}} />
+                        <LanguageToggle style={{width: '100%'}}/>
                     </div>
                 </div>
             </nav>
@@ -175,15 +176,15 @@ export default function LandingPage({onLoginRequested}: LandingPageProps) {
                             }}
                         >
                             {t('landing.hero.title.line1')}
-                            <br />
-                             <span
-                                 style={{
-                                     display: 'inline-flex',
-                                     alignItems: 'baseline',
-                                     gap: '0.35rem',
-                                     whiteSpace: 'nowrap',
-                                 }}
-                             >
+                            <br/>
+                            <span
+                                style={{
+                                    display: 'inline-flex',
+                                    alignItems: 'baseline',
+                                    gap: '0.35rem',
+                                    whiteSpace: 'nowrap',
+                                }}
+                            >
                                  <span
                                      style={{
                                          color: '#000',
@@ -196,10 +197,26 @@ export default function LandingPage({onLoginRequested}: LandingPageProps) {
                                      }}
                                  >
                                      {t('landing.hero.title.brand')}
+                                     <span
+                                         style={{
+                                             color: '#fff',
+                                             backgroundColor: 'transparent',
+                                             padding: '0 0.15rem',
+                                             display: 'inline-block',
+                                             lineHeight: 1,
+                                             verticalAlign: 'baseline',
+                                             borderRadius: '0.2rem',
+                                             marginLeft: '0',
+                                         }}
+                                     >
+                                         .
+                                     </span>
                                  </span>
+
                                  <span style={{display: 'inline-block'}}>{t('landing.hero.title.after')}</span>
+
                              </span>
-                         </h1>
+                        </h1>
                         <p
                             style={{
                                 color: '#666',
@@ -236,31 +253,31 @@ export default function LandingPage({onLoginRequested}: LandingPageProps) {
                                         justifyContent: 'center',
                                     }}
                                 >
-                                     <NeonButton
-                                         label={t('landing.cta.signup')}
-                                         disabled
-                                         title={t('common.comingSoon')}
-                                         variant="solid"
-                                         style={{
-                                             backgroundColor: '#bff104',
-                                             color: '#000',
-                                             minWidth: 'clamp(9rem, 40vw, 10.5rem)',
-                                         }}
-                                     />
+                                    <NeonButton
+                                        label={t('landing.cta.signup')}
+                                        disabled
+                                        title={t('common.comingSoon')}
+                                        variant="solid"
+                                        style={{
+                                            backgroundColor: '#bff104',
+                                            color: '#000',
+                                            minWidth: 'clamp(9rem, 40vw, 10.5rem)',
+                                        }}
+                                    />
 
-                                     <NeonButton
-                                         label={t('landing.cta.login')}
-                                         onClick={onLoginRequested}
-                                         variant="solid"
-                                         style={{minWidth: 'clamp(9rem, 40vw, 10.5rem)'}}
-                                     />
+                                    <NeonButton
+                                        label={t('landing.cta.login')}
+                                        onClick={onLoginRequested}
+                                        variant="solid"
+                                        style={{minWidth: 'clamp(9rem, 40vw, 10.5rem)'}}
+                                    />
                                 </div>
-                             </div>
+                            </div>
 
                             <div style={{display: 'flex', justifyContent: 'center', width: '100%'}}>
                                 <div style={pillStyle}>{t('landing.cta.dashboardReady')}</div>
                             </div>
-                         </div>
+                        </div>
                     </div>
 
                     <div
@@ -318,7 +335,11 @@ export default function LandingPage({onLoginRequested}: LandingPageProps) {
                             boxShadow: '0 10px 24px rgba(0,0,0,0.05)',
                         }}
                     >
-                        <h3 style={{marginTop: 0, color: '#000', fontSize: '1.2rem'}}>{t('landing.features.focus.title')}</h3>
+                        <h3 style={{
+                            marginTop: 0,
+                            color: '#000',
+                            fontSize: '1.2rem'
+                        }}>{t('landing.features.focus.title')}</h3>
                         <p style={{color: '#666'}}>{t('landing.features.focus.desc')}</p>
                     </div>
                     <div
