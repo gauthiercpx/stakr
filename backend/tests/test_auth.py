@@ -31,7 +31,12 @@ class TestRegister:
 
             response = client.post(
                 "/auth/register",
-                json={"email": "existing@example.com", "password": "password123"},
+                json={
+                    "email": "existing@example.com",
+                    "password": "password123",
+                    "first_name": "Existing",
+                    "last_name": "User",
+                },
             )
 
         app.dependency_overrides.clear()
@@ -43,7 +48,13 @@ class TestRegister:
         app.dependency_overrides[get_db] = override_get_db
 
         response = client.post(
-            "/auth/register", json={"email": "not-an-email", "password": "password123"}
+            "/auth/register",
+            json={
+                "email": "not-an-email",
+                "password": "password123",
+                "first_name": "Test",
+                "last_name": "User",
+            },
         )
 
         app.dependency_overrides.clear()
