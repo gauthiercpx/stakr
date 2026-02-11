@@ -17,7 +17,6 @@ class UserCreate(UserBase):
     job_title: Optional[str] = None
 
 
-
 # Attributes sent to the client (Output)
 class User(UserBase):
     # Expose DB columns directly so frontend can access them without relying
@@ -26,7 +25,5 @@ class User(UserBase):
     first_name: str
     last_name: str
     job_title: Optional[str] = None
-
-
 
     model_config = ConfigDict(from_attributes=True)

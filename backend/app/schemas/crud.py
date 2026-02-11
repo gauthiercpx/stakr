@@ -21,8 +21,14 @@ def create_user(db: Session, user: UserCreate):
     hashed_password = get_password_hash(user.password)
 
     # 2. On prépare l'objet pour la BDD
-    db_user = User(email=user.email, hashed_password=hashed_password, first_name=user.first_name,
-                   last_name=user.last_name, job_title=user.job_title, is_active=True)
+    db_user = User(
+        email=user.email,
+        hashed_password=hashed_password,
+        first_name=user.first_name,
+        last_name=user.last_name,
+        job_title=user.job_title,
+        is_active=True,
+    )
 
     # 3. On sauvegarde
     db.add(db_user)
