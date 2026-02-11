@@ -11,6 +11,7 @@ export type MessageKey =
   | 'nav.signup'
   | 'nav.login'
   | 'nav.logout'
+  | 'nav.about'
   | 'landing.hero.title.line1'
   | 'landing.hero.title.brand'
   | 'landing.hero.title.after'
@@ -27,6 +28,13 @@ export type MessageKey =
   | 'landing.features.fast.desc'
   | 'landing.features.ready.title'
   | 'landing.features.ready.desc'
+  | 'about.title'
+  | 'about.description'
+  | 'about.valuesTitle'
+  | 'about.value1'
+  | 'about.value2'
+  | 'about.value3'
+  | 'about.backHome'
   | 'dashboard.greeting'
   | 'dashboard.subtitle'
   | 'dashboard.account.title'
@@ -38,6 +46,8 @@ export type MessageKey =
   | 'common.signedOut'
   | 'common.accountCreated'
   | 'common.cancel'
+  | 'common.show'
+  | 'common.hide'
   | 'common.loading'
   | 'common.comingSoon'
   | 'common.languageToggle'
@@ -63,6 +73,7 @@ export type MessageKey =
   | 'signup.firstName.label'
   | 'signup.firstName.placeholder'
   | 'signup.firstName.required'
+  | 'signup.firstName.invalidFormat'
   | 'signup.lastName.label'
   | 'signup.lastName.placeholder'
   | 'signup.lastName.required'
@@ -94,6 +105,7 @@ const MESSAGES: Record<Locale, Record<MessageKey, string>> = {
     'nav.signup': 'Créer un compte',
     'nav.login': 'Se connecter',
     'nav.logout': 'Déconnexion',
+    'nav.about': 'À propos',
 
     'landing.hero.title.line1': 'Organise tes stacks en un seul endroit',
     'landing.hero.title.brand': 'STAKR',
@@ -116,6 +128,14 @@ const MESSAGES: Record<Locale, Record<MessageKey, string>> = {
     'landing.features.ready.title': 'Prêt pour la suite',
     'landing.features.ready.desc': 'Pensé pour grandir avec toi et s’adapter à ton rythme.',
 
+    'about.title': 'À propos de Stakr',
+    'about.description': "Stakr centralise vos stacks et vous aide à garder le cap avec une interface légère et efficace.",
+    'about.valuesTitle': 'Nos valeurs',
+    'about.value1': 'Simplicité',
+    'about.value2': 'Vitesse',
+    'about.value3': 'Concentration',
+    'about.backHome': 'Retour à l’accueil',
+
     'dashboard.greeting': 'Hello',
     'dashboard.subtitle': 'Prêt à gérer tes Stacks ? ',
     'dashboard.account.title': 'Mon Compte',
@@ -127,6 +147,8 @@ const MESSAGES: Record<Locale, Record<MessageKey, string>> = {
     'common.signedOut': 'Tu as bien été déconnecté.',
     'common.accountCreated': 'Compte créé avec succès. Bienvenue !',
     'common.cancel': 'Annuler',
+    'common.show': 'Afficher',
+    'common.hide': 'Masquer',
     'common.loading': 'Chargement... ⏳',
     'common.comingSoon': 'Bientôt disponible',
     'common.languageToggle': 'Changer de langue',
@@ -156,6 +178,7 @@ const MESSAGES: Record<Locale, Record<MessageKey, string>> = {
     'signup.firstName.label': 'Prénom',
     'signup.firstName.placeholder': 'Prénom',
     'signup.firstName.required': 'Prénom requis.',
+    'signup.firstName.invalidFormat': 'Le prénom contient des caractères non valides.',
     'signup.lastName.label': 'Nom',
     'signup.lastName.placeholder': 'Nom',
     'signup.lastName.required': 'Nom requis.',
@@ -187,6 +210,7 @@ const MESSAGES: Record<Locale, Record<MessageKey, string>> = {
     'nav.signup': 'Create account',
     'nav.login': 'Sign in',
     'nav.logout': 'Sign out',
+    'nav.about': 'About',
 
     'landing.hero.title.line1': 'Organize your stacks in one place',
     'landing.hero.title.brand': 'STAKR',
@@ -210,6 +234,14 @@ const MESSAGES: Record<Locale, Record<MessageKey, string>> = {
     'landing.features.ready.desc':
       'Designed to grow with you and adapt to your pace.',
 
+    'about.title': 'About Stakr',
+    'about.description': 'Stakr centralizes your stacks and helps you keep momentum with a light, efficient UI.',
+    'about.valuesTitle': 'Our values',
+    'about.value1': 'Simplicity',
+    'about.value2': 'Speed',
+    'about.value3': 'Focus',
+    'about.backHome': 'Back to home',
+
     'dashboard.greeting': 'Hello',
     'dashboard.subtitle': 'Ready to manage your stacks?',
     'dashboard.account.title': 'My account',
@@ -221,6 +253,8 @@ const MESSAGES: Record<Locale, Record<MessageKey, string>> = {
     'common.signedOut': 'You have been signed out.',
     'common.accountCreated': 'Account created successfully. Welcome!',
     'common.cancel': 'Cancel',
+    'common.show': 'Show',
+    'common.hide': 'Hide',
     'common.loading': 'Loading... ⏳',
     'common.comingSoon': 'Coming soon',
     'common.languageToggle': 'Switch language',
@@ -249,6 +283,7 @@ const MESSAGES: Record<Locale, Record<MessageKey, string>> = {
     'signup.firstName.label': 'First name',
     'signup.firstName.placeholder': 'First name',
     'signup.firstName.required': 'First name is required.',
+    'signup.firstName.invalidFormat': 'First name contains invalid characters.',
     'signup.lastName.label': 'Last name',
     'signup.lastName.placeholder': 'Last name',
     'signup.lastName.required': 'Last name is required.',

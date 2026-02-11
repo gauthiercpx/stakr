@@ -1,10 +1,9 @@
 import {useEffect, useState} from 'react';
-import {useId, useRef} from 'react';
 import {api} from '../api/client';
 import NeonButton from '../components/NeonButton';
 import LanguageToggle from '../components/LanguageToggle.tsx';
 import {useI18n} from '../i18n/useI18n';
-import {Link} from 'react-router-dom';
+import AppNavbar from '../components/AppNavbar';
 
 interface User {
     id: number;
@@ -19,44 +18,6 @@ interface DashboardProps {
 
 export default function Dashboard({onLogout}: DashboardProps) {
     const {t} = useI18n();
-    const [isMenuOpen, setIsMenuOpen] = useState(false);
-    const menuId = useId();
-    const mobilePanelId = `stakr-mobile-menu-${menuId}`;
-    const burgerButtonRef = useRef<HTMLButtonElement | null>(null);
-    const mobilePanelRef = useRef<HTMLDivElement | null>(null);
-
-    useEffect(() => {
-        if (!isMenuOpen) return;
-        const onKeyDown = (e: KeyboardEvent) => {
-            if (e.key === 'Escape') setIsMenuOpen(false);
-        };
-        window.addEventListener('keydown', onKeyDown);
-        return () => window.removeEventListener('keydown', onKeyDown);
-    }, [isMenuOpen]);
-
-    useEffect(() => {
-        if (!isMenuOpen) return;
-        const onPointerDown = (e: PointerEvent) => {
-            const target = e.target as Node | null;
-            if (!target) return;
-
-            const panel = mobilePanelRef.current;
-            const burger = burgerButtonRef.current;
-            const clickedInsidePanel = !!panel && panel.contains(target);
-            const clickedBurger = !!burger && burger.contains(target);
-            if (!clickedInsidePanel && !clickedBurger) {
-                setIsMenuOpen(false);
-            }
-        };
-
-        window.addEventListener('pointerdown', onPointerDown);
-        return () => window.removeEventListener('pointerdown', onPointerDown);
-    }, [isMenuOpen]);
-
-    useEffect(() => {
-        if (isMenuOpen) return;
-        burgerButtonRef.current?.focus();
-    }, [isMenuOpen]);
 
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
@@ -84,68 +45,34 @@ export default function Dashboard({onLogout}: DashboardProps) {
                 fontFamily: "'Baloo 2', cursive",
             }}
         >
-            {/* Header */}
-            <nav className="stakr-nav">
-                <Link
-                    to="/"
-                    className="stakr-nav__brand"
-                    aria-label="Go to home"
-                >
-                    STAKR<span style={{color: '#bff104'}}>.</span>
-                </Link>
-
-                {/* Desktop actions */}
-                <div className="stakr-nav__desktop">
-                    <LanguageToggle/>
-                    <NeonButton
-                        label={t('nav.logout')}
-                        title={t('nav.logout')}
-                        onClick={onLogout}
-                        variant="outline"
-                        style={{minWidth: '10.5rem'}}
-                    />
-                </div>
-
-                {/* Mobile burger */}
-                <button
-                    type="button"
-                    className="stakr-nav__burgerBtn"
-                    aria-label="Menu"
-                    aria-expanded={isMenuOpen}
-                    aria-controls={mobilePanelId}
-                    ref={burgerButtonRef}
-                    onClick={() => setIsMenuOpen((v) => !v)}
-                >
-                    <span className="stakr-nav__burgerLines" aria-hidden>
-                        <span/>
-                        <span/>
-                        <span/>
-                    </span>
-                </button>
-
-                <div
-                    id={mobilePanelId}
-                    ref={mobilePanelRef}
-                    className={`stakr-nav__mobilePanel ${isMenuOpen ? 'is-open' : ''}`}
-                    role="menu"
-                    aria-label="Mobile menu"
-                >
-                    <div className="stakr-nav__mobileRow">
+            <AppNavbar
+                desktopActions={
+                    <>
+                        <LanguageToggle/>
+                        <NeonButton
+                            label={t('nav.logout')}
+                            title={t('nav.logout')}
+                            onClick={onLogout}
+                            variant="outline"
+                            style={{minWidth: '10.5rem'}}
+                        />
+                    </>
+                }
+                mobileActions={({closeMenu}) => (
+                    <>
                         <NeonButton
                             label={t('nav.logout')}
                             onClick={() => {
-                                setIsMenuOpen(false);
+                                closeMenu();
                                 onLogout();
                             }}
                             variant="outline"
                             style={{width: '100%'}}
                         />
-
-                        {/* Language toggle last */}
                         <LanguageToggle style={{width: '100%'}}/>
-                    </div>
-                </div>
-            </nav>
+                    </>
+                )}
+            />
 
             {/* Main */}
             <main style={{padding: '3rem', maxWidth: '1000px', margin: '0 auto'}}>
@@ -168,8 +95,8 @@ export default function Dashboard({onLogout}: DashboardProps) {
                                     borderRadius: '0.2rem',
                                 }}
                             >
-                {user?.first_name || user?.email.split('@')[0]}
-              </span>{' '}
+                                {user?.first_name || user?.email.split('@')[0]}
+                            </span>{' '}
                             👋
                         </h1>
                         <p style={{color: '#666', marginBottom: '3rem', fontSize: '1.1rem'}}>

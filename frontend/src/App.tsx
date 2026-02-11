@@ -13,6 +13,8 @@ import PageTransition from './components/PageTransition';
 import {useI18n} from './i18n/useI18n';
 import Toast from './components/Toast';
 import ToastHost from './components/ToastHost';
+import About from './pages/About';
+import Footer from './components/Footer';
 
 function RequireAuth({
                          isAuthenticated,
@@ -204,7 +206,7 @@ function App() {
                             isAuthenticated ? (
                                 <Navigate to="/dashboard" replace/>
                             ) : (
-                                <Login onLoginSuccess={handleSignupSuccess}/>
+                                <Signup onSignupSuccess={handleSignupSuccess} />
                             )
                         }
                     />
@@ -223,8 +225,11 @@ function App() {
                     />
 
                     <Route path="*" element={<NotFound/>}/>
+                    <Route path="/about" element={<About/>}/>
                 </Routes>
             </PageTransition>
+
+            <Footer />
 
             {
                 backgroundLocation && !isAuthenticated && (

@@ -10,7 +10,7 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
 from app.core.version import APP_VERSION
-from app.routers import auth, examples, health
+from app.routers import auth, health
 
 # 1. Load environment variables from .env
 load_dotenv()
@@ -29,7 +29,6 @@ app = FastAPI(
     },
     openapi_tags=[
         {"name": "Health", "description": "Liveness/readiness / ping endpoints"},
-        {"name": "Examples", "description": "Example endpoints for the skeleton"},
         {"name": "Auth", "description": "Authentication and user endpoints"},
     ],
 )
@@ -55,7 +54,6 @@ app.add_middleware(
 
 # 3. Register routers
 app.include_router(health.router)
-app.include_router(examples.router)
 # Note: the auth router is mounted with prefix '/auth'
 app.include_router(auth.router, prefix="/auth")
 

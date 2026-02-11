@@ -1,6 +1,7 @@
 import NeonButton from '../components/NeonButton';
 import {useI18n} from '../i18n/useI18n';
-import {Link, useNavigate} from 'react-router-dom';
+import {useNavigate} from 'react-router-dom';
+import AppNavbar from '../components/AppNavbar';
 
 export default function NotFound() {
   const {t} = useI18n();
@@ -14,11 +15,7 @@ export default function NotFound() {
         fontFamily: "'Baloo 2', cursive",
       }}
     >
-      <nav className="stakr-nav">
-        <Link to="/" className="stakr-nav__brand" aria-label="Go to home">
-          STAKR<span style={{color: '#bff104'}}>.</span>
-        </Link>
-      </nav>
+      <AppNavbar />
 
       <main
         style={{

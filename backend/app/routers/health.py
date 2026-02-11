@@ -3,15 +3,18 @@
 - `GET /health`: liveness probe (no dependency checks).
 - `GET /ready`: readiness probe (checks database connectivity).
 - `GET /db-test` is a hidden backward-compatible alias for `/ready`.
+- `GET /version`: backend version.
 """
 
 import logging
+from typing import Any, Dict
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Body, Depends, HTTPException, status
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
+from app.core.version import APP_VERSION
 from app.schemas.common import DatabaseTestResponse, ErrorResponse, HealthResponse
 
 logger = logging.getLogger(__name__)
@@ -60,3 +63,24 @@ def ready(db: Session = Depends(get_db)) -> DatabaseTestResponse:
 @router.get("/db-test", include_in_schema=False)
 def db_test(db: Session = Depends(get_db)) -> DatabaseTestResponse:
     return ready(db)
+
+
+@router.get(
+    "/version",
+    summary="Backend version",
+    description="Returns the backend application version.",
+    operation_id="health_version",
+    status_code=status.HTTP_200_OK,
+)
+def version() -> dict:
+    return {"version": APP_VERSION}
+
+
+@router.post(
+    "/echo",
+    summary="Echo JSON",
+    description="Returns the request JSON payload unchanged.",
+    operation_id="health_echo",
+)
+def echo(payload: Dict[str, Any] = Body(...)) -> Dict[str, Any]:
+    return payload

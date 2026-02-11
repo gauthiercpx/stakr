@@ -11,6 +11,7 @@ export interface NeonButtonProps {
   title?: string;
   disableOutlineHover?: boolean;
   subtleHover?: boolean;
+  blurOnClick?: boolean;
 }
 
 export default function NeonButton({
@@ -22,6 +23,7 @@ export default function NeonButton({
   title,
   disableOutlineHover = false,
   subtleHover = false,
+  blurOnClick = false,
 }: NeonButtonProps) {
   const [isHovered, setIsHovered] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
@@ -118,7 +120,16 @@ export default function NeonButton({
     <button
       type="button"
       disabled={disabled}
-      onClick={disabled ? undefined : onClick}
+      onClick={
+        disabled
+          ? undefined
+          : (e) => {
+              onClick?.();
+              if (blurOnClick) {
+                (e.currentTarget as HTMLButtonElement).blur();
+              }
+            }
+      }
       title={title}
       style={mergedStyle}
       onMouseEnter={() => setIsHovered(true)}
