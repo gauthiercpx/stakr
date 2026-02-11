@@ -11,6 +11,7 @@ export type MessageKey =
   | 'nav.signup'
   | 'nav.login'
   | 'nav.logout'
+  | 'nav.about'
   | 'landing.hero.title.line1'
   | 'landing.hero.title.brand'
   | 'landing.hero.title.after'
@@ -27,6 +28,13 @@ export type MessageKey =
   | 'landing.features.fast.desc'
   | 'landing.features.ready.title'
   | 'landing.features.ready.desc'
+  | 'about.title'
+  | 'about.description'
+  | 'about.valuesTitle'
+  | 'about.value1'
+  | 'about.value2'
+  | 'about.value3'
+  | 'about.backHome'
   | 'dashboard.greeting'
   | 'dashboard.subtitle'
   | 'dashboard.account.title'
@@ -94,6 +102,7 @@ const MESSAGES: Record<Locale, Record<MessageKey, string>> = {
     'nav.signup': 'Créer un compte',
     'nav.login': 'Se connecter',
     'nav.logout': 'Déconnexion',
+    'nav.about': 'À propos',
 
     'landing.hero.title.line1': 'Organise tes stacks en un seul endroit',
     'landing.hero.title.brand': 'STAKR',
@@ -115,6 +124,14 @@ const MESSAGES: Record<Locale, Record<MessageKey, string>> = {
       'Tout est à portée de main pour visualiser tes stacks et avancer sans friction.',
     'landing.features.ready.title': 'Prêt pour la suite',
     'landing.features.ready.desc': 'Pensé pour grandir avec toi et s’adapter à ton rythme.',
+
+    'about.title': 'À propos de Stakr',
+    'about.description': "Stakr centralise vos stacks et vous aide à garder le cap avec une interface légère et efficace.",
+    'about.valuesTitle': 'Nos valeurs',
+    'about.value1': 'Simplicité',
+    'about.value2': 'Vitesse',
+    'about.value3': 'Concentration',
+    'about.backHome': 'Retour à l’accueil',
 
     'dashboard.greeting': 'Hello',
     'dashboard.subtitle': 'Prêt à gérer tes Stacks ? ',
@@ -187,6 +204,7 @@ const MESSAGES: Record<Locale, Record<MessageKey, string>> = {
     'nav.signup': 'Create account',
     'nav.login': 'Sign in',
     'nav.logout': 'Sign out',
+    'nav.about': 'About',
 
     'landing.hero.title.line1': 'Organize your stacks in one place',
     'landing.hero.title.brand': 'STAKR',
@@ -209,6 +227,14 @@ const MESSAGES: Record<Locale, Record<MessageKey, string>> = {
     'landing.features.ready.title': 'Ready for what’s next',
     'landing.features.ready.desc':
       'Designed to grow with you and adapt to your pace.',
+
+    'about.title': 'About Stakr',
+    'about.description': 'Stakr centralizes your stacks and helps you keep momentum with a light, efficient UI.',
+    'about.valuesTitle': 'Our values',
+    'about.value1': 'Simplicity',
+    'about.value2': 'Speed',
+    'about.value3': 'Focus',
+    'about.backHome': 'Back to home',
 
     'dashboard.greeting': 'Hello',
     'dashboard.subtitle': 'Ready to manage your stacks?',

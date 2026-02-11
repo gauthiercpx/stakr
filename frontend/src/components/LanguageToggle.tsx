@@ -23,6 +23,13 @@ export default function LanguageToggle({
 
     const isLogin = mode === 'login';
 
+    const handleToggle: React.MouseEventHandler<HTMLButtonElement> = (e) => {
+        toggleLocale();
+        // Sur desktop, on évite l’état "focus" qui reste après un clic souris.
+        // On conserve l’accessibilité clavier: un focus clavier reste géré via onFocus/onBlur.
+        e.currentTarget.blur();
+    };
+
     // --- Login mode: keep the previous smooth slider switch ---
     if (isLogin) {
         const isEn = locale === 'en';
@@ -30,7 +37,7 @@ export default function LanguageToggle({
         return (
             <button
                 type="button"
-                onClick={toggleLocale}
+                onClick={handleToggle}
                 aria-label={tooltipText}
                 title={tooltipText}
                 style={{
@@ -181,6 +188,7 @@ export default function LanguageToggle({
             <NeonButton
                 label={label}
                 onClick={toggleLocale}
+                blurOnClick
                 variant="outline"
                 title={tooltipText}
                 disableOutlineHover={false}
