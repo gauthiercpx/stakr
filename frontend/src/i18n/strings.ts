@@ -46,6 +46,8 @@ export type MessageKey =
   | 'common.signedOut'
   | 'common.accountCreated'
   | 'common.cancel'
+  | 'common.show'
+  | 'common.hide'
   | 'common.loading'
   | 'common.comingSoon'
   | 'common.languageToggle'
@@ -71,6 +73,7 @@ export type MessageKey =
   | 'signup.firstName.label'
   | 'signup.firstName.placeholder'
   | 'signup.firstName.required'
+  | 'signup.firstName.invalidFormat'
   | 'signup.lastName.label'
   | 'signup.lastName.placeholder'
   | 'signup.lastName.required'
@@ -144,6 +147,8 @@ const MESSAGES: Record<Locale, Record<MessageKey, string>> = {
     'common.signedOut': 'Tu as bien été déconnecté.',
     'common.accountCreated': 'Compte créé avec succès. Bienvenue !',
     'common.cancel': 'Annuler',
+    'common.show': 'Afficher',
+    'common.hide': 'Masquer',
     'common.loading': 'Chargement... ⏳',
     'common.comingSoon': 'Bientôt disponible',
     'common.languageToggle': 'Changer de langue',
@@ -173,6 +178,7 @@ const MESSAGES: Record<Locale, Record<MessageKey, string>> = {
     'signup.firstName.label': 'Prénom',
     'signup.firstName.placeholder': 'Prénom',
     'signup.firstName.required': 'Prénom requis.',
+    'signup.firstName.invalidFormat': 'Le prénom contient des caractères non valides.',
     'signup.lastName.label': 'Nom',
     'signup.lastName.placeholder': 'Nom',
     'signup.lastName.required': 'Nom requis.',
@@ -247,6 +253,8 @@ const MESSAGES: Record<Locale, Record<MessageKey, string>> = {
     'common.signedOut': 'You have been signed out.',
     'common.accountCreated': 'Account created successfully. Welcome!',
     'common.cancel': 'Cancel',
+    'common.show': 'Show',
+    'common.hide': 'Hide',
     'common.loading': 'Loading... ⏳',
     'common.comingSoon': 'Coming soon',
     'common.languageToggle': 'Switch language',
@@ -275,6 +283,7 @@ const MESSAGES: Record<Locale, Record<MessageKey, string>> = {
     'signup.firstName.label': 'First name',
     'signup.firstName.placeholder': 'First name',
     'signup.firstName.required': 'First name is required.',
+    'signup.firstName.invalidFormat': 'First name contains invalid characters.',
     'signup.lastName.label': 'Last name',
     'signup.lastName.placeholder': 'Last name',
     'signup.lastName.required': 'Last name is required.',

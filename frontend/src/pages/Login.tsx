@@ -22,6 +22,7 @@ export default function Login({onLoginSuccess, onRequestClose}: LoginProps) {
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
 
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
@@ -172,25 +173,39 @@ export default function Login({onLoginSuccess, onRequestClose}: LoginProps) {
                     }}
                 />
 
-                <input
-                    name="password"
-                    aria-label="Password"
-                    type="password"
-                    autoComplete="current-password"
-                    placeholder={t('login.password.placeholder')}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    disabled={isLoading}
-                    style={{
-                        padding: '1rem',
-                        borderRadius: '0.75rem',
-                        border: error ? '2px solid #ffcdd2' : '2px solid #f0f0f0',
-                        backgroundColor: isLoading ? '#e9ecef' : '#f8f9fa',
-                        fontSize: '1rem',
-                        outline: 'none',
-                        fontFamily: 'inherit',
-                    }}
-                />
+                <div className={`stakr-passwordField ${isLoading ? 'is-disabled' : ''}`}>
+                    <input
+                        name="password"
+                        aria-label="Password"
+                        type={showPassword ? 'text' : 'password'}
+                        autoComplete="current-password"
+                        placeholder={t('login.password.placeholder')}
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        disabled={isLoading}
+                        style={{
+                            width: '100%',
+                            padding: '1rem',
+                            borderRadius: '0.75rem',
+                            border: error ? '2px solid #ffcdd2' : '2px solid #f0f0f0',
+                            backgroundColor: isLoading ? '#e9ecef' : '#f8f9fa',
+                            fontSize: '1rem',
+                            outline: 'none',
+                            fontFamily: 'inherit',
+                        }}
+                    />
+
+                    <button
+                        type="button"
+                        onClick={() => setShowPassword((s) => !s)}
+                        aria-label={showPassword ? t('common.hide') : t('common.show')}
+                        aria-pressed={showPassword}
+                        disabled={isLoading}
+                        className="stakr-passwordToggle"
+                    >
+                        {showPassword ? t('common.hide') : t('common.show')}
+                    </button>
+                </div>
 
                 <button
                     type="submit"
