@@ -91,7 +91,12 @@ class TestCreateUser:
     def test_create_user_success(self):
         """Test successful user creation."""
         mock_db = MagicMock()
-        user_in = UserCreate(email="newuser@example.com", password="password123")
+        user_in = UserCreate(
+            email="newuser@example.com",
+            password="password123",
+            first_name="New",
+            last_name="User",
+        )
 
         with patch("app.schemas.crud.get_password_hash") as mock_hash:
             mock_hash.return_value = "hashed_password"
@@ -116,7 +121,9 @@ class TestCreateUser:
         ]
 
         for email in emails:
-            user_in = UserCreate(email=email, password="password123")
+            user_in = UserCreate(
+                email=email, password="password123", first_name="Test", last_name="User"
+            )
 
             with patch("app.schemas.crud.get_password_hash") as mock_hash:
                 mock_hash.return_value = "hashed_password"
@@ -127,7 +134,12 @@ class TestCreateUser:
     def test_create_user_calls_commit(self):
         """Test that create_user commits to database."""
         mock_db = MagicMock()
-        user_in = UserCreate(email="test@example.com", password="password123")
+        user_in = UserCreate(
+            email="test@example.com",
+            password="password123",
+            first_name="T",
+            last_name="U",
+        )
 
         with patch("app.schemas.crud.get_password_hash"):
             create_user(mock_db, user_in)
@@ -137,7 +149,12 @@ class TestCreateUser:
     def test_create_user_calls_refresh(self):
         """Test that create_user refreshes the user object."""
         mock_db = MagicMock()
-        user_in = UserCreate(email="test@example.com", password="password123")
+        user_in = UserCreate(
+            email="test@example.com",
+            password="password123",
+            first_name="T",
+            last_name="U",
+        )
 
         with patch("app.schemas.crud.get_password_hash"):
             create_user(mock_db, user_in)

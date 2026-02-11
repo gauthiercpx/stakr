@@ -5,6 +5,12 @@ export interface ModalProps {
   title?: string;
   onRequestClose: () => void;
   /**
+   * Controls the dialog width.
+   * - sm: compact (legacy login size)
+   * - lg: wide (better for multi-field forms like signup)
+   */
+  size?: 'sm' | 'lg';
+  /**
    * Sets initial focus inside the modal.
    * If not provided, the close button receives focus.
    */
@@ -24,6 +30,7 @@ export default function Modal({
   isOpen,
   title,
   onRequestClose,
+  size = 'sm',
   initialFocusRef,
   children,
 }: ModalProps) {
@@ -131,6 +138,11 @@ export default function Modal({
 
   const isVisible = isOpen && hasEntered && !isClosing;
 
+  const maxWidth =
+    size === 'lg'
+      ? 'min(56rem, calc(100vw - 2.5rem))'
+      : 'min(24rem, calc(100vw - 2.5rem))';
+
   return (
     <div
       role="presentation"
@@ -162,7 +174,9 @@ export default function Modal({
         aria-labelledby={title ? titleId : undefined}
         style={{
           width: '100%',
-          maxWidth: '24rem',
+          maxWidth,
+          maxHeight: 'calc(100vh - 2.5rem)',
+          overflow: 'auto',
           background: 'white',
           borderRadius: '1.5rem',
           border: '1px solid rgba(0,0,0,0.06)',
