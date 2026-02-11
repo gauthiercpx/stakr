@@ -14,6 +14,7 @@ class UserCreate(UserBase):
     password: str
     first_name: str
     last_name: str
+    job_title: Optional[str] = None
 
 
 
@@ -21,9 +22,11 @@ class UserCreate(UserBase):
 class User(UserBase):
     # Expose DB columns directly so frontend can access them without relying
     # on a computed property. `name` remains optional for compatibility.
+    id: UUID
     first_name: str
     last_name: str
-    id: UUID
+    job_title: Optional[str] = None
+
 
 
     model_config = ConfigDict(from_attributes=True)

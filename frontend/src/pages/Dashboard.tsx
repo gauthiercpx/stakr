@@ -99,6 +99,7 @@ export default function Dashboard({onLogout}: DashboardProps) {
                     <LanguageToggle/>
                     <NeonButton
                         label={t('nav.logout')}
+                        title={t('nav.logout')}
                         onClick={onLogout}
                         variant="outline"
                         style={{minWidth: '10.5rem'}}

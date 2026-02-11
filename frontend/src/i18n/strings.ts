@@ -36,6 +36,7 @@ export type MessageKey =
   | 'dashboard.stacks.count'
   | 'dashboard.stacks.create'
   | 'common.signedOut'
+  | 'common.accountCreated'
   | 'common.cancel'
   | 'common.loading'
   | 'common.comingSoon'
@@ -50,7 +51,32 @@ export type MessageKey =
   | 'login.submit.loading'
   | 'login.error.incorrectCredentials'
   | 'login.error.serverStarting'
-  | 'login.error.serverError';
+  | 'login.error.serverError'
+  | 'signup.title'
+  | 'signup.subtitle'
+  | 'signup.email.placeholder'
+  | 'signup.emailConfirm.placeholder'
+  | 'signup.password.placeholder'
+  | 'signup.passwordConfirm.placeholder'
+  | 'signup.email.invalid'
+  | 'signup.email.mismatch'
+  | 'signup.firstName.label'
+  | 'signup.firstName.placeholder'
+  | 'signup.firstName.required'
+  | 'signup.lastName.label'
+  | 'signup.lastName.placeholder'
+  | 'signup.lastName.required'
+  | 'signup.jobTitle.label'
+  | 'signup.jobTitle.placeholder'
+  | 'signup.password.required'
+  | 'signup.password.tooShort'
+  | 'signup.password.mismatch'
+  | 'signup.submit'
+  | 'signup.submit.loading'
+  | 'signup.error.emailAlreadyUsed'
+  | 'signup.error.serverStarting'
+  | 'signup.error.serverError'
+  | 'signup.error.generic';
 
 const MESSAGES: Record<Locale, Record<MessageKey, string>> = {
   fr: {
@@ -73,7 +99,7 @@ const MESSAGES: Record<Locale, Record<MessageKey, string>> = {
     'landing.hero.title.brand': 'STAKR',
     'landing.hero.title.after': '✨',
     'landing.hero.subtitle':
-      'Centralise, visualise et garde le rythme avec un dashboard clair, rapide, et pensé pour le focus.',
+      'Centralise, visualise et garde le rythme avec un dashboard clair, rapide, et pensé pour favoriser la concentration.',
     'landing.cta.signup': 'Créer un compte',
     'landing.cta.login': 'Se connecter',
     'landing.cta.dashboardReady': 'Dashboard prêt en quelques clics',
@@ -81,9 +107,9 @@ const MESSAGES: Record<Locale, Record<MessageKey, string>> = {
     'landing.preview.desc':
       'Connecte-toi pour voir tes stacks, tes infos et les prochaines étapes.',
     'landing.preview.cta': 'Accéder au dashboard',
-    'landing.features.focus.title': 'Clair et focus',
+    'landing.features.focus.title': 'Clair et épuré',
     'landing.features.focus.desc':
-      'Un espace épuré pour rester concentré sur l’essentiel et éviter le bruit.',
+      "Un espace épuré pour t'aider à rester concentré sur l'essentiel, sans distractions inutiles.",
     'landing.features.fast.title': 'Rapide à utiliser',
     'landing.features.fast.desc':
       'Tout est à portée de main pour visualiser tes stacks et avancer sans friction.',
@@ -99,6 +125,7 @@ const MESSAGES: Record<Locale, Record<MessageKey, string>> = {
     'dashboard.stacks.count': '0',
     'dashboard.stacks.create': '+ Créer une Stack',
     'common.signedOut': 'Tu as bien été déconnecté.',
+    'common.accountCreated': 'Compte créé avec succès. Bienvenue !',
     'common.cancel': 'Annuler',
     'common.loading': 'Chargement... ⏳',
     'common.comingSoon': 'Bientôt disponible',
@@ -117,6 +144,33 @@ const MESSAGES: Record<Locale, Record<MessageKey, string>> = {
       'Le serveur démarre. Patiente quelques secondes puis réessaie.',
     'login.error.serverError':
       'Erreur serveur. Réessaie dans quelques secondes.',
+
+    'signup.title': 'Stakr',
+    'signup.subtitle': 'Créer ton compte',
+    'signup.email.placeholder': 'Email',
+    'signup.emailConfirm.placeholder': "Confirmez l'email",
+    'signup.password.placeholder': 'Mot de passe',
+    'signup.passwordConfirm.placeholder': 'Confirme le mot de passe',
+    'signup.email.invalid': 'Adresse email invalide.',
+    'signup.email.mismatch': "Les adresses e-mail ne correspondent pas.",
+    'signup.firstName.label': 'Prénom',
+    'signup.firstName.placeholder': 'Prénom',
+    'signup.firstName.required': 'Prénom requis.',
+    'signup.lastName.label': 'Nom',
+    'signup.lastName.placeholder': 'Nom',
+    'signup.lastName.required': 'Nom requis.',
+    'signup.jobTitle.label': 'Poste',
+    'signup.jobTitle.placeholder': 'Poste (optionnel)',
+    'signup.password.required': 'Mot de passe requis.',
+    'signup.password.tooShort': 'Le mot de passe doit contenir au moins 8 caractères.',
+    'signup.password.mismatch': 'Les mots de passe ne correspondent pas.',
+    'signup.submit': 'Créer un compte',
+    'signup.submit.loading': 'Création…',
+    'signup.error.emailAlreadyUsed': 'Cet email est déjà utilisé.',
+    'signup.error.serverStarting':
+      'Le serveur démarre. Patiente quelques secondes puis réessaie.',
+    'signup.error.serverError': 'Erreur serveur. Réessaie dans quelques secondes.',
+    'signup.error.generic': 'Impossible de créer le compte. Réessaie.',
   },
   en: {
     'app.serverWaking.title': '🚀 Waking up the server…',
@@ -165,6 +219,7 @@ const MESSAGES: Record<Locale, Record<MessageKey, string>> = {
     'dashboard.stacks.count': '0',
     'dashboard.stacks.create': '+ Create a stack',
     'common.signedOut': 'You have been signed out.',
+    'common.accountCreated': 'Account created successfully. Welcome!',
     'common.cancel': 'Cancel',
     'common.loading': 'Loading... ⏳',
     'common.comingSoon': 'Coming soon',
@@ -182,6 +237,33 @@ const MESSAGES: Record<Locale, Record<MessageKey, string>> = {
     'login.error.serverStarting':
       'Server is starting up. Please wait a few seconds and retry.',
     'login.error.serverError': 'Server error. Please retry in a moment.',
+
+    'signup.title': 'Stakr',
+    'signup.subtitle': 'Create your account',
+    'signup.email.placeholder': 'Email',
+    'signup.emailConfirm.placeholder': 'Confirm email',
+    'signup.password.placeholder': 'Password',
+    'signup.passwordConfirm.placeholder': 'Confirm password',
+    'signup.email.invalid': 'Invalid email address.',
+    'signup.email.mismatch': 'Email addresses do not match.',
+    'signup.firstName.label': 'First name',
+    'signup.firstName.placeholder': 'First name',
+    'signup.firstName.required': 'First name is required.',
+    'signup.lastName.label': 'Last name',
+    'signup.lastName.placeholder': 'Last name',
+    'signup.lastName.required': 'Last name is required.',
+    'signup.jobTitle.label': 'Job title',
+    'signup.jobTitle.placeholder': 'Job title (optional)',
+    'signup.password.required': 'Password is required.',
+    'signup.password.tooShort': 'Password must be at least 8 characters.',
+    'signup.password.mismatch': 'Passwords do not match.',
+    'signup.submit': 'Create account',
+    'signup.submit.loading': 'Creating…',
+    'signup.error.emailAlreadyUsed': 'This email is already in use.',
+    'signup.error.serverStarting':
+      'Server is starting up. Please wait a few seconds and retry.',
+    'signup.error.serverError': 'Server error. Please retry in a moment.',
+    'signup.error.generic': 'Could not create account. Please try again.',
   },
 };
 

@@ -6,9 +6,10 @@ import {useEffect, useId, useRef, useState} from 'react';
 
 interface LandingPageProps {
     onLoginRequested: () => void;
+    onSignupRequested: () => void;
 }
 
-export default function LandingPage({onLoginRequested}: LandingPageProps) {
+export default function LandingPage({onLoginRequested, onSignupRequested}: LandingPageProps) {
     const {t} = useI18n();
 
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -92,8 +93,8 @@ export default function LandingPage({onLoginRequested}: LandingPageProps) {
 
                     <NeonButton
                         label={t('nav.signup')}
-                        disabled
-                        title={t('common.comingSoon')}
+                        onClick={onSignupRequested}
+                        title={t('landing.cta.signup')}
                         variant="outline"
                         style={{minWidth: '10.5rem'}}
                     />
@@ -133,7 +134,10 @@ export default function LandingPage({onLoginRequested}: LandingPageProps) {
                     <div className="stakr-nav__mobileRow">
                         <NeonButton
                             label={t('nav.signup')}
-                            disabled
+                            onClick={() => {
+                                setIsMenuOpen(false);
+                                onSignupRequested();
+                            }}
                             title={t('common.comingSoon')}
                             variant="outline"
                             style={{width: '100%'}}
@@ -255,8 +259,8 @@ export default function LandingPage({onLoginRequested}: LandingPageProps) {
                                 >
                                     <NeonButton
                                         label={t('landing.cta.signup')}
-                                        disabled
-                                        title={t('common.comingSoon')}
+                                        onClick={onSignupRequested}
+                                        title={t('landing.cta.signup')}
                                         variant="solid"
                                         style={{
                                             backgroundColor: '#bff104',
