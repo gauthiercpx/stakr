@@ -256,6 +256,32 @@ button, input {
   }
 }
 
+/* --- Signup / Auth inputs (reusable) --- */
+.stakr-input {
+  width: 100%;
+  padding: 1rem;
+  border-radius: 0.75rem;
+  border: 2px solid #f0f0f0;
+  background-color: #f8f9fa;
+  font-size: 1rem;
+  outline: none;
+  transition: all 0.15s ease-in-out;
+  font-family: inherit;
+}
+
+.stakr-input:disabled {
+  background-color: #e9ecef;
+}
+
+.stakr-input--error {
+  border-color: #ffcdd2;
+}
+
+/* small helper: make paired error messages span 100% when needed */
+.stakr-field-error.pair {
+  grid-column: 1 / -1;
+}
+
 /* --- Signup field layout helpers --- */
 .stakr-field {
   display: flex;
