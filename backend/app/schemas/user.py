@@ -25,5 +25,6 @@ class User(UserBase):
     first_name: str
     last_name: str
     job_title: Optional[str] = None
+    is_active: bool
 
     model_config = ConfigDict(from_attributes=True)
