@@ -1,7 +1,6 @@
 import NeonButton from '../components/NeonButton';
 import {useI18n} from '../i18n/useI18n';
 import {useNavigate} from 'react-router-dom';
-import AppNavbar from '../components/AppNavbar';
 
 export default function NotFound() {
   const {t} = useI18n();
@@ -15,11 +14,11 @@ export default function NotFound() {
         fontFamily: "'Baloo 2', cursive",
       }}
     >
-      <AppNavbar />
 
       <main
         style={{
           padding: '3rem 2rem 4rem',
+          paddingTop: 'calc(4.5rem + 1rem)', // space for fixed navbar
           maxWidth: '760px',
           margin: '0 auto',
           textAlign: 'center',
