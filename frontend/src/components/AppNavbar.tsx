@@ -1,16 +1,18 @@
-import {useEffect, useId, useRef, useState} from 'react';
-import {Link} from 'react-router-dom';
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
+// 👇 On importe les hooks depuis leurs propres fichiers
+import { useMobileMenu } from '../hooks/useMobileMenu';
+import { useNavbarAnimation } from '../hooks/useNavbarAnimation';
 
-export type AppNavbarMobileActionsRender = (helpers: {closeMenu: () => void}) => React.ReactNode;
+export type AppNavbarMobileActionsRender = (helpers: { closeMenu: () => void }) => React.ReactNode;
 
 interface AppNavbarProps {
     brandTo?: string;
     brandAriaLabel?: string;
     brandContent?: React.ReactNode;
-
     desktopActions?: React.ReactNode;
     mobileActions?: React.ReactNode | AppNavbarMobileActionsRender;
-
     burgerAriaLabel?: string;
     mobileMenuAriaLabel?: string;
 }
@@ -18,81 +20,48 @@ interface AppNavbarProps {
 export default function AppNavbar({
     brandTo = '/',
     brandAriaLabel = 'Go to home',
-    brandContent = (
-        <>
-            STAKR<span style={{color: '#bff104'}}>. </span>
-        </>
-    ),
+    brandContent = (<>STAKR<span style={{color: '#bff104'}}>. </span></>),
     desktopActions,
     mobileActions,
     burgerAriaLabel = 'Menu',
     mobileMenuAriaLabel = 'Mobile menu',
 }: AppNavbarProps) {
-    const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-    const menuId = useId();
-    const mobilePanelId = `stakr-mobile-menu-${menuId}`;
-    const burgerButtonRef = useRef<HTMLButtonElement | null>(null);
-    const mobilePanelRef = useRef<HTMLDivElement | null>(null);
+    // 👇 Utilisation correcte des hooks
+    const { isOpen, close, toggle, buttonRef, panelRef, panelId } = useMobileMenu();
+    const { isScrolled, isHidden } = useNavbarAnimation(isOpen);
 
-    const closeMenu = () => setIsMenuOpen(false);
+    const resolvedMobileActions = typeof mobileActions === 'function'
+        ? (mobileActions as AppNavbarMobileActionsRender)({ closeMenu: close })
+        : mobileActions;
 
-    useEffect(() => {
-        if (!isMenuOpen) return;
-        const onKeyDown = (e: KeyboardEvent) => {
-            if (e.key === 'Escape') closeMenu();
-        };
-        window.addEventListener('keydown', onKeyDown);
-        return () => window.removeEventListener('keydown', onKeyDown);
-    }, [isMenuOpen]);
-
-    useEffect(() => {
-        if (!isMenuOpen) return;
-        const onPointerDown = (e: PointerEvent) => {
-            const target = e.target as Node | null;
-            if (!target) return;
-
-            const panel = mobilePanelRef.current;
-            const burger = burgerButtonRef.current;
-            const clickedInsidePanel = !!panel && panel.contains(target);
-            const clickedBurger = !!burger && burger.contains(target);
-            if (!clickedInsidePanel && !clickedBurger) {
-                closeMenu();
-            }
-        };
-
-        window.addEventListener('pointerdown', onPointerDown);
-        return () => window.removeEventListener('pointerdown', onPointerDown);
-    }, [isMenuOpen]);
-
-    useEffect(() => {
-        if (isMenuOpen) return;
-        burgerButtonRef.current?.focus();
-    }, [isMenuOpen]);
-
-    const resolvedMobileActions =
-        typeof mobileActions === 'function'
-            ? (mobileActions as AppNavbarMobileActionsRender)({closeMenu})
-            : mobileActions;
+    const navbarVariants = {
+        visible: { y: 0, opacity: 1 },
+        hidden: { y: "-100%", opacity: 0 },
+    };
 
     return (
-        <nav className="stakr-nav">
+        <motion.nav
+            variants={navbarVariants}
+            initial="hidden"
+            animate={isHidden ? "hidden" : "visible"}
+            transition={{ duration: 0.35, ease: "easeInOut" }}
+            className={`stakr-nav ${isScrolled ? 'is-scrolled' : ''}`}
+        >
             <Link to={brandTo} className="stakr-nav__brand" aria-label={brandAriaLabel}>
                 {brandContent}
             </Link>
 
-            {/* Desktop actions */}
             <div className="stakr-nav__desktop">{desktopActions}</div>
 
-            {/* Mobile burger */}
             <button
                 type="button"
                 className="stakr-nav__burgerBtn"
                 aria-label={burgerAriaLabel}
-                aria-expanded={isMenuOpen}
-                aria-controls={mobilePanelId}
-                ref={burgerButtonRef}
-                onClick={() => setIsMenuOpen((v) => !v)}
+                aria-expanded={isOpen}
+                aria-controls={panelId}
+                ref={buttonRef}
+                onClick={toggle}
             >
                 <span className="stakr-nav__burgerLines" aria-hidden>
                     <span/>
@@ -102,15 +71,14 @@ export default function AppNavbar({
             </button>
 
             <div
-                id={mobilePanelId}
-                ref={mobilePanelRef}
-                className={`stakr-nav__mobilePanel ${isMenuOpen ? 'is-open' : ''}`}
+                id={panelId}
+                ref={panelRef}
+                className={`stakr-nav__mobilePanel ${isOpen ? 'is-open' : ''}`}
                 role="menu"
                 aria-label={mobileMenuAriaLabel}
             >
                 <div className="stakr-nav__mobileRow">{resolvedMobileActions}</div>
             </div>
-        </nav>
+        </motion.nav>
     );
 }
-

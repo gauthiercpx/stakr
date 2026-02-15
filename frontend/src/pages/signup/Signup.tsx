@@ -1,10 +1,10 @@
-import { useI18n } from '../i18n/useI18n';
-import { SignupHeader } from './signup/components/SignupHeader';
-import { SignupErrorBanner } from './signup/components/SignupErrorBanner';
-import { SignupActions } from './signup/components/SignupActions';
-import { SignupTextField } from './signup/components/SignupTextField';
-import { SignupPasswordField } from './signup/components/SignupPasswordField';
-import { useSignupForm } from './signup/hooks/useSignupForm';
+import { useI18n } from '../../i18n/useI18n.ts';
+import { SignupHeader } from './components/SignupHeader.tsx';
+import { SignupErrorBanner } from './components/SignupErrorBanner.tsx';
+import { SignupActions } from './components/SignupActions.tsx';
+import { SignupTextField } from './components/SignupTextField.tsx';
+import { SignupPasswordField } from './components/SignupPasswordField.tsx';
+import { useSignupForm } from './hooks/useSignupForm.ts';
 
 // Props provided by App.tsx
 interface SignupProps {

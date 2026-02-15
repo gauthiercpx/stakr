@@ -5,384 +5,450 @@
 *,
 *::before,
 *::after {
-  box-sizing: border-box;
+    box-sizing: border-box;
 }
 
 html,
 body {
-  width: 100%;
-  overflow-x: hidden;
-  background-color: #f4f4f4;
+    width: 100%;
+    overflow-x: hidden;
+    background-color: #f4f4f4;
 }
 
 #root {
-  min-height: 100vh;
-  background-color: #f4f4f4;
+    min-height: 100vh;
+    background-color: #f4f4f4;
 }
 
 body {
-  margin: 0;
-  font-family: 'Baloo 2', cursive;
-  -webkit-font-smoothing: antialiased;
+    margin: 0;
+    font-family: 'Baloo 2', cursive;
+    -webkit-font-smoothing: antialiased;
 
-  /* App background */
-  background-color: #f4f4f4;
-  color: #000000;
+    /* App background */
+    background-color: #f4f4f4;
+    color: #000000;
 }
 
 /* On s'assure que les titres sont bien gras */
 h1, h2, h3 {
-  font-weight: 800;
+    font-weight: 800;
 }
 
 button, input {
-  font-family: 'Baloo 2', cursive;
-  font-weight: 700;
+    font-family: 'Baloo 2', cursive;
+    font-weight: 700;
 }
 
 @keyframes stakr-spin {
-  to {
-    transform: rotate(360deg);
-  }
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 @keyframes stakr-page-enter-right {
-  from {
-    opacity: 0;
-    transform: translateX(18px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
+    from {
+        opacity: 0;
+        transform: translateX(18px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
 }
 
 @keyframes stakr-page-enter-left {
-  from {
-    opacity: 0;
-    transform: translateX(-18px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
+    from {
+        opacity: 0;
+        transform: translateX(-18px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
 }
 
 /* --- Responsive navbar (burger) --- */
 .stakr-nav {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: clamp(0.75rem, 2.5vw, 1rem) clamp(1rem, 4vw, 2rem);
-  background-color: #000000;
-  color: white;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-  position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: clamp(0.75rem, 2.5vw, 1rem) clamp(1rem, 4vw, 2rem);
+    background-color: #000000;
+    color: white;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    position: relative;
 }
 
 .stakr-nav__brand {
-  font-size: 1.8rem;
-  font-weight: 800;
-  letter-spacing: -1px;
-  color: inherit;
-  text-decoration: none;
-  cursor: pointer;
-  flex-shrink: 0;
+    font-size: 1.8rem;
+    font-weight: 800;
+    letter-spacing: -1px;
+    color: inherit;
+    text-decoration: none;
+    cursor: pointer;
+    flex-shrink: 0;
 }
 
 .stakr-nav__desktop {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.75rem;
 }
 
 .stakr-nav__burgerBtn {
-  display: none;
-  align-items: center;
-  justify-content: center;
-  width: 2.75rem;
-  height: 2.75rem;
-  border-radius: 0.9rem;
-  border: 1px solid rgba(255,255,255,0.18);
-  background: rgba(255,255,255,0.06);
-  color: white;
-  cursor: pointer;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 0.9rem;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    background: rgba(255, 255, 255, 0.06);
+    color: white;
+    cursor: pointer;
 }
 
 .stakr-nav__burgerLines {
-  width: 1.2rem;
-  height: 0.9rem;
-  position: relative;
+    width: 1.2rem;
+    height: 0.9rem;
+    position: relative;
 }
 
 .stakr-nav__burgerLines span {
-  position: absolute;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: white;
-  border-radius: 999px;
-  transition: transform 180ms ease, top 180ms ease, opacity 180ms ease;
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: white;
+    border-radius: 999px;
+    transition: transform 180ms ease, top 180ms ease, opacity 180ms ease;
 }
 
-.stakr-nav__burgerLines span:nth-child(1) { top: 0; }
-.stakr-nav__burgerLines span:nth-child(2) { top: 0.4rem; }
-.stakr-nav__burgerLines span:nth-child(3) { top: 0.8rem; }
+.stakr-nav__burgerLines span:nth-child(1) {
+    top: 0;
+}
+
+.stakr-nav__burgerLines span:nth-child(2) {
+    top: 0.4rem;
+}
+
+.stakr-nav__burgerLines span:nth-child(3) {
+    top: 0.8rem;
+}
 
 .stakr-nav__burgerBtn[aria-expanded="true"] .stakr-nav__burgerLines span:nth-child(1) {
-  top: 0.4rem;
-  transform: rotate(45deg);
+    top: 0.4rem;
+    transform: rotate(45deg);
 }
+
 .stakr-nav__burgerBtn[aria-expanded="true"] .stakr-nav__burgerLines span:nth-child(2) {
-  opacity: 0;
+    opacity: 0;
 }
+
 .stakr-nav__burgerBtn[aria-expanded="true"] .stakr-nav__burgerLines span:nth-child(3) {
-  top: 0.4rem;
-  transform: rotate(-45deg);
+    top: 0.4rem;
+    transform: rotate(-45deg);
 }
 
 .stakr-nav__mobilePanel {
-  display: none;
-  position: absolute;
-  left: 1rem;
-  right: 1rem;
-  top: calc(100% + 0.75rem);
-  background: rgba(0,0,0,0.92);
-  border: 1px solid rgba(255,255,255,0.12);
-  border-radius: 1.2rem;
-  padding: 0.9rem;
-  box-shadow: 0 18px 40px rgba(0,0,0,0.35);
-  z-index: 100;
+    display: none;
+    position: absolute;
+    left: 1rem;
+    right: 1rem;
+    top: calc(100% + 0.75rem);
+    background: rgba(0, 0, 0, 0.92);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 1.2rem;
+    padding: 0.9rem;
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+    z-index: 100;
 }
 
 .stakr-nav__mobilePanel.is-open {
-  display: grid;
-  gap: 0.75rem;
-  align-items: stretch;
+    display: grid;
+    gap: 0.75rem;
+    align-items: stretch;
 }
 
 .stakr-nav__mobileRow {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
 }
 
 .stakr-nav__mobileRow > * {
-  width: 100%;
+    width: 100%;
 }
 
 @media (max-width: 640px) {
-  .stakr-nav {
-    flex-wrap: wrap;
-    row-gap: 0.75rem;
-  }
+    .stakr-nav {
+        flex-wrap: wrap;
+        row-gap: 0.75rem;
+    }
 
-  .stakr-nav__desktop {
-    display: none;
-  }
+    .stakr-nav__desktop {
+        display: none;
+    }
 
-  .stakr-nav__burgerBtn {
-    display: inline-flex;
-  }
+    .stakr-nav__burgerBtn {
+        display: inline-flex;
+    }
 
-  .stakr-nav__mobilePanel {
-    left: 0.75rem;
-    right: 0.75rem;
-  }
+    .stakr-nav__mobilePanel {
+        left: 0.75rem;
+        right: 0.75rem;
+    }
 }
 
 /* --- Signup (better desktop layout) --- */
 .stakr-signup {
-  display: flex;
-  flex-direction: column;
+    display: flex;
+    flex-direction: column;
 }
 
 .stakr-signup__card {
-  padding: 2.5rem;
-  background-color: white;
-  border-radius: 1.5rem;
-  width: 100%;
-  max-width: 46rem;
-  border: 1px solid rgba(0,0,0,0.06);
-  box-shadow: 0 8px 24px rgba(0,0,0,0.18), 0 2px 6px rgba(0,0,0,0.08);
-  position: relative;
+    padding: 2.5rem;
+    background-color: white;
+    border-radius: 1.5rem;
+    width: 100%;
+    max-width: 46rem;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18), 0 2px 6px rgba(0, 0, 0, 0.08);
+    position: relative;
 }
 
 .stakr-signup__form {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
 }
 
 .stakr-signup__grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 1rem;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
 }
 
 .stakr-signup__full {
-  grid-column: 1 / -1;
+    grid-column: 1 / -1;
 }
 
 .stakr-signup__actions {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 0.75rem;
-  margin-top: 0.25rem;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+    margin-top: 0.25rem;
 }
 
 .stakr-signup__primary,
 .stakr-signup__secondary {
-  width: 100%;
+    width: 100%;
 }
 
 @media (min-width: 900px) {
-  .stakr-signup__card {
-    max-width: 52rem;
-    padding: 2.75rem;
-  }
+    .stakr-signup__card {
+        max-width: 52rem;
+        padding: 2.75rem;
+    }
 
-  .stakr-signup__grid {
-    grid-template-columns: 1fr 1fr;
-    column-gap: 1.25rem;
-    row-gap: 1rem;
-  }
+    .stakr-signup__grid {
+        grid-template-columns: 1fr 1fr;
+        column-gap: 1.25rem;
+        row-gap: 1rem;
+    }
 
-  .stakr-signup__actions {
-    grid-template-columns: 1fr 1fr;
-    align-items: stretch;
-    margin-top: 0.5rem;
-  }
+    .stakr-signup__actions {
+        grid-template-columns: 1fr 1fr;
+        align-items: stretch;
+        margin-top: 0.5rem;
+    }
 }
 
 /* --- Signup / Auth inputs (reusable) --- */
 .stakr-input {
-  width: 100%;
-  padding: 1rem;
-  border-radius: 0.75rem;
-  border: 2px solid #f0f0f0;
-  background-color: #f8f9fa;
-  font-size: 1rem;
-  outline: none;
-  transition: all 0.15s ease-in-out;
-  font-family: inherit;
+    width: 100%;
+    padding: 1rem;
+    border-radius: 0.75rem;
+    border: 2px solid #f0f0f0;
+    background-color: #f8f9fa;
+    font-size: 1rem;
+    outline: none;
+    transition: all 0.15s ease-in-out;
+    font-family: inherit;
 }
 
 .stakr-input:disabled {
-  background-color: #e9ecef;
+    background-color: #e9ecef;
 }
 
 .stakr-input--error {
-  border-color: #ffcdd2;
+    border-color: #ffcdd2;
 }
 
 /* small helper: make paired error messages span 100% when needed */
 .stakr-field-error.pair {
-  grid-column: 1 / -1;
+    grid-column: 1 / -1;
 }
 
 /* --- Signup field layout helpers --- */
 .stakr-field {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
 }
 
 .stakr-field > input {
-  width: 100%;
+    width: 100%;
 }
 
 /* Make inline errors align nicely under inputs (esp. in 2-col grid) */
 .stakr-field-error {
-  line-height: 1.25;
+    line-height: 1.25;
 }
 
 @media (min-width: 900px) {
-  /* Slightly tighten error box on desktop */
-  .stakr-field-error {
-    padding: 0.45rem 0.7rem;
-  }
+    /* Slightly tighten error box on desktop */
+    .stakr-field-error {
+        padding: 0.45rem 0.7rem;
+    }
 }
 
 /* Inline field error style */
 .stakr-field-error {
-  margin-top: 0.5rem;
-  color: #b00020; /* dark red text */
-  background: rgba(255, 235, 238, 0.9);
-  border: 1px solid rgba(255, 205, 210, 1);
-  padding: 0.5rem 0.75rem;
-  border-radius: 0.6rem;
-  font-size: 0.9rem;
+    margin-top: 0.5rem;
+    color: #b00020; /* dark red text */
+    background: rgba(255, 235, 238, 0.9);
+    border: 1px solid rgba(255, 205, 210, 1);
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.6rem;
+    font-size: 0.9rem;
 }
 
 /* Slightly reduce padding on very small screens */
 @media (max-width: 420px) {
-  .stakr-field-error {
-    padding: 0.4rem 0.6rem;
-    font-size: 0.85rem;
-  }
+    .stakr-field-error {
+        padding: 0.4rem 0.6rem;
+        font-size: 0.85rem;
+    }
 }
 
 /* --- Password field with show/hide button --- */
 .stakr-passwordField {
-  position: relative;
-  width: 100%;
+    position: relative;
+    width: 100%;
 }
 
 .stakr-passwordField > input {
-  padding-right: 4.25rem; /* room for toggle + separator */
+    padding-right: 4.25rem; /* room for toggle + separator */
 }
 
 /* Vertical separator between input and button (shorter so it respects radius) */
 .stakr-passwordField::after {
-  content: '';
-  position: absolute;
-  top: 0.85rem;
-  bottom: 0.85rem;
-  right: calc(3.75rem + 2px);
-  width: 1px;
-  background: rgba(0, 0, 0, 0.12);
-  pointer-events: none;
+    content: '';
+    position: absolute;
+    top: 0.85rem;
+    bottom: 0.85rem;
+    right: calc(3.75rem + 2px);
+    width: 1px;
+    background: rgba(0, 0, 0, 0.12);
+    pointer-events: none;
 }
 
 .stakr-passwordToggle {
-  position: absolute;
-  right: 2px;
-  top: 2px;
-  bottom: 2px;
-  width: 3.75rem;
-  padding: 0;
-  border: none;
-  background: transparent;
-  color: rgba(0, 0, 0, 0.62);
-  font-weight: 800;
-  cursor: pointer;
-  border-radius: 0.65rem;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  -webkit-tap-highlight-color: transparent;
+    position: absolute;
+    right: 2px;
+    top: 2px;
+    bottom: 2px;
+    width: 3.75rem;
+    padding: 0;
+    border: none;
+    background: transparent;
+    color: rgba(0, 0, 0, 0.62);
+    font-weight: 800;
+    cursor: pointer;
+    border-radius: 0.65rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    -webkit-tap-highlight-color: transparent;
 }
 
 /* Only the button reacts on hover */
 .stakr-passwordToggle:hover {
-  background: rgba(0, 0, 0, 0.05);
-  color: rgba(0, 0, 0, 0.62);
+    background: rgba(0, 0, 0, 0.05);
+    color: rgba(0, 0, 0, 0.62);
 }
 
 /* Active (show) state: subtle grey background + green text for readability */
 .stakr-passwordToggle[aria-pressed="true"] {
-  background: rgba(191, 241, 4, 0.14); /* brand green tint */
-  color: #2b3a00; /* fixed color for both Afficher/Masquer labels */
+    background: rgba(191, 241, 4, 0.14); /* brand green tint */
+    color: #2b3a00; /* fixed color for both Afficher/Masquer labels */
 }
 
 .stakr-passwordToggle[aria-pressed="true"]:hover {
-  background: rgba(191, 241, 4, 0.22);
-  color: #2b3a00;
+    background: rgba(191, 241, 4, 0.22);
+    color: #2b3a00;
 }
 
 .stakr-passwordField.is-disabled .stakr-passwordToggle {
-  cursor: not-allowed;
-  opacity: 0.6;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+
+/* --- Navbar Animations (Dark Mode Style) --- */
+
+/* État par défaut (en haut de page) */
+.stakr-nav {
+  position: fixed; /* Fixée à l'écran */
+  top: 0;          /* Collée en haut */
+  left: 0;         /* Collée à gauche */
+  right: 0;        /* Collée à droite */
+  width: 100%;     /* Prend toute la largeur */
+  height: 4.5rem;  /* Hauteur fixe pour prévoir le padding du Layout */
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2rem;
+
+  z-index: 1000;   /* Passe au-dessus de tout */
+
+  /* Ton design noir et flou */
+  background-color: rgba(0, 0, 0, 0.95);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* État quand on scrolle (Effet Verre Fumé) */
+.stakr-nav.is-scrolled {
+    /* On devient un peu plus transparent pour voir le flou */
+    background-color: rgba(0, 0, 0, 0.8);
+
+    /* Le flou augmente */
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+}
+
+/* On s'assure que le lien de la marque reste blanc */
+.stakr-nav__brand {
+    color: white;
+    text-decoration: none;
+}
+
+/* Le bouton burger doit être blanc aussi */
+.stakr-nav__burgerBtn {
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+.stakr-nav__burgerLines span {
+    background: white;
 }
