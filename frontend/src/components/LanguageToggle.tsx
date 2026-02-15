@@ -1,5 +1,5 @@
 import type {CSSProperties} from 'react';
-import {useState} from 'react';
+import {useEffect, useState} from 'react';
 
 import {useI18n} from '../i18n/useI18n';
 import NeonButton from './NeonButton';
@@ -22,6 +22,43 @@ export default function LanguageToggle({
     const prefersReducedMotion = usePrefersReducedMotion();
 
     const isLogin = mode === 'login';
+
+    // Detect if device supports hover (to disable hover/focus on touch devices)
+    const [canHover, setCanHover] = useState<boolean>(false);
+    const [isMobileWidth, setIsMobileWidth] = useState<boolean>(false);
+
+    useEffect(() => {
+        if (typeof window === 'undefined') return;
+        const mqHover = window.matchMedia('(hover: hover) and (pointer: fine)');
+        const mqMobile = window.matchMedia('(max-width: 640px)');
+
+        const update = () => {
+            setCanHover(!!mqHover.matches);
+            setIsMobileWidth(!!mqMobile.matches);
+        };
+
+        update();
+        try {
+            mqHover.addEventListener('change', update);
+            mqMobile.addEventListener('change', update);
+            return () => {
+                mqHover.removeEventListener('change', update);
+                mqMobile.removeEventListener('change', update);
+            };
+        } catch (e) {
+            // Fallback for older browsers
+            // eslint-disable-next-line deprecation/deprecation
+            mqHover.addListener(update);
+            // eslint-disable-next-line deprecation/deprecation
+            mqMobile.addListener(update);
+            return () => {
+                // eslint-disable-next-line deprecation/deprecation
+                mqHover.removeListener(update);
+                // eslint-disable-next-line deprecation/deprecation
+                mqMobile.removeListener(update);
+            };
+        }
+    }, []);
 
     const handleToggle: React.MouseEventHandler<HTMLButtonElement> = (e) => {
         toggleLocale();
@@ -179,11 +216,12 @@ export default function LanguageToggle({
 
     return (
         <span
-            style={{display: 'inline-flex'}}
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
-            onFocus={() => setIsFocused(true)}
-            onBlur={() => setIsFocused(false)}
+            className="language-toggle"
+            style={{display: 'inline-flex', width: isMobileWidth ? '100%' : undefined}}
+            onMouseEnter={() => { if (canHover) setIsHovered(true); }}
+            onMouseLeave={() => { if (canHover) setIsHovered(false); }}
+            onFocus={() => { if (canHover) setIsFocused(true); }}
+            onBlur={() => { if (canHover) setIsFocused(false); }}
         >
             <NeonButton
                 label={label}
@@ -191,15 +229,22 @@ export default function LanguageToggle({
                 blurOnClick
                 variant="outline"
                 title={tooltipText}
-                disableOutlineHover={false}
+                disableOutlineHover={!canHover}
                 subtleHover={false}
+                className="language-toggle-btn"
                 style={{
-                    // Keep sizing identical to other outline NeonButtons.
-                    minWidth: '6.2rem',
+                    // On mobile take full width
+                    width: isMobileWidth ? '100%' : undefined,
+                    minWidth: isMobileWidth ? undefined : '6.2rem',
                     ...baseStyle,
                     ...style,
                 }}
-            />
-        </span>
-    );
-}
+                // Prevent hover/focus visual effects on devices without hover
+                onMouseEnter={canHover ? undefined : (() => { /* no-op on touch */ })}
+                onMouseLeave={canHover ? undefined : (() => { /* no-op on touch */ })}
+                onFocus={canHover ? undefined : ((e: React.FocusEvent<HTMLButtonElement>) => { (e.currentTarget as HTMLButtonElement).blur(); })}
+                onBlur={canHover ? undefined : (() => { /* no-op */ })}
+             />
+         </span>
+     );
+ }

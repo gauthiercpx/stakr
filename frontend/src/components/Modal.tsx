@@ -1,235 +1,152 @@
-import { useEffect, useId, useMemo, useRef, useState } from 'react';
+import {useEffect} from 'react';
+import {motion, AnimatePresence, useReducedMotion} from 'framer-motion';
+import type {Variants} from 'framer-motion';
+import {createPortal} from 'react-dom';
 
 export interface ModalProps {
-  isOpen: boolean;
-  title?: string;
-  onRequestClose: () => void;
-  /**
-   * Controls the dialog width.
-   * - sm: compact (legacy login size)
-   * - lg: wide (better for multi-field forms like signup)
-   */
-  size?: 'sm' | 'lg';
-  /**
-   * Sets initial focus inside the modal.
-   * If not provided, the close button receives focus.
-   */
-  initialFocusRef?: React.RefObject<HTMLElement | null>;
-  children: React.ReactNode;
-}
-
-function prefersReducedMotion(): boolean {
-  return (
-    typeof window !== 'undefined' &&
-    window.matchMedia &&
-    window.matchMedia('(prefers-reduced-motion: reduce)').matches
-  );
+    isOpen: boolean;
+    title?: string;
+    onRequestClose: () => void;
+    size?: 'sm' | 'lg'; // sm = Login/Compact, lg = Forms/Large
+    children: React.ReactNode;
 }
 
 export default function Modal({
-  isOpen,
-  title,
-  onRequestClose,
-  size = 'sm',
-  initialFocusRef,
-  children,
-}: ModalProps) {
-  const titleId = useId();
-  const closeBtnRef = useRef<HTMLButtonElement | null>(null);
-  const dialogRef = useRef<HTMLDivElement | null>(null);
+                                  isOpen,
+                                  title,
+                                  onRequestClose,
+                                  size = 'sm',
+                                  children,
+                              }: ModalProps) {
+    const reduce = useReducedMotion();
 
-  const reduceMotion = useMemo(() => prefersReducedMotion(), []);
+    // Variants adaptés selon la préférence reduced-motion
+    const overlayVariants: Variants = reduce
+        ? ({hidden: {opacity: 0}, visible: {opacity: 1}, exit: {opacity: 0}} as unknown as Variants)
+        : ({
+            hidden: {opacity: 0},
+            visible: {opacity: 1},
+            exit: {opacity: 0, transition: {duration: 0.2}},
+        } as unknown as Variants);
 
-  const durationMs = reduceMotion ? 0 : 260;
+    const modalVariants: Variants = reduce
+        ? ({hidden: {opacity: 1, y: 0, scale: 1}, visible: {opacity: 1, y: 0, scale: 1}, exit: {opacity: 1}} as unknown as Variants)
+        : ({
+            hidden: {opacity: 0, y: 40, scale: 0.96},
+            visible: {
+                opacity: 1,
+                y: 0,
+                scale: 1,
+                transition: {type: 'spring', damping: 25, stiffness: 350, mass: 0.5} as const,
+            },
+            exit: {opacity: 0, y: 40, scale: 0.96, transition: {duration: 0.2, ease: 'easeIn'}},
+        } as unknown as Variants);
 
-  const [hasEntered, setHasEntered] = useState(false);
+    // Gestion de la touche Echap
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') onRequestClose();
+        };
+        if (isOpen) window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [isOpen, onRequestClose]);
 
-  useEffect(() => {
-    if (!isOpen) {
-      const id = window.setTimeout(() => setHasEntered(false), 0);
-      return () => window.clearTimeout(id);
-    }
+    // Largeur dynamique selon la prop 'size'
+    const maxWidth = size === 'lg' ? '56rem' : '24rem';
 
-    // Double rAF ensures the browser commits the initial non-visible styles first.
-    let raf1 = 0;
-    let raf2 = 0;
-    raf1 = window.requestAnimationFrame(() => {
-      raf2 = window.requestAnimationFrame(() => setHasEntered(true));
-    });
+    // Utilisation de Portal pour sortir du DOM (évite les conflits z-index)
+    // Assure-toi d'avoir <div id="modal-root"></div> dans ton index.html,
+    // sinon utilise document.body
+    const modalRoot = document.getElementById('modal-root') || document.body;
 
-    return () => {
-      window.cancelAnimationFrame(raf1);
-      window.cancelAnimationFrame(raf2);
-    };
-  }, [isOpen]);
+    return createPortal(
+        <AnimatePresence>
+            {isOpen && (
+                <motion.div
+                    key="modal-overlay"
+                    initial="hidden"
+                    animate="visible"
+                    exit="exit"
+                    variants={overlayVariants}
+                    onClick={(e) => {
+                        // Ferme si on clique sur le fond (backdrop)
+                        if (e.target === e.currentTarget) onRequestClose();
+                    }}
+                    style={{
+                        position: 'fixed',
+                        inset: 0,
+                        zIndex: 9999,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        padding: '1.25rem',
+                        // Ton fond dégradé + le flou iOS
+                        background: 'linear-gradient(to right, rgba(255,255,255,0.85) 0%, rgba(191,241,4,0.22) 100%)',
+                        backdropFilter: 'blur(5px)',
+                        WebkitBackdropFilter: 'blur(5px)',
+                    }}
+                >
+                    <motion.div
+                        role="dialog"
+                        aria-modal="true"
+                        variants={modalVariants}
+                        onClick={(e) => e.stopPropagation()} // Empêche le clic de traverser
+                        style={{
+                            width: '100%',
+                            maxWidth: maxWidth,
+                            maxHeight: 'calc(100vh - 2.5rem)',
+                            overflowY: 'auto',
+                            backgroundColor: 'white',
+                            borderRadius: '1.5rem',
+                            border: '1px solid rgba(0,0,0,0.06)',
+                            boxShadow: '0 20px 60px rgba(0,0,0,0.3)', // Ombre profonde
+                            position: 'relative',
+                            display: 'flex',
+                            flexDirection: 'column'
+                        }}
+                    >
+                        {/* Bouton Fermer (Absolu en haut à droite) */}
+                        <button
+                            onClick={onRequestClose}
+                            style={{
+                                position: 'absolute',
+                                top: '1rem',
+                                right: '1rem',
+                                width: '2.5rem',
+                                height: '2.5rem',
+                                borderRadius: '50%',
+                                border: 'none',
+                                background: '#f3f4f6',
+                                color: '#666',
+                                fontSize: '1.2rem',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                zIndex: 10
+                            }}
+                        >
+                            ✕
+                        </button>
 
-  // When closing, keep the modal mounted for durationMs to play the exit animation.
-  const [isClosing, setIsClosing] = useState(false);
+                        {/* Titre (Optionnel) */}
+                        {title && (
+                            <div style={{padding: '2rem 2rem 0.5rem 2rem'}}>
+                                <h2 style={{margin: 0, fontSize: '1.5rem', fontWeight: 800}}>
+                                    {title}
+                                </h2>
+                            </div>
+                        )}
 
-  useEffect(() => {
-    if (isOpen) {
-      // Opening: cancel closing flag (no need to set anything else here)
-      if (isClosing) {
-        // defer to avoid setState directly in effect body
-        window.requestAnimationFrame(() => setIsClosing(false));
-      }
-      return;
-    }
+                        {/* Contenu */}
+                        <div style={{padding: '2rem'}}>
+                            {children}
+                        </div>
 
-    // Closing
-    if (!isClosing) {
-      window.requestAnimationFrame(() => setIsClosing(true));
-    }
-
-    const timeoutId = window.setTimeout(() => setIsClosing(false), durationMs);
-    return () => window.clearTimeout(timeoutId);
-  }, [isOpen, isClosing, durationMs]);
-
-  useEffect(() => {
-    if (!isOpen) return;
-
-    // Focus management
-    const focusTarget = (initialFocusRef?.current ?? closeBtnRef.current) as
-      | HTMLElement
-      | null;
-    focusTarget?.focus();
-
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onRequestClose();
-
-      // Minimal focus trap (Tab cycles within dialog)
-      if (e.key === 'Tab') {
-        const root = dialogRef.current;
-        if (!root) return;
-
-        const focusables = root.querySelectorAll<HTMLElement>(
-          'button,[href],input,select,textarea,[tabindex]:not([tabindex="-1"])',
-        );
-        if (focusables.length === 0) return;
-
-        const first = focusables[0];
-        const last = focusables[focusables.length - 1];
-        const active = document.activeElement as HTMLElement | null;
-
-        if (e.shiftKey) {
-          if (!active || active === first) {
-            e.preventDefault();
-            last.focus();
-          }
-        } else {
-          if (active === last) {
-            e.preventDefault();
-            first.focus();
-          }
-        }
-      }
-    };
-
-    window.addEventListener('keydown', onKeyDown);
-    return () => window.removeEventListener('keydown', onKeyDown);
-  }, [isOpen, initialFocusRef, onRequestClose]);
-
-  const shouldRender = isOpen || isClosing;
-  if (!shouldRender) return null;
-
-  const transitionStyle = reduceMotion
-    ? undefined
-    : 'opacity 260ms cubic-bezier(0.16, 1, 0.3, 1), transform 260ms cubic-bezier(0.16, 1, 0.3, 1)';
-
-  const isVisible = isOpen && hasEntered && !isClosing;
-
-  const maxWidth =
-    size === 'lg'
-      ? 'min(56rem, calc(100vw - 2.5rem))'
-      : 'min(24rem, calc(100vw - 2.5rem))';
-
-  return (
-    <div
-      role="presentation"
-      onMouseDown={(e) => {
-        // Backdrop click closes (only if click originated on backdrop)
-        if (e.target === e.currentTarget) onRequestClose();
-      }}
-      style={{
-        position: 'fixed',
-        inset: 0,
-        zIndex: 50,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '1.25rem',
-        // Translucent gradient overlay (like the old login background), plus blur.
-        background:
-          'linear-gradient(to right, rgba(255,255,255,0.85) 0%, rgba(191,241,4,0.22) 100%)',
-        backdropFilter: 'blur(4px)',
-        WebkitBackdropFilter: 'blur(4px)',
-        opacity: isVisible ? 1 : 0,
-        transition: transitionStyle,
-      }}
-    >
-      <div
-        ref={dialogRef}
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby={title ? titleId : undefined}
-        style={{
-          width: '100%',
-          maxWidth,
-          maxHeight: 'calc(100vh - 2.5rem)',
-          overflow: 'auto',
-          background: 'white',
-          borderRadius: '1.5rem',
-          border: '1px solid rgba(0,0,0,0.06)',
-          boxShadow: '0 18px 60px rgba(0,0,0,0.28), 0 6px 18px rgba(0,0,0,0.14)',
-          position: 'relative',
-          transform: isVisible ? 'translateY(0) scale(1)' : 'translateY(10px) scale(0.98)',
-          transition: transitionStyle,
-        }}
-      >
-        <button
-          ref={closeBtnRef}
-          type="button"
-          onClick={onRequestClose}
-          aria-label="Close"
-          style={{
-            position: 'absolute',
-            top: '0.9rem',
-            right: '0.9rem',
-            width: '2.25rem',
-            height: '2.25rem',
-            borderRadius: '0.75rem',
-            border: '1px solid rgba(0,0,0,0.16)',
-            background: 'white',
-            cursor: 'pointer',
-            fontSize: '1.2rem',
-            lineHeight: 1,
-            display: 'grid',
-            placeItems: 'center',
-          }}
-          className="stakr-focus"
-        >
-          {'×'}
-        </button>
-
-        {title && (
-          <h2
-            id={titleId}
-            style={{
-              margin: 0,
-              padding: '1.4rem 3.2rem 0 1.6rem',
-              fontSize: '1.15rem',
-              fontWeight: 800,
-              color: '#000',
-            }}
-          >
-            {title}
-          </h2>
-        )}
-
-        <div style={{ padding: title ? '1rem 1.6rem 1.6rem' : '1.6rem' }}>
-          {children}
-        </div>
-      </div>
-    </div>
-  );
+                    </motion.div>
+                </motion.div>
+            )}
+        </AnimatePresence>,
+        modalRoot
+    );
 }

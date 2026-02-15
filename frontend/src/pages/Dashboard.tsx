@@ -1,9 +1,8 @@
-import {useEffect, useState} from 'react';
-import {api} from '../api/client';
-import NeonButton from '../components/NeonButton';
-import LanguageToggle from '../components/LanguageToggle.tsx';
-import {useI18n} from '../i18n/useI18n';
-import AppNavbar from '../components/AppNavbar';
+import { useEffect, useState } from 'react';
+import { api } from '../api/client';
+import { useI18n } from '../i18n/useI18n';
+import FadeIn from '../components/animations/FadeIn';
+import NeonButton from '../components/NeonButton'; // Gardé uniquement pour le bouton "Create Stacks"
 
 interface User {
     id: number;
@@ -16,8 +15,8 @@ interface DashboardProps {
     onLogout: () => void;
 }
 
-export default function Dashboard({onLogout}: DashboardProps) {
-    const {t} = useI18n();
+export default function Dashboard({ onLogout }: DashboardProps) {
+    const { t } = useI18n();
 
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
@@ -38,51 +37,18 @@ export default function Dashboard({onLogout}: DashboardProps) {
     }, [onLogout]);
 
     return (
-        <div
-            style={{
-                minHeight: '100vh',
-                backgroundColor: '#f4f4f4',
-                fontFamily: "'Baloo 2', cursive",
-            }}
-        >
-            <AppNavbar
-                desktopActions={
-                    <>
-                        <LanguageToggle/>
-                        <NeonButton
-                            label={t('nav.logout')}
-                            title={t('nav.logout')}
-                            onClick={onLogout}
-                            variant="outline"
-                            style={{minWidth: '10.5rem'}}
-                        />
-                    </>
-                }
-                mobileActions={({closeMenu}) => (
-                    <>
-                        <NeonButton
-                            label={t('nav.logout')}
-                            onClick={() => {
-                                closeMenu();
-                                onLogout();
-                            }}
-                            variant="outline"
-                            style={{width: '100%'}}
-                        />
-                        <LanguageToggle style={{width: '100%'}}/>
-                    </>
-                )}
-            />
-
-            {/* Main */}
-            <main style={{padding: '3rem', maxWidth: '1000px', margin: '0 auto'}}>
-                {loading ? (
-                    <div style={{textAlign: 'center', marginTop: '50px', fontSize: '1.2rem'}}>
+        /* 👇 On a enlevé le wrapper avec minHeight et fond gris car le Layout s'en occupe */
+        <main style={{ padding: '3rem', maxWidth: '1000px', margin: '0 auto' }}>
+            {loading ? (
+                <FadeIn direction="none">
+                    <div style={{ textAlign: 'center', marginTop: '50px', fontSize: '1.2rem' }}>
                         {t('common.loading')}
                     </div>
-                ) : (
-                    <>
-                        <h1 style={{fontSize: '2.5rem', marginBottom: '0.5rem', color: '#000'}}>
+                </FadeIn>
+            ) : (
+                <>
+                    <FadeIn>
+                        <h1 style={{ fontSize: '2.5rem', marginBottom: '0.5rem', color: '#000' }}>
                             {t('dashboard.greeting')}{' '}
                             <span
                                 style={{
@@ -99,17 +65,22 @@ export default function Dashboard({onLogout}: DashboardProps) {
                             </span>{' '}
                             👋
                         </h1>
-                        <p style={{color: '#666', marginBottom: '3rem', fontSize: '1.1rem'}}>
+                    </FadeIn>
+
+                    <FadeIn delay={0.1}>
+                        <p style={{ color: '#666', marginBottom: '3rem', fontSize: '1.1rem' }}>
                             {t('dashboard.subtitle')}
                         </p>
+                    </FadeIn>
 
-                        <div
-                            style={{
-                                display: 'grid',
-                                gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-                                gap: '2rem',
-                            }}
-                        >
+                    <div
+                        style={{
+                            display: 'grid',
+                            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+                            gap: '2rem',
+                        }}
+                    >
+                        <FadeIn delay={0.2} fullWidth>
                             <div
                                 style={{
                                     backgroundColor: 'white',
@@ -117,6 +88,7 @@ export default function Dashboard({onLogout}: DashboardProps) {
                                     borderRadius: '1.5rem',
                                     boxShadow: '0 10px 30px rgba(0,0,0,0.05)',
                                     border: '1px solid rgba(0,0,0,0.05)',
+                                    height: '100%'
                                 }}
                             >
                                 <h3
@@ -130,7 +102,7 @@ export default function Dashboard({onLogout}: DashboardProps) {
                                 >
                                     {t('dashboard.account.title')}
                                 </h3>
-                                <div style={{fontSize: '1.5rem', fontWeight: 800, marginTop: '10px'}}>
+                                <div style={{ fontSize: '1.5rem', fontWeight: 800, marginTop: '10px' }}>
                                     #{user?.id}
                                 </div>
                                 <div
@@ -150,7 +122,9 @@ export default function Dashboard({onLogout}: DashboardProps) {
                                         : t('dashboard.account.status.inactive')}
                                 </div>
                             </div>
+                        </FadeIn>
 
+                        <FadeIn delay={0.3} fullWidth>
                             <div
                                 style={{
                                     backgroundColor: '#000',
@@ -161,6 +135,7 @@ export default function Dashboard({onLogout}: DashboardProps) {
                                     display: 'flex',
                                     flexDirection: 'column',
                                     justifyContent: 'space-between',
+                                    height: '100%'
                                 }}
                             >
                                 <div>
@@ -175,7 +150,7 @@ export default function Dashboard({onLogout}: DashboardProps) {
                                     >
                                         {t('dashboard.stacks.title')}
                                     </h3>
-                                    <div style={{fontSize: '2.5rem', fontWeight: 800, marginTop: '10px'}}>0
+                                    <div style={{ fontSize: '2.5rem', fontWeight: 800, marginTop: '10px' }}>0
                                     </div>
                                 </div>
 
@@ -189,13 +164,14 @@ export default function Dashboard({onLogout}: DashboardProps) {
                                         backgroundColor: '#bff104',
                                         color: '#000',
                                         boxShadow: 'none',
+                                        marginTop: '20px'
                                     }}
                                 />
                             </div>
-                        </div>
-                    </>
-                )}
-            </main>
-        </div>
+                        </FadeIn>
+                    </div>
+                </>
+            )}
+        </main>
     );
 }

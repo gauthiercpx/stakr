@@ -12,6 +12,9 @@ export type MessageKey =
   | 'nav.login'
   | 'nav.logout'
   | 'nav.about'
+  | 'nav.menu'
+  | 'nav.mobileMenu'
+  | 'nav.brandAria'
   | 'landing.hero.title.line1'
   | 'landing.hero.title.brand'
   | 'landing.hero.title.after'
@@ -106,6 +109,9 @@ const MESSAGES: Record<Locale, Record<MessageKey, string>> = {
     'nav.login': 'Se connecter',
     'nav.logout': 'Déconnexion',
     'nav.about': 'À propos',
+    'nav.menu': 'Menu',
+    'nav.mobileMenu': 'Menu mobile',
+    'nav.brandAria': 'Aller à l\'accueil',
 
     'landing.hero.title.line1': 'Organise tes stacks en un seul endroit',
     'landing.hero.title.brand': 'STAKR',
@@ -211,6 +217,9 @@ const MESSAGES: Record<Locale, Record<MessageKey, string>> = {
     'nav.login': 'Sign in',
     'nav.logout': 'Sign out',
     'nav.about': 'About',
+    'nav.menu': 'Menu',
+    'nav.mobileMenu': 'Mobile menu',
+    'nav.brandAria': 'Go to home',
 
     'landing.hero.title.line1': 'Organize your stacks in one place',
     'landing.hero.title.brand': 'STAKR',
