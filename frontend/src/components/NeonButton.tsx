@@ -1,14 +1,10 @@
-import {useMemo, useState} from 'react';
+import React, {useMemo, useState} from 'react';
 
 export type NeonButtonVariant = 'outline' | 'solid';
 
-export interface NeonButtonProps {
+export interface NeonButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
     label: React.ReactNode;
-    onClick?: () => void;
-    disabled?: boolean;
     variant?: NeonButtonVariant;
-    style?: React.CSSProperties;
-    title?: string;
     disableOutlineHover?: boolean;
     subtleHover?: boolean;
     blurOnClick?: boolean; // Option pour forcer la perte du focus au clic
@@ -16,15 +12,19 @@ export interface NeonButtonProps {
 
 export default function NeonButton({
                                        label,
-                                       onClick,
-                                       disabled = false,
                                        variant = 'outline',
-                                       style,
-                                       title,
                                        disableOutlineHover = false,
                                        subtleHover = false,
-                                       // 👇 MODIF 1 : On le met à TRUE par défaut pour avoir l'effet "Apple" partout
                                        blurOnClick = true,
+                                       disabled,
+                                       style,
+                                       title,
+                                       onClick,
+                                       onMouseEnter,
+                                       onMouseLeave,
+                                       onFocus,
+                                       onBlur,
+                                       ...props
                                    }: NeonButtonProps) {
     const [isHovered, setIsHovered] = useState(false);
     const [isFocused, setIsFocused] = useState(false);
@@ -128,19 +128,32 @@ export default function NeonButton({
 
                 // Ça enlève le halo lumineux immédiatement
                 if (blurOnClick) {
-                    e.currentTarget.blur();
+                    (e.currentTarget as HTMLButtonElement).blur();
                     setIsFocused(false); // On force aussi la mise à jour de l'état local
                 }
 
-                // Ensuite on lance l'action (Ouvrir modale, etc.)
-                onClick?.();
+                // Ensuite on lance l'action
+                (onClick as any)?.(e);
             }}
             title={title}
             style={mergedStyle}
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
-            onFocus={() => setIsFocused(true)}
-            onBlur={() => setIsFocused(false)}
+            onMouseEnter={(e) => {
+                if (onMouseEnter) return onMouseEnter(e);
+                setIsHovered(true);
+            }}
+            onMouseLeave={(e) => {
+                if (onMouseLeave) return onMouseLeave(e);
+                setIsHovered(false);
+            }}
+            onFocus={(e) => {
+                if (onFocus) return onFocus(e);
+                setIsFocused(true);
+            }}
+            onBlur={(e) => {
+                if (onBlur) return onBlur(e);
+                setIsFocused(false);
+            }}
+            {...props}
         >
             {label}
         </button>
