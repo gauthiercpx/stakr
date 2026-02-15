@@ -68,26 +68,32 @@ button, input {
     }
 }
 
-/* --- Responsive navbar (burger) --- */
-.stakr-nav {
+/* --- MODERN NAVBAR --- */
+.stakr-nav-modern {
+    height: 4.5rem;
+    display: flex;
+    align-items: center;
+    padding: 0 1.5rem;
+    box-shadow: 0 10px 40px -10px rgba(0,0,0,0.3);
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+.stakr-nav__content {
+    width: 100%;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: clamp(0.75rem, 2.5vw, 1rem) clamp(1rem, 4vw, 2rem);
-    background-color: #000000;
-    color: white;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-    position: relative;
 }
 
 .stakr-nav__brand {
     font-size: 1.8rem;
     font-weight: 800;
     letter-spacing: -1px;
-    color: inherit;
+    color: white;
     text-decoration: none;
     cursor: pointer;
-    flex-shrink: 0;
+    white-space: nowrap;
 }
 
 .stakr-nav__desktop {
@@ -97,138 +103,94 @@ button, input {
     gap: 0.75rem;
 }
 
+/* --- BOUTON BURGER (Style restauré) --- */
 .stakr-nav__burgerBtn {
     display: none;
     align-items: center;
     justify-content: center;
-    width: 2.75rem;
-    height: 2.75rem;
+    width: 2.8rem;
+    height: 2.8rem;
+    /* 👇 RETOUR AU CARRÉ ARRONDIT (au lieu de 50%) */
     border-radius: 0.9rem;
     border: 1px solid rgba(255, 255, 255, 0.18);
     background: rgba(255, 255, 255, 0.06);
     color: white;
     cursor: pointer;
+    transition: background 0.2s ease;
+    z-index: 1001;
 }
 
+.stakr-nav__burgerBtn:hover {
+    background: rgba(255, 255, 255, 0.12);
+}
+
+/* Les lignes du burger (Animation élastique conservée) */
 .stakr-nav__burgerLines {
-    width: 1.2rem;
-    height: 0.9rem;
-    position: relative;
-    width: 1.2rem;
-    height: 0.9rem;
+    width: 22px;
+    height: 16px;
     position: relative;
 }
 
 .stakr-nav__burgerLines span {
+    display: block;
+    width: 100%;
+    height: 2px;
+    background-color: white;
+    border-radius: 4px;
     position: absolute;
     left: 0;
-    right: 0;
-    height: 2px;
-    background: white;
-    border-radius: 999px;
-    transition: transform 180ms ease, top 180ms ease, opacity 180ms ease;
+    transition:
+        transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55),
+        top 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+        opacity 0.3s ease;
 }
 
-.stakr-nav__burgerLines span:nth-child(1) {
-    top: 0;
-}
+/* Positions Fermé */
+.stakr-nav__burgerLines span:nth-child(1) { top: 0; }
+.stakr-nav__burgerLines span:nth-child(2) { top: 7px; }
+.stakr-nav__burgerLines span:nth-child(3) { top: 14px; }
 
-.stakr-nav__burgerLines span:nth-child(2) {
-    top: 0.4rem;
-    position: absolute;
-    left: 0;
-    right: 0;
-    height: 2px;
-    background: white;
-    border-radius: 999px;
-    transition: transform 180ms ease, top 180ms ease, opacity 180ms ease;
+/* Positions Ouvert */
+.stakr-nav__burgerBtn.is-active .stakr-nav__burgerLines span:nth-child(1) {
+    top: 7px;
+    transform: rotate(135deg);
 }
-
-.stakr-nav__burgerLines span:nth-child(1) {
-    top: 0;
-}
-
-.stakr-nav__burgerLines span:nth-child(2) {
-    top: 0.4rem;
-}
-
-.stakr-nav__burgerLines span:nth-child(3) {
-    top: 0.8rem;
-    top: 0.8rem;
-}
-
-.stakr-nav__burgerBtn[aria-expanded="true"] .stakr-nav__burgerLines span:nth-child(1) {
-    top: 0.4rem;
-    transform: rotate(45deg);
-}
-
-.stakr-nav__burgerBtn[aria-expanded="true"] .stakr-nav__burgerLines span:nth-child(2) {
+.stakr-nav__burgerBtn.is-active .stakr-nav__burgerLines span:nth-child(2) {
+    top: 7px;
     opacity: 0;
-    top: 0.4rem;
-    transform: rotate(45deg);
+    transform: translateX(-20px);
+}
+.stakr-nav__burgerBtn.is-active .stakr-nav__burgerLines span:nth-child(3) {
+    top: 7px;
+    transform: rotate(-135deg);
 }
 
-.stakr-nav__burgerBtn[aria-expanded="true"] .stakr-nav__burgerLines span:nth-child(2) {
-    opacity: 0;
-}
-
-.stakr-nav__burgerBtn[aria-expanded="true"] .stakr-nav__burgerLines span:nth-child(3) {
-    top: 0.4rem;
-    transform: rotate(-45deg);
-    top: 0.4rem;
-    transform: rotate(-45deg);
-}
-
+/* --- MOBILE PANEL --- */
 .stakr-nav__mobilePanel {
-    display: none;
-    position: absolute;
-    left: 1rem;
-    right: 1rem;
-    top: calc(100% + 0.75rem);
-    background: rgba(0, 0, 0, 0.92);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: 1.2rem;
-    padding: 0.9rem;
-    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
-    z-index: 100;
-}
-
-.stakr-nav__mobilePanel.is-open {
-    display: grid;
-    gap: 0.75rem;
-    align-items: stretch;
+    background: rgba(10, 10, 10, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 1.5rem;
+    padding: 1.5rem;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    overflow: hidden;
+    display: block;
 }
 
 .stakr-nav__mobileRow {
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
-}
-
-.stakr-nav__mobileRow > * {
+    gap: 1.25rem;
     width: 100%;
 }
 
-@media (max-width: 640px) {
-    .stakr-nav {
-        flex-wrap: wrap;
-        row-gap: 0.75rem;
-    }
-
-    .stakr-nav__desktop {
-        display: none;
-    }
-
-    .stakr-nav__burgerBtn {
-        display: inline-flex;
-    }
-
-    .stakr-nav__mobilePanel {
-        left: 0.75rem;
-        right: 0.75rem;
-    }
+/* --- RESPONSIVE --- */
+@media (max-width: 768px) {
+    .stakr-nav__desktop { display: none; }
+    .stakr-nav__burgerBtn { display: inline-flex; }
+    .stakr-nav-modern { padding: 0 1rem; }
 }
-
 /* --- Signup (better desktop layout) --- */
 .stakr-signup {
     display: flex;
@@ -470,16 +432,84 @@ button, input {
 }
 
 /* Le bouton burger doit être blanc aussi */
+/* --- BOUTON BURGER (Fix Animation) --- */
 .stakr-nav__burgerBtn {
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    background: rgba(255, 255, 255, 0.1);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: 2.8rem;
+    height: 2.8rem;
+    border-radius: 0.9rem; /* Ton style carré arrondi */
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    background: rgba(255, 255, 255, 0.06);
     color: white;
+    cursor: pointer;
+    transition: background 0.2s ease;
+    z-index: 1001;
+
+    /* 👇 LE FIX MAGIQUE : Empêche le trait de sortir du bouton */
+    overflow: hidden;
 }
 
+.stakr-nav__burgerBtn:hover {
+    background: rgba(255, 255, 255, 0.12);
+}
+
+/* Conteneur des lignes */
+.stakr-nav__burgerLines {
+    width: 24px;      /* Un peu plus large pour l'élégance */
+    height: 18px;     /* Hauteur calculée pour que la croix soit parfaite */
+    position: relative;
+}
+
+/* Les 3 traits */
 .stakr-nav__burgerLines span {
-    background: white;
+    display: block;
+    width: 100%;
+    height: 2px;      /* Finesse du trait */
+    background-color: white;
+    border-radius: 4px;
+    position: absolute;
+    left: 0;
+
+    /* Animation fluide et élastique */
+    transition:
+        transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55),
+        top 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+        opacity 0.3s ease;
 }
 
+/* --- POSITIONNEMENT --- */
+
+/* État Fermé (Hamburger) */
+.stakr-nav__burgerLines span:nth-child(1) { top: 0px; }
+.stakr-nav__burgerLines span:nth-child(2) { top: 8px; } /* Au centre exact (18px / 2 - 1px) */
+.stakr-nav__burgerLines span:nth-child(3) { top: 16px; }
+
+/* État Ouvert (Croix) */
+.stakr-nav__burgerBtn.is-active .stakr-nav__burgerLines span:nth-child(1) {
+    top: 8px; /* Va au centre */
+    transform: rotate(135deg);
+}
+
+.stakr-nav__burgerBtn.is-active .stakr-nav__burgerLines span:nth-child(2) {
+    top: 8px;
+    opacity: 0;
+    /* On l'envoie loin à gauche, mais caché par l'overflow du bouton */
+    transform: translateX(-40px);
+}
+
+.stakr-nav__burgerBtn.is-active .stakr-nav__burgerLines span:nth-child(3) {
+    top: 8px; /* Va au centre */
+    transform: rotate(-135deg);
+}
+
+/* Responsive : affichage uniquement sur mobile */
+@media (max-width: 768px) {
+    .stakr-nav__burgerBtn {
+        display: inline-flex;
+    }
+}
 /* --- Signup (better desktop layout) --- */
 .stakr-signup {
   display: flex;

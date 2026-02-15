@@ -1,8 +1,6 @@
 import React from 'react';
-import LanguageToggle from '../components/LanguageToggle';
 import NeonButton from '../components/NeonButton';
 import {useI18n} from '../i18n/useI18n';
-import AppNavbar from '../components/AppNavbar';
 import FadeIn from '../components/animations/FadeIn'; // 👈 On importe l'animation
 
 interface LandingPageProps {
@@ -39,50 +37,7 @@ export default function LandingPage({onLoginRequested, onSignupRequested}: Landi
                 fontFamily: "'Baloo 2', cursive",
             }}
         >
-            <AppNavbar
-                desktopActions={
-                    <>
-                        <LanguageToggle/>
-                        <NeonButton
-                            label={t('nav.signup')}
-                            onClick={onSignupRequested}
-                            title={t('landing.cta.signup')}
-                            variant="outline"
-                            style={{minWidth: '10.5rem'}}
-                        />
-                        <NeonButton
-                            label={t('nav.login')}
-                            onClick={onLoginRequested}
-                            variant="outline"
-                            style={{minWidth: '10.5rem'}}
-                        />
-                    </>
-                }
-                mobileActions={({closeMenu}) => (
-                    <>
-                        <NeonButton
-                            label={t('nav.signup')}
-                            onClick={() => {
-                                closeMenu();
-                                onSignupRequested();
-                            }}
-                            title={t('common.comingSoon')}
-                            variant="outline"
-                            style={{width: '100%'}}
-                        />
-                        <NeonButton
-                            label={t('nav.login')}
-                            onClick={() => {
-                                closeMenu();
-                                onLoginRequested();
-                            }}
-                            variant="outline"
-                            style={{width: '100%'}}
-                        />
-                        <LanguageToggle style={{width: '100%'}}/>
-                    </>
-                )}
-            />
+
 
             <main style={{padding: '3rem 2rem 4rem', maxWidth: '1100px', margin: '0 auto'}}>
 
