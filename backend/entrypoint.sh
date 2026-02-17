@@ -13,6 +13,15 @@ elif [ -n "${DATABASE_URL:-}" ]; then
     echo "Tip: verify DATABASE_URL and ensure your env file is UTF-8 encoded."
     exit 1
   fi
+
+  echo "Running database seeding..."
+  if ! python -m app.seed; then
+    echo "WARNING: Seeding failed. Check app logs for details."
+    # On ne fait pas exit 1 ici pour ne pas empêcher l'API de démarrer
+    # si les devises sont déjà là ou si c'est un problème mineur.
+  else
+    echo "Seeding completed successfully."
+  fi
 else
   echo "DATABASE_URL is not set; skipping migrations."
 fi

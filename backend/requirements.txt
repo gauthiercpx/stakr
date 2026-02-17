@@ -8,6 +8,7 @@ pydantic-settings
 alembic
 python-dotenv
 passlib[bcrypt]
+uuid7
 # passlib 1.7.4 is not compatible with bcrypt 5.x
 bcrypt<5
 python-jose[cryptography]

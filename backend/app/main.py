@@ -2,6 +2,7 @@
 
 import os
 from pathlib import Path
+import logging
 
 from dotenv import load_dotenv
 from fastapi import FastAPI
@@ -11,6 +12,10 @@ from fastapi.staticfiles import StaticFiles
 
 from app.core.version import APP_VERSION
 from app.routers import auth, health
+
+# Configure a module logger. In typical deployments Uvicorn/ASGI configures logging
+# globally; here we just get a named logger so messages appear in the normal log pipeline.
+logger = logging.getLogger(__name__)
 
 # 1. Load environment variables from .env
 load_dotenv()
@@ -36,13 +41,27 @@ app = FastAPI(
 # 2. CORS configuration (browser security)
 # Read CORS_ORIGINS from .env and split a comma-separated string into a list
 raw_origins = os.getenv("CORS_ORIGINS", "")
-origins = raw_origins.split(",") if raw_origins else []
+if raw_origins:
+    # Split, trim and ignore empty fragments
+    origins = [o.strip() for o in raw_origins.split(",") if o.strip()]
+else:
+    origins = []
 
 # If no origins are provided, allow localhost by default to avoid blocking local dev
 if not origins:
     origins = ["http://localhost:5173"]
 
-print(f"🔒 Allowed CORS origins: {origins}")
+# Basic validation & helpful logging
+# Warn if wildcard is used (may be acceptable in some envs but insecure in prod)
+if "*" in origins:
+    logger.warning("CORS configured with wildcard '*' — this allows any origin in browsers. Ensure this is intentional for your environment.")
+
+# Warn about likely-misconfigured origins (no scheme)
+_invalid = [o for o in origins if not (o.startswith("http://") or o.startswith("https://") or o.startswith("localhost") or o.startswith("http://localhost") or o.startswith("https://localhost"))]
+if _invalid:
+    logger.warning("Some CORS origins look invalid or lack a scheme: %s", _invalid)
+
+logger.info("Allowed CORS origins: %s", ", ".join(origins))
 
 app.add_middleware(
     CORSMiddleware,
