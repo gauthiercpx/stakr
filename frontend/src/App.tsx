@@ -176,7 +176,7 @@ function App() {
                     >
                         <AnimatePresence
                             mode="wait"
-                            initial={false}
+                            initial={true}
                             onExitComplete={() => {
                                 // On ne change la taille que lorsque le contenu précédent a disparu
                                 setActiveModalSize(targetSize);
