@@ -1,23 +1,18 @@
 import {useState, useCallback} from 'react';
 import {api, ACCESS_TOKEN_KEY} from '../api/client';
 import {useI18n} from '../i18n/useI18n';
-import LanguageToggle from '../components/LanguageToggle';
+import NeonButton from '../components/NeonButton';
 
-// Props provided by App.tsx
 interface LoginProps {
     onLoginSuccess: () => void;
-    /**
-     * Optional: when rendered as a modal, allow closing it.
-     * When undefined, Login behaves like a normal page.
-     */
-    onRequestClose?: () => void;
+    onSignupRequested?: () => void;
 }
 
 const isValidEmail = (email: string) => {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 };
 
-export default function Login({onLoginSuccess, onRequestClose}: LoginProps) {
+export default function Login({onLoginSuccess, onSignupRequested}: LoginProps) {
     const {t} = useI18n();
 
     const [email, setEmail] = useState('');
@@ -28,13 +23,11 @@ export default function Login({onLoginSuccess, onRequestClose}: LoginProps) {
     const [error, setError] = useState('');
 
     const handleLogin = useCallback(
-        async (evt?: unknown) => {
-            const e = evt as SubmitEvent | undefined;
-            e?.preventDefault();
+        async (evt?: React.FormEvent) => {
+            evt?.preventDefault();
 
             const normalizedEmail = email.trim().toLowerCase();
 
-            // Quick client-side validation before calling the API.
             if (!normalizedEmail || !isValidEmail(normalizedEmail)) {
                 setError(t('login.email.invalid'));
                 return;
@@ -59,7 +52,6 @@ export default function Login({onLoginSuccess, onRequestClose}: LoginProps) {
                 localStorage.setItem(ACCESS_TOKEN_KEY, response.data.access_token);
                 onLoginSuccess();
             } catch (err: unknown) {
-                // Helpful in dev, but we keep UI messages user-friendly.
                 if (import.meta.env.DEV) {
                     console.error('Login error:', err);
                 }
@@ -77,7 +69,6 @@ export default function Login({onLoginSuccess, onRequestClose}: LoginProps) {
                     return;
                 }
 
-                // Try to show the backend error detail when available.
                 const message =
                     axiosErr?.response?.data?.detail ||
                     t('login.error.incorrectCredentials');
@@ -89,22 +80,13 @@ export default function Login({onLoginSuccess, onRequestClose}: LoginProps) {
         [email, password, onLoginSuccess, t],
     );
 
-    // Enable submit only when fields are filled AND email is valid.
-    const canSubmit =
-        email.trim() !== '' && password !== '' && isValidEmail(email.trim());
-
+    const canSubmit = email.trim() !== '' && password !== '' && isValidEmail(email.trim());
     const isDisabled = isLoading || !canSubmit;
 
-    const content = (
-        <>
-            {!onRequestClose && (
-                <div style={{display: 'flex', justifyContent: 'flex-end'}}>
-                    <LanguageToggle mode="login"/>
-                </div>
-            )}
+    return (
+        <div style={{position: 'relative'}}>
 
-            {/* Reserve height to avoid layout jump between locales */}
-            <div style={{minHeight: '5.6rem', textAlign: 'center'}}>
+            <div style={{minHeight: '5.6rem', textAlign: 'center', paddingTop: '2.5rem'}}>
                 <h1
                     style={{
                         margin: '0 0 0.5rem 0',
@@ -129,7 +111,7 @@ export default function Login({onLoginSuccess, onRequestClose}: LoginProps) {
                 </p>
             </div>
 
-            {/* Error area */}
+            {/* Zone d'erreur */}
             <div aria-live="polite" style={{minHeight: '20px', marginBottom: '1rem'}}>
                 {error && (
                     <div
@@ -173,130 +155,102 @@ export default function Login({onLoginSuccess, onRequestClose}: LoginProps) {
                     }}
                 />
 
-                <div className={`stakr-passwordField ${isLoading ? 'is-disabled' : ''}`}>
-                    <input
-                        name="password"
-                        aria-label="Password"
-                        type={showPassword ? 'text' : 'password'}
-                        autoComplete="current-password"
-                        placeholder={t('login.password.placeholder')}
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        disabled={isLoading}
-                        style={{
-                            width: '100%',
-                            padding: '1rem',
-                            borderRadius: '0.75rem',
-                            border: error ? '2px solid #ffcdd2' : '2px solid #f0f0f0',
-                            backgroundColor: isLoading ? '#e9ecef' : '#f8f9fa',
-                            fontSize: '1rem',
-                            outline: 'none',
-                            fontFamily: 'inherit',
-                        }}
-                    />
+                <div style={{display: 'flex', flexDirection: 'column', gap: '0.5rem'}}>
+                    <div className={`stakr-passwordField ${isLoading ? 'is-disabled' : ''}`}>
+                        <input
+                            name="password"
+                            aria-label="Password"
+                            type={showPassword ? 'text' : 'password'}
+                            autoComplete="current-password"
+                            placeholder={t('login.password.placeholder')}
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            disabled={isLoading}
+                            style={{
+                                width: '100%',
+                                padding: '1rem',
+                                borderRadius: '0.75rem',
+                                border: error ? '2px solid #ffcdd2' : '2px solid #f0f0f0',
+                                backgroundColor: isLoading ? '#e9ecef' : '#f8f9fa',
+                                fontSize: '1rem',
+                                outline: 'none',
+                                fontFamily: 'inherit',
+                            }}
+                        />
 
-                    <button
-                        type="button"
-                        onClick={() => setShowPassword((s) => !s)}
-                        aria-label={showPassword ? t('common.hide') : t('common.show')}
-                        aria-pressed={showPassword}
-                        disabled={isLoading}
-                        className="stakr-passwordToggle"
-                    >
-                        {showPassword ? t('common.hide') : t('common.show')}
-                    </button>
+                        <button
+                            type="button"
+                            onClick={() => setShowPassword((s) => !s)}
+                            aria-label={showPassword ? t('common.hide') : t('common.show')}
+                            aria-pressed={showPassword}
+                            disabled={isLoading}
+                            className="stakr-passwordToggle"
+                        >
+                            {showPassword ? t('common.hide') : t('common.show')}
+                        </button>
+                    </div>
+
+                    {/* 👇 Lien discret pour le mot de passe oublié 👇 */}
+                    <div style={{display: 'flex', justifyContent: 'flex-end'}}>
+                        <button
+                            type="button"
+                            onClick={() => console.log('Aller vers Reset Password')}
+                            disabled={true}
+                            aria-label={t('common.hide')}
+                            title={t('common.comingSoon')}
+                            style={{
+                                background: 'none',
+                                border: 'none',
+                                padding: '0 0.2rem',
+                                color: '#666',
+                                fontSize: '0.9rem',
+                                cursor: isLoading ? 'not-allowed' : 'pointer',
+                                textDecoration: 'underline',
+                                textUnderlineOffset: '3px',
+                                fontFamily: 'inherit'
+                            }}
+                        >
+                            {t('login.forgotPassword')}
+                        </button>
+                    </div>
                 </div>
 
-                <button
+                {/* Bouton de soumission principal */}
+                <NeonButton
                     type="submit"
                     disabled={isDisabled}
-                    aria-busy={isLoading}
+                    variant="solid"
+                    label={isLoading ? t('login.submit.loading') : t('login.submit')}
                     style={{
-                        marginTop: '0.75rem',
+                        marginTop: '0.5rem',
                         padding: '1rem',
-                        backgroundColor: '#000000',
-                        color: '#bff104',
-                        border: 'none',
-                        borderRadius: '0.75rem',
                         fontSize: '1.1rem',
-                        fontWeight: 700,
-                        boxShadow: '0 6px 14px rgba(0,0,0,0.20)',
-                        transition: 'all 0.2s',
-                        opacity: isDisabled ? 0.5 : 1,
-                        cursor: isDisabled ? 'not-allowed' : 'pointer',
-                    }}
-                >
-                    {isLoading ? t('login.submit.loading') : t('login.submit')}
-                </button>
-
-                {onRequestClose && (
-                    <button
-                        type="button"
-                        onClick={onRequestClose}
-                        disabled={isLoading}
-                        style={{
-                            marginTop: '0.25rem',
-                            padding: '0.85rem',
-                            backgroundColor: 'transparent',
-                            color: '#333',
-                            border: '1px solid rgba(0,0,0,0.12)',
-                            borderRadius: '0.75rem',
-                            fontSize: '1rem',
-                            fontWeight: 700,
-                            cursor: isLoading ? 'not-allowed' : 'pointer',
-                        }}
-                        className="stakr-focus"
-                    >
-                        {t('common.cancel')}
-                    </button>
-                )}
-            </form>
-        </>
-    );
-
-    // If used as a page, keep the previous background.
-    if (!onRequestClose) {
-        return (
-            <div
-                style={{
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    minHeight: '100vh',
-                    padding: '1.25rem',
-                    position: 'relative',
-                    background: 'linear-gradient(to right, #ffffff 0%, #bff104 100%)',
-                }}
-            >
-                <div
-                    style={{
-                        position: 'absolute',
-                        inset: 0,
-                        background:
-                            'linear-gradient(to right, rgba(255,255,255,0.85) 0%, rgba(191,241,4,0.15) 100%)',
-                        backdropFilter: 'blur(4px)',
-                        WebkitBackdropFilter: 'blur(4px)',
-                        pointerEvents: 'none',
+                        width: '100%',
+                        display: 'flex',
+                        justifyContent: 'center'
                     }}
                 />
 
-                <div
-                    style={{
-                        padding: '2.5rem',
-                        backgroundColor: 'white',
-                        borderRadius: '1.5rem',
-                        width: '100%',
-                        maxWidth: '22.5rem',
-                        border: '1px solid rgba(0,0,0,0.06)',
-                        boxShadow: '0 8px 24px rgba(0,0,0,0.18), 0 2px 6px rgba(0,0,0,0.08)',
-                        position: 'relative',
-                    }}
-                >
-                    {content}
-                </div>
-            </div>
-        );
-    }
+                {/* 👇 Bouton de redirection vers Inscription 👇 */}
+                {onSignupRequested && (
+                    <NeonButton
+                        type="button"
+                        variant="outline"
+                        disableOutlineHover={true}
+                        label={t('login.createAccount')}
+                        onClick={onSignupRequested}
+                        disabled={isLoading}
+                        style={{
+                            padding: '1rem',
+                            fontSize: '1.1rem',
+                            width: '100%',
+                            display: 'flex',
+                            justifyContent: 'center'
+                        }}
+                    />
+                )}
 
-    return content;
+            </form>
+        </div>
+    );
 }

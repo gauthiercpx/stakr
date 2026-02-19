@@ -2,8 +2,9 @@ import React from 'react';
 import {Link} from 'react-router-dom';
 import {motion, AnimatePresence, useScroll, useTransform, type Variants} from 'framer-motion';
 import {useMobileMenu} from '../hooks/useMobileMenu';
-import {useNavbarAnimation} from '../hooks/useNavbarAnimation'; // 👈 On le rappelle ici
+import {useNavbarAnimation} from '../hooks/useNavbarAnimation';
 import {useI18n} from '../i18n/useI18n';
+// 👈 Plus besoin d'importer NeonButton ici !
 
 export type AppNavbarMobileActionsRender = (helpers: { closeMenu: () => void }) => React.ReactNode;
 
@@ -33,8 +34,6 @@ export default function AppNavbar({
     const {scrollY} = useScroll();
 
     // --- 1. CONFIGURATION DES ANIMATIONS (HOOKS TOP LEVEL) ---
-
-    // Transformations "Dynamic Island" (Forme)
     const navWidth = useTransform(scrollY, [0, 100], ["100%", "92%"]);
     const navTop = useTransform(scrollY, [0, 100], ["0rem", "1.5rem"]);
     const navRadius = useTransform(scrollY, [0, 100], ["0rem", "1.2rem"]);
@@ -42,13 +41,11 @@ export default function AppNavbar({
     const navBorder = useTransform(scrollY, [0, 100], ["rgba(255,255,255,0)", "rgba(255,255,255,0.1)"]);
     const navBackdrop = useTransform(scrollY, [0, 100], ["blur(0px)", "blur(12px)"]);
 
-    // Position du menu mobile pour qu'il suive la barre
     const menuTopPadding = useTransform(scrollY, [0, 100], ["4.6rem", "6.2rem"]);
 
-    // Variantes pour l'apparition/disparition (Mouvement Vertical)
     const navbarVariants = {
         visible: {y: 0, opacity: 1},
-        hidden: {y: "-150%", opacity: 0}, // Remonte complètement hors de l'écran
+        hidden: {y: "-150%", opacity: 0},
     };
 
     // --- 2. LOGIQUE ENFANTS ---
@@ -92,7 +89,6 @@ export default function AppNavbar({
 
     return (
         <>
-            {/* WRAPPER FIXE POUR L'ANIMATION DE SORTIE/ENTRÉE */}
             <motion.div
                 style={{
                     position: 'fixed',
@@ -104,15 +100,13 @@ export default function AppNavbar({
                     zIndex: 1000,
                     pointerEvents: 'none'
                 }}
-                // 👇 C'est ici que l'animation au refresh se joue
                 variants={navbarVariants}
                 initial="hidden"
                 animate={isHidden ? "hidden" : "visible"}
-                transition={{duration: 0.5, ease: [0.22, 1, 0.36, 1]}} // Courbe iOS fluide
+                transition={{duration: 0.5, ease: [0.22, 1, 0.36, 1]}}
             >
                 <motion.nav
                     style={{
-                        // On applique ici les transformations de forme (Dynamic Island)
                         width: navWidth,
                         marginTop: navTop,
                         borderRadius: navRadius,
@@ -131,7 +125,10 @@ export default function AppNavbar({
                                 style={{color: '#bff104'}}>. </span></>)}
                         </Link>
 
-                        <div className="stakr-nav__desktop">{desktopActions}</div>
+                        {/* 👇 C'est redevenu ultra simple ! 👇 */}
+                        <div className="stakr-nav__desktop">
+                            {desktopActions}
+                        </div>
 
                         <button
                             type="button"

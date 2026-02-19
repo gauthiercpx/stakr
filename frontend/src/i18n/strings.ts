@@ -1,328 +1,332 @@
 export type Locale = 'fr' | 'en';
 
 export type MessageKey =
-  | 'app.serverWaking.title'
-  | 'app.serverWaking.subtitle'
-  | 'app.serverWaking.tip'
-  | 'notFound.title'
-  | 'notFound.subtitle'
-  | 'notFound.goHome'
-  | 'notFound.goBack'
-  | 'nav.signup'
-  | 'nav.login'
-  | 'nav.logout'
-  | 'nav.about'
-  | 'nav.menu'
-  | 'nav.mobileMenu'
-  | 'nav.brandAria'
-  | 'landing.hero.title.line1'
-  | 'landing.hero.title.brand'
-  | 'landing.hero.title.after'
-  | 'landing.hero.subtitle'
-  | 'landing.cta.signup'
-  | 'landing.cta.login'
-  | 'landing.cta.dashboardReady'
-  | 'landing.preview.title'
-  | 'landing.preview.desc'
-  | 'landing.preview.cta'
-  | 'landing.features.focus.title'
-  | 'landing.features.focus.desc'
-  | 'landing.features.fast.title'
-  | 'landing.features.fast.desc'
-  | 'landing.features.ready.title'
-  | 'landing.features.ready.desc'
-  | 'about.title'
-  | 'about.description'
-  | 'about.valuesTitle'
-  | 'about.value1'
-  | 'about.value2'
-  | 'about.value3'
-  | 'about.backHome'
-  | 'dashboard.greeting'
-  | 'dashboard.subtitle'
-  | 'dashboard.account.title'
-  | 'dashboard.account.status.active'
-  | 'dashboard.account.status.inactive'
-  | 'dashboard.stacks.title'
-  | 'dashboard.stacks.count'
-  | 'dashboard.stacks.create'
-  | 'common.signedOut'
-  | 'common.accountCreated'
-  | 'common.cancel'
-  | 'common.show'
-  | 'common.hide'
-  | 'common.loading'
-  | 'common.comingSoon'
-  | 'common.languageToggle'
-  | 'login.title'
-  | 'login.subtitle'
-  | 'login.email.placeholder'
-  | 'login.password.placeholder'
-  | 'login.email.invalid'
-  | 'login.password.required'
-  | 'login.submit'
-  | 'login.submit.loading'
-  | 'login.error.incorrectCredentials'
-  | 'login.error.serverStarting'
-  | 'login.error.serverError'
-  | 'signup.title'
-  | 'signup.subtitle'
-  | 'signup.email.placeholder'
-  | 'signup.emailConfirm.placeholder'
-  | 'signup.password.placeholder'
-  | 'signup.passwordConfirm.placeholder'
-  | 'signup.email.invalid'
-  | 'signup.email.mismatch'
-  | 'signup.firstName.label'
-  | 'signup.firstName.placeholder'
-  | 'signup.firstName.required'
-  | 'signup.firstName.invalidFormat'
-  | 'signup.lastName.label'
-  | 'signup.lastName.placeholder'
-  | 'signup.lastName.required'
-  | 'signup.jobTitle.label'
-  | 'signup.jobTitle.placeholder'
-  | 'signup.password.required'
-  | 'signup.password.tooShort'
-  | 'signup.password.mismatch'
-  | 'signup.submit'
-  | 'signup.submit.loading'
-  | 'signup.error.emailAlreadyUsed'
-  | 'signup.error.serverStarting'
-  | 'signup.error.serverError'
-  | 'signup.error.generic';
+    | 'app.serverWaking.title'
+    | 'app.serverWaking.subtitle'
+    | 'app.serverWaking.tip'
+    | 'notFound.title'
+    | 'notFound.subtitle'
+    | 'notFound.goHome'
+    | 'notFound.goBack'
+    | 'nav.signup'
+    | 'nav.login'
+    | 'nav.logout'
+    | 'nav.about'
+    | 'nav.menu'
+    | 'nav.mobileMenu'
+    | 'nav.brandAria'
+    | 'landing.hero.title.line1'
+    | 'landing.hero.title.brand'
+    | 'landing.hero.title.after'
+    | 'landing.hero.subtitle'
+    | 'landing.cta.signup'
+    | 'landing.cta.login'
+    | 'landing.cta.dashboardReady'
+    | 'landing.preview.title'
+    | 'landing.preview.desc'
+    | 'landing.preview.cta'
+    | 'landing.features.focus.title'
+    | 'landing.features.focus.desc'
+    | 'landing.features.fast.title'
+    | 'landing.features.fast.desc'
+    | 'landing.features.ready.title'
+    | 'landing.features.ready.desc'
+    | 'about.title'
+    | 'about.description'
+    | 'about.valuesTitle'
+    | 'about.value1'
+    | 'about.value2'
+    | 'about.value3'
+    | 'about.backHome'
+    | 'dashboard.greeting'
+    | 'dashboard.subtitle'
+    | 'dashboard.account.title'
+    | 'dashboard.account.status.active'
+    | 'dashboard.account.status.inactive'
+    | 'dashboard.stacks.title'
+    | 'dashboard.stacks.count'
+    | 'dashboard.stacks.create'
+    | 'common.signedOut'
+    | 'common.accountCreated'
+    | 'common.cancel'
+    | 'common.show'
+    | 'common.hide'
+    | 'common.loading'
+    | 'common.comingSoon'
+    | 'common.languageToggle'
+    | 'login.title'
+    | 'login.subtitle'
+    | 'login.email.placeholder'
+    | 'login.password.placeholder'
+    | 'login.email.invalid'
+    | 'login.password.required'
+    | 'login.submit'
+    | 'login.submit.loading'
+    | 'login.error.incorrectCredentials'
+    | 'login.error.serverStarting'
+    | 'login.error.serverError'
+    | 'login.forgotPassword'
+    | 'login.noAccount'
+    | 'login.createAccount'
+    | 'signup.title'
+    | 'signup.subtitle'
+    | 'signup.email.placeholder'
+    | 'signup.emailConfirm.placeholder'
+    | 'signup.password.placeholder'
+    | 'signup.passwordConfirm.placeholder'
+    | 'signup.email.invalid'
+    | 'signup.email.mismatch'
+    | 'signup.firstName.label'
+    | 'signup.firstName.placeholder'
+    | 'signup.firstName.required'
+    | 'signup.firstName.invalidFormat'
+    | 'signup.lastName.label'
+    | 'signup.lastName.placeholder'
+    | 'signup.lastName.required'
+    | 'signup.jobTitle.label'
+    | 'signup.jobTitle.placeholder'
+    | 'signup.password.required'
+    | 'signup.password.tooShort'
+    | 'signup.password.mismatch'
+    | 'signup.submit'
+    | 'signup.submit.loading'
+    | 'signup.error.emailAlreadyUsed'
+    | 'signup.error.serverStarting'
+    | 'signup.error.serverError'
+    | 'signup.error.generic';
 
 const MESSAGES: Record<Locale, Record<MessageKey, string>> = {
-  fr: {
-    'app.serverWaking.title': '🚀 Réveil du serveur en cours...',
-    'app.serverWaking.subtitle':
-      "L’API (et la base de données) démarrent. Ça prend généralement quelques secondes.",
-    'app.serverWaking.tip':
-      'Astuce : si ça tourne indéfiniment, la base de données est peut-être arrêtée.',
+    fr: {
+        'app.serverWaking.title': '🚀 Réveil du serveur en cours...',
+        'app.serverWaking.subtitle':
+            "L’API (et la base de données) démarrent. Ça prend généralement quelques secondes.",
+        'app.serverWaking.tip':
+            'Astuce : si ça tourne indéfiniment, la base de données est peut-être arrêtée.',
 
-    'notFound.title': 'Page introuvable',
-    'notFound.subtitle': "Le lien que tu as suivi n’existe pas (ou plus).",
-    'notFound.goHome': "Retour à l’accueil",
-    'notFound.goBack': 'Page précédente',
+        'notFound.title': 'Page introuvable',
+        'notFound.subtitle': "Le lien que tu as suivi n’existe pas (ou plus).",
+        'notFound.goHome': "Retour à l’accueil",
+        'notFound.goBack': 'Page précédente',
 
-    'nav.signup': 'Créer un compte',
-    'nav.login': 'Se connecter',
-    'nav.logout': 'Déconnexion',
-    'nav.about': 'À propos',
-    'nav.menu': 'Menu',
-    'nav.mobileMenu': 'Menu mobile',
-    'nav.brandAria': 'Aller à l\'accueil',
+        'nav.signup': 'Créer un compte',
+        'nav.login': 'Se connecter',
+        'nav.logout': 'Déconnexion',
+        'nav.about': 'À propos',
+        'nav.menu': 'Menu',
+        'nav.mobileMenu': 'Menu mobile',
+        'nav.brandAria': 'Aller à l\'accueil',
 
-    'landing.hero.title.line1': 'Organise tes stacks en un seul endroit',
-    'landing.hero.title.brand': 'STAKR',
-    'landing.hero.title.after': '✨',
-    'landing.hero.subtitle':
-      'Centralise, visualise et garde le rythme avec un dashboard clair, rapide, et pensé pour favoriser la concentration.',
-    'landing.cta.signup': 'Créer un compte',
-    'landing.cta.login': 'Se connecter',
-    'landing.cta.dashboardReady': 'Dashboard prêt en quelques clics',
-    'landing.preview.title': 'Aperçu Dashboard',
-    'landing.preview.desc':
-      'Connecte-toi pour voir tes stacks, tes infos et les prochaines étapes.',
-    'landing.preview.cta': 'Accéder au dashboard',
-    'landing.features.focus.title': 'Clair et épuré',
-    'landing.features.focus.desc':
-      "Un espace épuré pour t'aider à rester concentré sur l'essentiel, sans distractions inutiles.",
-    'landing.features.fast.title': 'Rapide à utiliser',
-    'landing.features.fast.desc':
-      'Tout est à portée de main pour visualiser tes stacks et avancer sans friction.',
-    'landing.features.ready.title': 'Prêt pour la suite',
-    'landing.features.ready.desc': 'Pensé pour grandir avec toi et s’adapter à ton rythme.',
+        'landing.hero.title.line1': 'Organise tes stacks en un seul endroit',
+        'landing.hero.title.brand': 'STAKR',
+        'landing.hero.title.after': '✨',
+        'landing.hero.subtitle':
+            'Centralise, visualise et garde le rythme avec un dashboard clair, rapide, et pensé pour favoriser la concentration.',
+        'landing.cta.signup': 'Créer un compte',
+        'landing.cta.login': 'Se connecter',
+        'landing.cta.dashboardReady': 'Dashboard prêt en quelques clics',
+        'landing.preview.title': 'Aperçu Dashboard',
+        'landing.preview.desc':
+            'Connecte-toi pour voir tes stacks, tes infos et les prochaines étapes.',
+        'landing.preview.cta': 'Accéder au dashboard',
+        'landing.features.focus.title': 'Clair et épuré',
+        'landing.features.focus.desc':
+            "Un espace épuré pour t'aider à rester concentré sur l'essentiel, sans distractions inutiles.",
+        'landing.features.fast.title': 'Rapide à utiliser',
+        'landing.features.fast.desc':
+            'Tout est à portée de main pour visualiser tes stacks et avancer sans friction.',
+        'landing.features.ready.title': 'Prêt pour la suite',
+        'landing.features.ready.desc': 'Pensé pour grandir avec toi et s’adapter à ton rythme.',
 
-    'about.title': 'À propos de Stakr',
-    'about.description': "Stakr centralise vos stacks et vous aide à garder le cap avec une interface légère et efficace.",
-    'about.valuesTitle': 'Nos valeurs',
-    'about.value1': 'Simplicité',
-    'about.value2': 'Vitesse',
-    'about.value3': 'Concentration',
-    'about.backHome': 'Retour à l’accueil',
+        'about.title': 'À propos de Stakr',
+        'about.description': "Stakr centralise vos stacks et vous aide à garder le cap avec une interface légère et efficace.",
+        'about.valuesTitle': 'Nos valeurs',
+        'about.value1': 'Simplicité',
+        'about.value2': 'Vitesse',
+        'about.value3': 'Concentration',
+        'about.backHome': 'Retour à l\'accueil',
 
-    'dashboard.greeting': 'Hello',
-    'dashboard.subtitle': 'Prêt à gérer tes Stacks ? ',
-    'dashboard.account.title': 'Mon Compte',
-    'dashboard.account.status.active': '● Actif',
-    'dashboard.account.status.inactive': '● Inactif',
-    'dashboard.stacks.title': 'Mes Stacks',
-    'dashboard.stacks.count': '0',
-    'dashboard.stacks.create': '+ Créer une Stack',
-    'common.signedOut': 'Tu as bien été déconnecté.',
-    'common.accountCreated': 'Compte créé avec succès. Bienvenue !',
-    'common.cancel': 'Annuler',
-    'common.show': 'Afficher',
-    'common.hide': 'Masquer',
-    'common.loading': 'Chargement... ⏳',
-    'common.comingSoon': 'Bientôt disponible',
-    'common.languageToggle': 'Changer de langue',
+        'dashboard.greeting': 'Hello',
+        'dashboard.subtitle': 'Prêt à gérer tes Stacks ? ',
+        'dashboard.account.title': 'Mon Compte',
+        'dashboard.account.status.active': '● Actif',
+        'dashboard.account.status.inactive': '● Inactif',
+        'dashboard.stacks.title': 'Mes Stacks',
+        'dashboard.stacks.count': '0',
+        'dashboard.stacks.create': '+ Créer une Stack',
+        'common.signedOut': 'Tu as bien été déconnecté.',
+        'common.accountCreated': 'Compte créé avec succès. Bienvenue !',
+        'common.cancel': 'Annuler',
+        'common.show': 'Afficher',
+        'common.hide': 'Masquer',
+        'common.loading': 'Chargement... ⏳',
+        'common.comingSoon': 'Bientôt disponible',
+        'common.languageToggle': 'Changer de langue',
 
-    'login.title': 'Stakr',
-    'login.subtitle': 'Ravi de te revoir !',
-    'login.email.placeholder': 'Email',
-    'login.password.placeholder': 'Mot de passe',
-    'login.email.invalid': 'Adresse email invalide.',
-    'login.password.required': 'Mot de passe requis.',
-    'login.submit': 'Se connecter',
-    'login.submit.loading': 'Connexion…',
-    'login.error.incorrectCredentials': 'Email ou mot de passe incorrect.',
-    'login.error.serverStarting':
-      'Le serveur démarre. Patiente quelques secondes puis réessaie.',
-    'login.error.serverError':
-      'Erreur serveur. Réessaie dans quelques secondes.',
+        'login.title': 'Stakr',
+        'login.subtitle': 'Ravi de te revoir !',
+        'login.email.placeholder': 'Email',
+        'login.password.placeholder': 'Mot de passe',
+        'login.email.invalid': 'Adresse email invalide.',
+        'login.password.required': 'Mot de passe requis.',
+        'login.submit': 'Se connecter',
+        'login.submit.loading': 'Connexion…',
+        'login.error.incorrectCredentials': 'Email ou mot de passe incorrect.',
+        'login.error.serverStarting':
+            'Le serveur démarre. Patiente quelques secondes puis réessaie.',
+        'login.error.serverError':
+            'Erreur serveur. Réessaie dans quelques secondes.',
+        'login.forgotPassword': 'Mot de passe oublié ?',
+        'login.noAccount': "Pas encore de compte ?",
+        'login.createAccount': "Créer un compte",
+        'signup.title': 'Stakr',
+        'signup.subtitle': 'Créer ton compte',
+        'signup.email.placeholder': 'Email',
+        'signup.emailConfirm.placeholder': "Confirmez l'email",
+        'signup.password.placeholder': 'Mot de passe',
+        'signup.passwordConfirm.placeholder': 'Confirme le mot de passe',
+        'signup.email.invalid': 'Adresse email invalide.',
+        'signup.email.mismatch': "Les adresses e-mail ne correspondent pas.",
+        'signup.firstName.label': 'Prénom',
+        'signup.firstName.placeholder': 'Prénom',
+        'signup.firstName.required': 'Prénom requis.',
+        'signup.firstName.invalidFormat': 'Le prénom contient des caractères non valides.',
+        'signup.lastName.label': 'Nom',
+        'signup.lastName.placeholder': 'Nom',
+        'signup.lastName.required': 'Nom requis.',
+        'signup.jobTitle.label': 'Poste',
+        'signup.jobTitle.placeholder': 'Poste (optionnel)',
+        'signup.password.required': 'Mot de passe requis.',
+        'signup.password.tooShort': 'Le mot de passe doit contenir au moins 8 caractères.',
+        'signup.password.mismatch': 'Les mots de passe ne correspondent pas.',
+        'signup.submit': 'Créer un compte',
+        'signup.submit.loading': 'Création…',
+        'signup.error.emailAlreadyUsed': 'Cet email est déjà utilisé.',
+        'signup.error.serverStarting':
+            'Le serveur démarre. Patiente quelques secondes puis réessaie.',
+        'signup.error.serverError': 'Erreur serveur. Réessaie dans quelques secondes.',
+        'signup.error.generic': 'Impossible de créer le compte. Réessaie.',
+    },
+    en: {
+        'app.serverWaking.title': '🚀 Waking up the server…',
+        'app.serverWaking.subtitle':
+            'The API (and database) are starting. This usually takes a few seconds.',
+        'app.serverWaking.tip':
+            'Tip: if this keeps spinning, your database container may be down.',
 
-    'signup.title': 'Stakr',
-    'signup.subtitle': 'Créer ton compte',
-    'signup.email.placeholder': 'Email',
-    'signup.emailConfirm.placeholder': "Confirmez l'email",
-    'signup.password.placeholder': 'Mot de passe',
-    'signup.passwordConfirm.placeholder': 'Confirme le mot de passe',
-    'signup.email.invalid': 'Adresse email invalide.',
-    'signup.email.mismatch': "Les adresses e-mail ne correspondent pas.",
-    'signup.firstName.label': 'Prénom',
-    'signup.firstName.placeholder': 'Prénom',
-    'signup.firstName.required': 'Prénom requis.',
-    'signup.firstName.invalidFormat': 'Le prénom contient des caractères non valides.',
-    'signup.lastName.label': 'Nom',
-    'signup.lastName.placeholder': 'Nom',
-    'signup.lastName.required': 'Nom requis.',
-    'signup.jobTitle.label': 'Poste',
-    'signup.jobTitle.placeholder': 'Poste (optionnel)',
-    'signup.password.required': 'Mot de passe requis.',
-    'signup.password.tooShort': 'Le mot de passe doit contenir au moins 8 caractères.',
-    'signup.password.mismatch': 'Les mots de passe ne correspondent pas.',
-    'signup.submit': 'Créer un compte',
-    'signup.submit.loading': 'Création…',
-    'signup.error.emailAlreadyUsed': 'Cet email est déjà utilisé.',
-    'signup.error.serverStarting':
-      'Le serveur démarre. Patiente quelques secondes puis réessaie.',
-    'signup.error.serverError': 'Erreur serveur. Réessaie dans quelques secondes.',
-    'signup.error.generic': 'Impossible de créer le compte. Réessaie.',
-  },
-  en: {
-    'app.serverWaking.title': '🚀 Waking up the server…',
-    'app.serverWaking.subtitle':
-      'The API (and database) are starting. This usually takes a few seconds.',
-    'app.serverWaking.tip':
-      'Tip: if this keeps spinning, your database container may be down.',
+        'notFound.title': 'Page not found',
+        'notFound.subtitle': 'The page you are looking for does not exist.',
+        'notFound.goHome': 'Go to home',
+        'notFound.goBack': 'Go back',
 
-    'notFound.title': 'Page not found',
-    'notFound.subtitle': 'The page you are looking for does not exist.',
-    'notFound.goHome': 'Go to home',
-    'notFound.goBack': 'Go back',
+        'nav.signup': 'Create account',
+        'nav.login': 'Sign in',
+        'nav.logout': 'Sign out',
+        'nav.about': 'About',
+        'nav.menu': 'Menu',
+        'nav.mobileMenu': 'Mobile menu',
+        'nav.brandAria': 'Go to home',
 
-    'nav.signup': 'Create account',
-    'nav.login': 'Sign in',
-    'nav.logout': 'Sign out',
-    'nav.about': 'About',
-    'nav.menu': 'Menu',
-    'nav.mobileMenu': 'Mobile menu',
-    'nav.brandAria': 'Go to home',
+        'landing.hero.title.line1': 'Organize your stacks in one place',
+        'landing.hero.title.brand': 'STAKR',
+        'landing.hero.title.after': '✨',
+        'landing.hero.subtitle':
+            'Centralize, visualize, and keep the momentum with a clean, fast dashboard built for focus.',
+        'landing.cta.signup': 'Create account',
+        'landing.cta.login': 'Sign in',
+        'landing.cta.dashboardReady': 'Dashboard ready in a few clicks',
+        'landing.preview.title': 'Dashboard preview',
+        'landing.preview.desc':
+            'Sign in to see your stacks, your info, and the next steps.',
+        'landing.preview.cta': 'Open dashboard',
+        'landing.features.focus.title': 'Clear and focused',
+        'landing.features.focus.desc':
+            'A minimal space to stay focused on what matters and avoid noise.',
+        'landing.features.fast.title': 'Fast to use',
+        'landing.features.fast.desc':
+            'Everything is at your fingertips to track stacks and move forward without friction.',
+        'landing.features.ready.title': 'Ready for what’s next',
+        'landing.features.ready.desc':
+            'Designed to grow with you and adapt to your pace.',
 
-    'landing.hero.title.line1': 'Organize your stacks in one place',
-    'landing.hero.title.brand': 'STAKR',
-    'landing.hero.title.after': '✨',
-    'landing.hero.subtitle':
-      'Centralize, visualize, and keep the momentum with a clean, fast dashboard built for focus.',
-    'landing.cta.signup': 'Create account',
-    'landing.cta.login': 'Sign in',
-    'landing.cta.dashboardReady': 'Dashboard ready in a few clicks',
-    'landing.preview.title': 'Dashboard preview',
-    'landing.preview.desc':
-      'Sign in to see your stacks, your info, and the next steps.',
-    'landing.preview.cta': 'Open dashboard',
-    'landing.features.focus.title': 'Clear and focused',
-    'landing.features.focus.desc':
-      'A minimal space to stay focused on what matters and avoid noise.',
-    'landing.features.fast.title': 'Fast to use',
-    'landing.features.fast.desc':
-      'Everything is at your fingertips to track stacks and move forward without friction.',
-    'landing.features.ready.title': 'Ready for what’s next',
-    'landing.features.ready.desc':
-      'Designed to grow with you and adapt to your pace.',
+        'about.title': 'About Stakr',
+        'about.description': 'Stakr centralizes your stacks and helps you keep momentum with a light, efficient UI.',
+        'about.valuesTitle': 'Our values',
+        'about.value1': 'Simplicity',
+        'about.value2': 'Speed',
+        'about.value3': 'Focus',
+        'about.backHome': 'Back to home',
 
-    'about.title': 'About Stakr',
-    'about.description': 'Stakr centralizes your stacks and helps you keep momentum with a light, efficient UI.',
-    'about.valuesTitle': 'Our values',
-    'about.value1': 'Simplicity',
-    'about.value2': 'Speed',
-    'about.value3': 'Focus',
-    'about.backHome': 'Back to home',
+        'dashboard.greeting': 'Hello',
+        'dashboard.subtitle': 'Ready to manage your stacks?',
+        'dashboard.account.title': 'My account',
+        'dashboard.account.status.active': '● Active',
+        'dashboard.account.status.inactive': '● Inactive',
+        'dashboard.stacks.title': 'My stacks',
+        'dashboard.stacks.count': '0',
+        'dashboard.stacks.create': '+ Create a stack',
+        'common.signedOut': 'You have been signed out.',
+        'common.accountCreated': 'Account created successfully. Welcome!',
+        'common.cancel': 'Cancel',
+        'common.show': 'Show',
+        'common.hide': 'Hide',
+        'common.loading': 'Loading... ⏳',
+        'common.comingSoon': 'Coming soon',
+        'common.languageToggle': 'Switch language',
 
-    'dashboard.greeting': 'Hello',
-    'dashboard.subtitle': 'Ready to manage your stacks?',
-    'dashboard.account.title': 'My account',
-    'dashboard.account.status.active': '● Active',
-    'dashboard.account.status.inactive': '● Inactive',
-    'dashboard.stacks.title': 'My stacks',
-    'dashboard.stacks.count': '0',
-    'dashboard.stacks.create': '+ Create a stack',
-    'common.signedOut': 'You have been signed out.',
-    'common.accountCreated': 'Account created successfully. Welcome!',
-    'common.cancel': 'Cancel',
-    'common.show': 'Show',
-    'common.hide': 'Hide',
-    'common.loading': 'Loading... ⏳',
-    'common.comingSoon': 'Coming soon',
-    'common.languageToggle': 'Switch language',
-
-    'login.title': 'Stakr',
-    'login.subtitle': 'Welcome back',
-    'login.email.placeholder': 'Email',
-    'login.password.placeholder': 'Password',
-    'login.email.invalid': 'Invalid email address.',
-    'login.password.required': 'Password is required.',
-    'login.submit': 'Sign in',
-    'login.submit.loading': 'Signing in…',
-    'login.error.incorrectCredentials': 'Incorrect email or password.',
-    'login.error.serverStarting':
-      'Server is starting up. Please wait a few seconds and retry.',
-    'login.error.serverError': 'Server error. Please retry in a moment.',
-
-    'signup.title': 'Stakr',
-    'signup.subtitle': 'Create your account',
-    'signup.email.placeholder': 'Email',
-    'signup.emailConfirm.placeholder': 'Confirm email',
-    'signup.password.placeholder': 'Password',
-    'signup.passwordConfirm.placeholder': 'Confirm password',
-    'signup.email.invalid': 'Invalid email address.',
-    'signup.email.mismatch': 'Email addresses do not match.',
-    'signup.firstName.label': 'First name',
-    'signup.firstName.placeholder': 'First name',
-    'signup.firstName.required': 'First name is required.',
-    'signup.firstName.invalidFormat': 'First name contains invalid characters.',
-    'signup.lastName.label': 'Last name',
-    'signup.lastName.placeholder': 'Last name',
-    'signup.lastName.required': 'Last name is required.',
-    'signup.jobTitle.label': 'Job title',
-    'signup.jobTitle.placeholder': 'Job title (optional)',
-    'signup.password.required': 'Password is required.',
-    'signup.password.tooShort': 'Password must be at least 8 characters.',
-    'signup.password.mismatch': 'Passwords do not match.',
-    'signup.submit': 'Create account',
-    'signup.submit.loading': 'Creating…',
-    'signup.error.emailAlreadyUsed': 'This email is already in use.',
-    'signup.error.serverStarting':
-      'Server is starting up. Please wait a few seconds and retry.',
-    'signup.error.serverError': 'Server error. Please retry in a moment.',
-    'signup.error.generic': 'Could not create account. Please try again.',
-  },
+        'login.title': 'Stakr',
+        'login.subtitle': 'Welcome back',
+        'login.email.placeholder': 'Email',
+        'login.password.placeholder': 'Password',
+        'login.email.invalid': 'Invalid email address.',
+        'login.password.required': 'Password is required.',
+        'login.submit': 'Sign in',
+        'login.submit.loading': 'Signing in…',
+        'login.error.incorrectCredentials': 'Incorrect email or password.',
+        'login.error.serverStarting':
+            'Server is starting up. Please wait a few seconds and retry.',
+        'login.error.serverError': 'Server error. Please retry in a moment.',
+        'login.forgotPassword': 'Forgot password?',
+        'login.noAccount': "Don't have an account?",
+        'login.createAccount': "Create account",
+        'signup.title': 'Stakr',
+        'signup.subtitle': 'Create your account',
+        'signup.email.placeholder': 'Email',
+        'signup.emailConfirm.placeholder': 'Confirm email',
+        'signup.password.placeholder': 'Password',
+        'signup.passwordConfirm.placeholder': 'Confirm password',
+        'signup.email.invalid': 'Invalid email address.',
+        'signup.email.mismatch': 'Email addresses do not match.',
+        'signup.firstName.label': 'First name',
+        'signup.firstName.placeholder': 'First name',
+        'signup.firstName.required': 'First name is required.',
+        'signup.firstName.invalidFormat': 'First name contains invalid characters.',
+        'signup.lastName.label': 'Last name',
+        'signup.lastName.placeholder': 'Last name',
+        'signup.lastName.required': 'Last name is required.',
+        'signup.jobTitle.label': 'Job title',
+        'signup.jobTitle.placeholder': 'Job title (optional)',
+        'signup.password.required': 'Password is required.',
+        'signup.password.tooShort': 'Password must be at least 8 characters.',
+        'signup.password.mismatch': 'Passwords do not match.',
+        'signup.submit': 'Create account',
+        'signup.submit.loading': 'Creating…',
+        'signup.error.emailAlreadyUsed': 'This email is already in use.',
+        'signup.error.serverStarting':
+            'Server is starting up. Please wait a few seconds and retry.',
+        'signup.error.serverError': 'Server error. Please retry in a moment.',
+        'signup.error.generic': 'Could not create account. Please try again.',
+    },
 };
 
 export function getLocale(): Locale {
-  const raw = (localStorage.getItem('locale') || 'fr').toLowerCase();
-  return raw === 'en' ? 'en' : 'fr';
+    const raw = (localStorage.getItem('locale') || 'fr').toLowerCase();
+    return raw === 'en' ? 'en' : 'fr';
 }
 
-/**
- * Persist the locale (future: wire to a UI toggle).
- */
 export function setLocale(locale: Locale) {
-  localStorage.setItem('locale', locale);
+    localStorage.setItem('locale', locale);
 }
 
 export function t(key: MessageKey, locale: Locale = getLocale()): string {
-  return MESSAGES[locale]?.[key] ?? MESSAGES.fr[key] ?? key;
+    return MESSAGES[locale]?.[key] ?? MESSAGES.fr[key] ?? key;
 }

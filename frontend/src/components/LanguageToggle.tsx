@@ -5,7 +5,7 @@ import {useI18n} from '../i18n/useI18n';
 import NeonButton from './NeonButton';
 import {usePrefersReducedMotion} from './usePrefersReducedMotion';
 
-type LanguageToggleMode = 'default' | 'login';
+type LanguageToggleMode = 'default' | 'modal';
 
 
 export default function LanguageToggle({
@@ -21,7 +21,7 @@ export default function LanguageToggle({
     const [isFocused, setIsFocused] = useState(false);
     const prefersReducedMotion = usePrefersReducedMotion();
 
-    const isLogin = mode === 'login';
+    const isLogin = mode === 'modal';
 
     // Detect if device supports hover (to disable hover/focus on touch devices)
     const [canHover, setCanHover] = useState<boolean>(false);

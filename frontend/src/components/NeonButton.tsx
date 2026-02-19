@@ -7,7 +7,7 @@ export interface NeonButtonProps extends React.ButtonHTMLAttributes<HTMLButtonEl
     variant?: NeonButtonVariant;
     disableOutlineHover?: boolean;
     subtleHover?: boolean;
-    blurOnClick?: boolean; // Option pour forcer la perte du focus au clic
+    blurOnClick?: boolean; // Option to blur on click
 }
 
 export default function NeonButton({
@@ -53,7 +53,7 @@ export default function NeonButton({
             };
         }
 
-        // outline
+        // outline style
         return {
             ...common,
             backgroundColor: 'transparent',
@@ -68,7 +68,7 @@ export default function NeonButton({
     const isOutline = variant === 'outline';
     const isSolid = variant === 'solid';
 
-    // Logique d'affichage "Actif" (Focus ou Survol)
+    // Active state when hovered or focused
     const shouldApplyOutlineActive =
         !disabled && isOutline && !disableOutlineHover && (isHovered || isFocused);
 
@@ -126,13 +126,12 @@ export default function NeonButton({
             onClick={(e) => {
                 if (disabled) return;
 
-                // Ça enlève le halo lumineux immédiatement
+                // Blur on click to remove visual focus halo immediately
                 if (blurOnClick) {
                     (e.currentTarget as HTMLButtonElement).blur();
-                    setIsFocused(false); // On force aussi la mise à jour de l'état local
+                    setIsFocused(false);
                 }
 
-                // Ensuite on lance l'action
                 (onClick as any)?.(e);
             }}
             title={title}

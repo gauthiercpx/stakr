@@ -2,6 +2,8 @@ import {useEffect} from 'react';
 import {motion, AnimatePresence, useReducedMotion} from 'framer-motion';
 import type {Variants} from 'framer-motion';
 import {createPortal} from 'react-dom';
+import NeonButton from './NeonButton';
+import LanguageToggle from "./LanguageToggle.tsx"; // 👈 On importe NeonButton !
 
 export interface ModalProps {
     isOpen: boolean;
@@ -20,7 +22,6 @@ export default function Modal({
                               }: ModalProps) {
     const reduce = useReducedMotion();
 
-    // Variants adaptés selon la préférence reduced-motion
     const overlayVariants: Variants = reduce
         ? ({hidden: {opacity: 0}, visible: {opacity: 1}, exit: {opacity: 0}} as unknown as Variants)
         : ({
@@ -30,7 +31,11 @@ export default function Modal({
         } as unknown as Variants);
 
     const modalVariants: Variants = reduce
-        ? ({hidden: {opacity: 1, y: 0, scale: 1}, visible: {opacity: 1, y: 0, scale: 1}, exit: {opacity: 1}} as unknown as Variants)
+        ? ({
+            hidden: {opacity: 1, y: 0, scale: 1},
+            visible: {opacity: 1, y: 0, scale: 1},
+            exit: {opacity: 1}
+        } as unknown as Variants)
         : ({
             hidden: {opacity: 0, y: 40, scale: 0.96},
             visible: {
@@ -42,7 +47,6 @@ export default function Modal({
             exit: {opacity: 0, y: 40, scale: 0.96, transition: {duration: 0.2, ease: 'easeIn'}},
         } as unknown as Variants);
 
-    // Gestion de la touche Echap
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
             if (e.key === 'Escape') onRequestClose();
@@ -51,12 +55,7 @@ export default function Modal({
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, [isOpen, onRequestClose]);
 
-    // Largeur dynamique selon la prop 'size'
     const maxWidth = size === 'lg' ? '56rem' : '24rem';
-
-    // Utilisation de Portal pour sortir du DOM (évite les conflits z-index)
-    // Assure-toi d'avoir <div id="modal-root"></div> dans ton index.html,
-    // sinon utilise document.body
     const modalRoot = document.getElementById('modal-root') || document.body;
 
     return createPortal(
@@ -69,7 +68,6 @@ export default function Modal({
                     exit="exit"
                     variants={overlayVariants}
                     onClick={(e) => {
-                        // Ferme si on clique sur le fond (backdrop)
                         if (e.target === e.currentTarget) onRequestClose();
                     }}
                     style={{
@@ -80,7 +78,6 @@ export default function Modal({
                         alignItems: 'center',
                         justifyContent: 'center',
                         padding: '1.25rem',
-                        // Ton fond dégradé + le flou iOS
                         background: 'linear-gradient(to right, rgba(255,255,255,0.85) 0%, rgba(191,241,4,0.22) 100%)',
                         backdropFilter: 'blur(5px)',
                         WebkitBackdropFilter: 'blur(5px)',
@@ -90,7 +87,7 @@ export default function Modal({
                         role="dialog"
                         aria-modal="true"
                         variants={modalVariants}
-                        onClick={(e) => e.stopPropagation()} // Empêche le clic de traverser
+                        onClick={(e) => e.stopPropagation()}
                         style={{
                             width: '100%',
                             maxWidth: maxWidth,
@@ -99,37 +96,45 @@ export default function Modal({
                             backgroundColor: 'white',
                             borderRadius: '1.5rem',
                             border: '1px solid rgba(0,0,0,0.06)',
-                            boxShadow: '0 20px 60px rgba(0,0,0,0.3)', // Ombre profonde
+                            boxShadow: '0 20px 60px rgba(0,0,0,0.3)',
                             position: 'relative',
                             display: 'flex',
                             flexDirection: 'column'
                         }}
                     >
-                        {/* Bouton Fermer (Absolu en haut à droite) */}
-                        <button
-                            onClick={onRequestClose}
-                            style={{
-                                position: 'absolute',
-                                top: '1rem',
-                                right: '1rem',
-                                width: '2.5rem',
-                                height: '2.5rem',
-                                borderRadius: '50%',
-                                border: 'none',
-                                background: '#f3f4f6',
-                                color: '#666',
-                                fontSize: '1.2rem',
-                                cursor: 'pointer',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                zIndex: 10
-                            }}
-                        >
-                            ✕
-                        </button>
+                        <div style={{position: 'absolute', top: '1rem', left: '1rem', zIndex: 10}}>
 
-                        {/* Titre (Optionnel) */}
+                            <LanguageToggle
+                                mode="modal"/> {/* 👈 Sélecteur de langue pour faire miroir avec le bouton de langue en haut à gauche */}
+                        </div>
+                        {/* 👇 Bouton Fermer (NeonButton) en haut à droite 👇 */}
+                        <div style={{position: 'absolute', top: '1rem', right: '1rem', zIndex: 10}}>
+                            <NeonButton
+                                onClick={onRequestClose}
+                                variant="outline"
+                                aria-label="Fermer"
+                                style={{
+                                    width: '2.8rem',
+                                    height: '2.8rem',
+                                    padding: '0',
+                                    display: 'inline-flex',
+                                    justifyContent: 'center',
+                                    alignItems: 'center'
+                                }}
+                                label={
+                                    <svg
+                                        viewBox="0 0 24 24" // 👈 LA CORRECTION EST ICI
+                                        width="22" height="22"
+                                        fill="none" stroke="currentColor"
+                                        strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
+                                        style={{display: 'block'}} // 👈 Enlève l'espacement fantôme des SVG
+                                    >
+                                        <path d="M6 18L18 6M6 6l12 12"/>
+                                    </svg>
+                                }
+                            />
+                        </div>
+
                         {title && (
                             <div style={{padding: '2rem 2rem 0.5rem 2rem'}}>
                                 <h2 style={{margin: 0, fontSize: '1.5rem', fontWeight: 800}}>
@@ -138,7 +143,7 @@ export default function Modal({
                             </div>
                         )}
 
-                        {/* Contenu */}
+                        {/* Le conteneur du contenu (avec son padding de 2rem) */}
                         <div style={{padding: '2rem'}}>
                             {children}
                         </div>
