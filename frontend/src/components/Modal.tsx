@@ -88,6 +88,9 @@ export default function Modal({
         >
             <motion.div
                 layout
+                initial="hidden"
+                animate="visible"
+                exit="exit"
                 transition={{
                     layout: {type: "spring", bounce: 0, duration: 0.4}, // 0 bounce = pas de déformation élastique
                     opacity: {duration: 0.2}
@@ -95,7 +98,6 @@ export default function Modal({
                 role="dialog"
                 aria-modal="true"
                 variants={modalVariants}
-                exit={"exit"}
                 onClick={(e) => e.stopPropagation()}
                 style={{
                     width: '100%',
