@@ -7,14 +7,15 @@ type Props = {
   onRequestClose?: () => void;
 };
 
-export function SignupActions({ t, isDisabled, isLoading, onRequestClose }: Props) {
+export function SignupActions({ t, isDisabled, isLoading}: Props) {
   return (
     <div className="stakr-signup__actions">
       <button
         type="submit"
         disabled={isDisabled}
         aria-busy={isLoading}
-        className="stakr-signup__primary"
+        className="stakr-signup__primary stakr-signup__full"
+
         style={{
           padding: '1rem',
           backgroundColor: '#000000',
@@ -33,28 +34,7 @@ export function SignupActions({ t, isDisabled, isLoading, onRequestClose }: Prop
         {isLoading ? t('signup.submit.loading') : t('signup.submit')}
       </button>
 
-      {onRequestClose && (
-        <button
-          type="button"
-          onClick={onRequestClose}
-          disabled={isLoading}
-          className="stakr-signup__secondary stakr-focus"
-          style={{
-            padding: '0.85rem',
-            backgroundColor: 'transparent',
-            color: '#333',
-            border: '1px solid rgba(0,0,0,0.12)',
-            borderRadius: '0.75rem',
-            fontSize: '1rem',
-            fontWeight: 700,
-            cursor: isLoading ? 'not-allowed' : 'pointer',
-            width: '100%',
-          }}
-        >
-          {t('common.cancel')}
-        </button>
-      )}
+
     </div>
   );
 }
-

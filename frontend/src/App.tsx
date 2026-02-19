@@ -92,8 +92,9 @@ function App() {
     if (!isServerReady) return <ServerWakingUp/>;
 
     const routesLocation = backgroundLocation ?? location; // use background location for modal routes
-    const transitionKey = backgroundLocation ? (backgroundLocation as Location).key : location.key;
-
+    const transitionKey = backgroundLocation
+        ? (backgroundLocation as Location).pathname
+        : location.pathname;
     const handleLoginSuccess = () => {
         setIsAuthenticated(true);
         navigate(redirectToRef.current, {replace: true});
@@ -164,17 +165,24 @@ function App() {
             {backgroundLocation && !isAuthenticated && (
                 <Routes>
                     <Route path="/login" element={
-                        <Modal isOpen title={undefined} size="sm" onRequestClose={() => navigate(-1)}>
-                            <Login onLoginSuccess={handleLoginSuccess}
-                                   onSignupRequested={() => {
-                                       navigate('/signup', {state: {backgroundLocation: location}})
-
-                                   }}/>
+                        <Modal
+                            isOpen
+                            onRequestClose={() => navigate(backgroundLocation.pathname)} // 👈 Retour direct au fond
+                            size="sm"
+                        >
+                            <Login
+                                onLoginSuccess={handleLoginSuccess}
+                                onSignupRequested={() => navigate('/signup', {state: {backgroundLocation}})}
+                            />
                         </Modal>
                     }/>
                     <Route path="/signup" element={
-                        <Modal isOpen title={undefined} size="lg" onRequestClose={() => navigate(-1)}>
-                            <Signup onSignupSuccess={handleSignupSuccess} onRequestClose={() => navigate(-1)}/>
+                        <Modal
+                            isOpen
+                            onRequestClose={() => navigate(backgroundLocation.pathname)} // 👈 Retour direct au fond
+                            size="lg"
+                        >
+                            <Signup onSignupSuccess={handleSignupSuccess}/>
                         </Modal>
                     }/>
                 </Routes>

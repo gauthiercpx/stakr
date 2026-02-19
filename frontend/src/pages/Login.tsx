@@ -23,19 +23,19 @@ export default function Login({onLoginSuccess, onSignupRequested}: LoginProps) {
     const [error, setError] = useState('');
 
     const handleLogin = useCallback(
-        async (evt?: React.FormEvent) => {
-            evt?.preventDefault();
+        async (evt?: SubmitEvent) => {
+             // Keep the SubmitEvent parameter present (no-op) so we keep using SubmitEvent instead of FormEvent
+             void evt;
+             const normalizedEmail = email.trim().toLowerCase();
 
-            const normalizedEmail = email.trim().toLowerCase();
-
-            if (!normalizedEmail || !isValidEmail(normalizedEmail)) {
-                setError(t('login.email.invalid'));
-                return;
-            }
-            if (!password) {
-                setError(t('login.password.required'));
-                return;
-            }
+             if (!normalizedEmail || !isValidEmail(normalizedEmail)) {
+                 setError(t('login.email.invalid'));
+                 return;
+             }
+             if (!password) {
+                 setError(t('login.password.required'));
+                 return;
+             }
 
             setError('');
             setIsLoading(true);
@@ -131,7 +131,11 @@ export default function Login({onLoginSuccess, onSignupRequested}: LoginProps) {
             </div>
 
             <form
-                onSubmit={handleLogin}
+                onSubmit={(e) => {
+                    // Prevent default on React synthetic event and pass the native SubmitEvent to our handler
+                    e.preventDefault();
+                    handleLogin(e.nativeEvent as SubmitEvent);
+                }}
                 style={{display: 'flex', flexDirection: 'column', gap: '1rem'}}
             >
                 <input
@@ -233,23 +237,34 @@ export default function Login({onLoginSuccess, onSignupRequested}: LoginProps) {
 
                 {/* 👇 Bouton de redirection vers Inscription 👇 */}
                 {onSignupRequested && (
-                    <NeonButton
-                        type="button"
-                        variant="outline"
-                        disableOutlineHover={true}
-                        label={t('login.createAccount')}
-                        onClick={onSignupRequested}
-                        disabled={isLoading}
-                        style={{
-                            padding: '1rem',
-                            fontSize: '1.1rem',
-                            width: '100%',
-                            display: 'flex',
-                            justifyContent: 'center'
-                        }}
-                    />
+                    <div style={{
+                        marginTop: '1rem',
+                        textAlign: 'center',
+                        fontSize: '0.95rem',
+                        color: '#666'
+                    }}>
+                        {t('login.noAccount')}
+                        {' '}
+                        <button
+                            type="button"
+                            onClick={onSignupRequested}
+                            disabled={isLoading}
+                            style={{
+                                background: 'none',
+                                border: 'none',
+                                padding: '0',
+                                color: '#000', // Contraste fort pour indiquer le lien
+                                fontWeight: 800,
+                                cursor: isLoading ? 'not-allowed' : 'pointer',
+                                textDecoration: 'underline',
+                                textUnderlineOffset: '3px',
+                                fontFamily: 'inherit'
+                            }}
+                        >
+                            {t('login.createAccount')}
+                        </button>
+                    </div>
                 )}
-
             </form>
         </div>
     );
