@@ -1,4 +1,4 @@
-import uuid
+import uuid6
 import sqlalchemy as sa
 from sqlalchemy import Boolean, Column, String
 from sqlalchemy.dialects.postgresql import UUID
@@ -10,7 +10,7 @@ from app.core.database import Base
 class Portfolio(Base):
     __tablename__ = "portfolio"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid7, index=True)
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid6.uuid7, index=True)
     user_id = Column(UUID(as_uuid=True), sa.ForeignKey("user.id"), nullable=False)
     name = Column(String, nullable=False)
     description = Column(String, nullable=True)
