@@ -2,7 +2,8 @@
 
 Stakr helps you organize and track your development stacks in one place — fast to set up, simple to extend.
 
-Think of it as a clean full‑stack starting point (FastAPI + React) with solid defaults: auth, tests, linting, Docker, and CI/CD.
+Think of it as a clean full‑stack starting point (FastAPI + React) with solid defaults: auth, tests, linting, Docker,
+and CI/CD.
 
 ---
 
@@ -10,14 +11,37 @@ Think of it as a clean full‑stack starting point (FastAPI + React) with solid 
 
 ## Screenshots
 
-Add screenshots to `docs/screenshots/` and reference them here.
+Les captures d'écran suivantes se trouvent dans `docs/screenshots/` — elles ont été ajoutées pour illustrer l'interface
+desktop et mobile, les écrans d'authentification et la modale de création de compte.
 
-Example:
+- Landing — Desktop (FR)  
+  ![Landing page (FR)](docs/screenshots/landing_page.png)
 
-```markdown
-<!-- ![Landing page](docs/screenshots/your-landing.png) -->
-<!-- ![Dashboard](docs/screenshots/your-dashboard.png) -->
-```
+- Landing — Desktop (EN)  
+  ![Landing page (EN)](docs/screenshots/landing_page_en.png)
+
+- Landing — Mobile  
+  ![Landing page — mobile](docs/screenshots/landing_page_mobile.jpg)
+
+- Dashboard — Desktop (FR)  
+  ![Dashboard desktop (FR)](docs/screenshots/dashboard_desktop.png)
+
+- Dashboard — Desktop (EN)  
+  ![Dashboard desktop (EN)](docs/screenshots/dashboard_desktop_en.png)
+
+- Dashboard — Mobile  
+  ![Dashboard mobile](docs/screenshots/dashboard_mobile.jpg)
+
+- Login (formulaire)  
+  ![Login](docs/screenshots/login.png)
+
+- Create account / Signup (modal)  
+  ![Create account](docs/screenshots/create_account.png)
+
+- Mobile menu / menu burger (mobile) — capture d'interface  
+  ![Mobile menu](docs/screenshots/menu_mobile.jpg)
+
+---
 
 ### What you get
 
@@ -46,6 +70,7 @@ Example:
 - **Frontend**: `frontend/` (Vite + React)
 
 Production is **split**:
+
 - the frontend is built and deployed as a **static website**
 - the backend is deployed as an **API**
 
@@ -83,6 +108,7 @@ npm run dev
 ```
 
 URLs:
+
 - Frontend: http://localhost:5173
 - Backend API: http://localhost:8000
 - API docs: http://localhost:8000/docs
