@@ -10,6 +10,7 @@ import { useSignupForm } from './hooks/useSignupForm.ts';
 interface SignupProps {
   onSignupSuccess: () => void;
   onRequestClose?: () => void;
+  onLoginRequested?: () => void;
 }
 
 export default function Signup({ onSignupSuccess, onRequestClose }: SignupProps) {

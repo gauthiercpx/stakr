@@ -25,6 +25,7 @@ export default function FadeIn({
 
   return (
     <motion.div
+      layout
       initial={{ opacity: 0, ...directions[direction] }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0 }}
