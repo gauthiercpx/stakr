@@ -1,18 +1,13 @@
 # Stakr
 
-Stakr helps you organize and track your development stacks in one place — fast to set up, simple to extend.
-
-Think of it as a clean full‑stack starting point (FastAPI + React) with solid defaults: auth, tests, linting, Docker,
-and CI/CD.
+A cloud-based investment portfolio tracker
+built with FastAPI and React, deployed on Azure.
 
 ---
 
 ## Product
 
 ## Screenshots
-
-Les captures d'écran suivantes se trouvent dans `docs/screenshots/` — elles ont été ajoutées pour illustrer l'interface
-desktop et mobile, les écrans d'authentification et la modale de création de compte.
 
 - Landing — Desktop (FR)  
   ![Landing page (FR)](docs/screenshots/landing_page.png)
