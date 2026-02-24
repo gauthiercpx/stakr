@@ -21,6 +21,61 @@ logger = logging.getLogger(__name__)
 # 1. Load environment variables from .env
 load_dotenv()
 
+
+def parse_cors_origins(raw_origins: str) -> list:
+    """Parse a comma-separated CORS_ORIGINS string into a list of origins.
+
+    - trims fragments
+    - ignores empty fragments
+    - returns an empty list if input is empty
+    """
+    if not raw_origins:
+        return []
+    return [o.strip() for o in raw_origins.split(",") if o.strip()]
+
+
+def find_invalid_origins(origins: list) -> list:
+    """Return origins that look invalid (no scheme and not localhost).
+
+    This mirrors the check used in the module to warn about likely-misconfigured
+    origins. Kept small and pure so it is easy to unit-test.
+    """
+    return [
+        o
+        for o in origins
+        if not (
+            o.startswith("https://")
+            or o.startswith("localhost")
+            or o.startswith("http://localhost")
+            or o.startswith("https://localhost")
+        )
+    ]
+
+
+# 2. CORS configuration (browser security)
+# Read CORS_ORIGINS from .env and parse it into a list
+raw_origins = os.getenv("CORS_ORIGINS", "")
+origins = parse_cors_origins(raw_origins)
+
+# If no origins are provided, allow localhost by default to avoid blocking local dev
+if not origins:
+    origins = ["http://localhost:5173"]
+
+# Basic validation & helpful logging
+# Warn if wildcard is used (may be acceptable in some envs but insecure in prod)
+if "*" in origins:
+    logger.warning(
+        "CORS configured with wildcard '*' — this allows any origin in browsers. "
+        "Ensure this is intentional for your environment."
+    )
+
+# Warn about likely-misconfigured origins (no scheme)
+_invalid = find_invalid_origins(origins)
+if _invalid:
+    logger.warning("Some CORS origins look invalid or lack a scheme: %s", _invalid)
+
+logger.info("Allowed CORS origins: %s", ", ".join(origins))
+
 app = FastAPI(
     title="STAKR API",
     version=APP_VERSION,
@@ -38,43 +93,6 @@ app = FastAPI(
         {"name": "Auth", "description": "Authentication and user endpoints"},
     ],
 )
-
-# 2. CORS configuration (browser security)
-# Read CORS_ORIGINS from .env and split a comma-separated string into a list
-raw_origins = os.getenv("CORS_ORIGINS", "")
-if raw_origins:
-    # Split, trim and ignore empty fragments
-    origins = [o.strip() for o in raw_origins.split(",") if o.strip()]
-else:
-    origins = []
-
-# If no origins are provided, allow localhost by default to avoid blocking local dev
-if not origins:
-    origins = ["http://localhost:5173"]
-
-# Basic validation & helpful logging
-# Warn if wildcard is used (may be acceptable in some envs but insecure in prod)
-if "*" in origins:
-    logger.warning(
-        "CORS configured with wildcard '*' — this allows any origin in browsers. "
-        "Ensure this is intentional for your environment."
-    )
-
-# Warn about likely-misconfigured origins (no scheme)
-_invalid = [
-    o
-    for o in origins
-    if not (
-        o.startswith("https://")
-        or o.startswith("localhost")
-        or o.startswith("http://localhost")
-        or o.startswith("https://localhost")
-    )
-]
-if _invalid:
-    logger.warning("Some CORS origins look invalid or lack a scheme: %s", _invalid)
-
-logger.info("Allowed CORS origins: %s", ", ".join(origins))
 
 app.add_middleware(
     CORSMiddleware,
