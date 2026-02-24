@@ -1,8 +1,7 @@
-import uuid
-
 import sqlalchemy as sa
 from sqlalchemy import Boolean, Column, String
 from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.orm import relationship
 
 from app.core.database import Base
 
@@ -10,7 +9,12 @@ from app.core.database import Base
 class User(Base):
     __tablename__ = "user"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
+    id = Column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        server_default=sa.text("uuidv7()"),
+        index=True,
+    )
     email = Column(String, unique=True, index=True, nullable=False)
     hashed_password = Column(String, nullable=False)
     is_active = Column(Boolean, default=True)
@@ -30,3 +34,8 @@ class User(Base):
         nullable=False,
     )
     tos_accepted_at = Column(sa.DateTime(timezone=True), nullable=True)
+
+    # Relationship to Portfolio
+    portfolios = relationship(
+        "Portfolio", back_populates="user", cascade="all, delete-orphan"
+    )

@@ -2,9 +2,9 @@ name: CI & Sonar Analysis
 
 on:
   push:
-    branches: ["master"]
+    branches: [ "master" ]
   pull_request:
-    branches: ["master"]
+    branches: [ "master" ]
   workflow_dispatch:
 
 permissions:
@@ -61,7 +61,7 @@ jobs:
             --maxfail=1 \
             --disable-warnings \
             -q \
-            --cov=. \
+            --cov=app \
             --cov-report=xml:coverage.xml
 
       - name: SonarCloud Scan
@@ -70,6 +70,7 @@ jobs:
           projectBaseDir: .
           args: >
             -Dsonar.python.coverage.reportPaths=backend/coverage.xml
+            -Dsonar.coverage.exclusions=frontend/**,backend/alembic/**,backend/**/__init__.py,backend/app/main.py
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

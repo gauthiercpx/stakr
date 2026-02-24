@@ -1,14 +1,13 @@
 [run]
 branch = True
 omit =
-    main.py
-    models/*
-    alembic/*
-    tests/*
+    */alembic/*
+    */tests/*
     */__init__.py
-    core/database.py
-    core/security.py
-    api/deps.py
+    */app/main.py
 
 [report]
 show_missing = True
+exclude_lines =
+    pragma: no cover
+    if TYPE_CHECKING:

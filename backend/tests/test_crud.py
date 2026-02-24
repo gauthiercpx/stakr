@@ -98,8 +98,12 @@ class TestCreateUser:
             last_name="User",
         )
 
-        with patch("app.schemas.crud.get_password_hash") as mock_hash:
+        with (
+            patch("app.schemas.crud.get_password_hash") as mock_hash,
+            patch("app.schemas.crud.User") as MockUser,
+        ):
             mock_hash.return_value = "hashed_password"
+            MockUser.return_value = MagicMock()
             create_user(mock_db, user_in)
 
         # Verify password was hashed
@@ -125,8 +129,12 @@ class TestCreateUser:
                 email=email, password="password123", first_name="Test", last_name="User"
             )
 
-            with patch("app.schemas.crud.get_password_hash") as mock_hash:
+            with (
+                patch("app.schemas.crud.get_password_hash") as mock_hash,
+                patch("app.schemas.crud.User") as MockUser,
+            ):
                 mock_hash.return_value = "hashed_password"
+                MockUser.return_value = MagicMock()
                 create_user(mock_db, user_in)
 
             mock_db.add.assert_called()
@@ -141,7 +149,11 @@ class TestCreateUser:
             last_name="U",
         )
 
-        with patch("app.schemas.crud.get_password_hash"):
+        with (
+            patch("app.schemas.crud.get_password_hash"),
+            patch("app.schemas.crud.User") as MockUser,
+        ):
+            MockUser.return_value = MagicMock()
             create_user(mock_db, user_in)
 
         mock_db.commit.assert_called_once()
@@ -156,7 +168,11 @@ class TestCreateUser:
             last_name="U",
         )
 
-        with patch("app.schemas.crud.get_password_hash"):
+        with (
+            patch("app.schemas.crud.get_password_hash"),
+            patch("app.schemas.crud.User") as MockUser,
+        ):
+            MockUser.return_value = MagicMock()
             create_user(mock_db, user_in)
 
         mock_db.refresh.assert_called_once()

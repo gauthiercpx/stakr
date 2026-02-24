@@ -1,5 +1,5 @@
-import uuid6
 import sqlalchemy as sa
+import uuid6
 from sqlalchemy import Boolean, Column, String
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
@@ -27,4 +27,6 @@ class Portfolio(Base):
 
     user = relationship("User", back_populates="portfolios")
 
-    positions = relationship("Position", back_populates="portfolio", cascade="all, delete-orphan")
+    positions = relationship(
+        "Position", back_populates="portfolio", cascade="all, delete-orphan"
+    )
