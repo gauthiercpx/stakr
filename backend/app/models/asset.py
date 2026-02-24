@@ -7,12 +7,12 @@ from app.core.database import Base
 
 
 class AssetType(str, enum.Enum):
-    STOCK = "stock"  # Actions (Apple, LVMH)
-    CRYPTO = "crypto"  # Cryptomonnaies (BTC, ETH)
-    ETF = "etf"  # Trackers (S&P 500, MSCI World)
-    FOREX = "forex"  # Paires de devises (EUR/USD)
-    COMMODITY = "commodity"  # Matières premières (Or, Pétrole)
-    INDEX = "index"  # Indices boursiers (CAC 40, Nasdaq)
+    STOCK = "stock"  # Shares (Apple, LVMH)
+    CRYPTO = "crypto"  # Cryptocurrencies (BTC, ETH)
+    ETF = "etf"  # Exchange-traded funds (S&P 500, MSCI World)
+    FOREX = "forex"  # Currency pairs (EUR/USD)
+    COMMODITY = "commodity"  # Commodities (Gold, Oil)
+    INDEX = "index"  # Stock indices (CAC 40, Nasdaq)
 
 
 class Asset(Base):

@@ -17,8 +17,8 @@ elif [ -n "${DATABASE_URL:-}" ]; then
   echo "Running database seeding..."
   if ! python -m app.seed; then
     echo "WARNING: Seeding failed. Check app logs for details."
-    # On ne fait pas exit 1 ici pour ne pas empêcher l'API de démarrer
-    # si les devises sont déjà là ou si c'est un problème mineur.
+    # Do not exit 1 here to avoid preventing the API from starting
+    # in cases where currencies already exist or the failure is non-critical.
   else
     echo "Seeding completed successfully."
   fi

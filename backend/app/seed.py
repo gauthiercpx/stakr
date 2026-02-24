@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 
 
 def seed_currencies():
-    # On récupère la factory puis on crée la session
+    # Acquire session factory and open a DB session
     SessionFactory = get_session_factory()
     db = SessionFactory()
 

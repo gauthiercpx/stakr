@@ -39,7 +39,9 @@ class Position(Base):
     quantity = sa.Column(sa.Numeric(precision=36, scale=18), nullable=False, default=0)
 
     # - average_buy_price (unit cost) with sufficient precision
-    average_buy_price = sa.Column(sa.Numeric(precision=24, scale=10), nullable=False, default=0)
+    average_buy_price = sa.Column(
+        sa.Numeric(precision=24, scale=10), nullable=False, default=0
+    )
 
     # 5) Timestamps
     created_at = sa.Column(
