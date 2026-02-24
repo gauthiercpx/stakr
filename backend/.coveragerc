@@ -1,11 +1,10 @@
 [run]
 branch = True
 omit =
-    alembic/*
-    tests/*
+    */alembic/*
+    */tests/*
     */__init__.py
-    main.py
-    api/deps.py
+    */app/main.py
 
 [report]
 show_missing = True
