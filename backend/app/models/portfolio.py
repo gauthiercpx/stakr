@@ -42,6 +42,6 @@ class Portfolio(Base):
 
     user = relationship("User", back_populates="portfolios")
 
-    # positions = relationship(
-    #     "Position", back_populates="portfolio", cascade="all, delete-orphan"
-    # )
+    positions = relationship(
+        "Position", back_populates="portfolio", cascade="all, delete-orphan"
+    )
