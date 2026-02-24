@@ -78,7 +78,7 @@ origins = parse_cors_origins(raw_origins)
 # If no origins are provided, allow localhost by default to avoid blocking local dev
 if not origins:
     # For local development we keep http://localhost; intentionally allow it.
-    # NOSONAR: this is an explicit exception for local dev only — production must use HTTPS.
+    # NOSONAR: dev-only exception; production must use HTTPS.
     origins = ["http://localhost:5173"]  # NOSONAR: allow http for localhost dev
 
 # Basic validation & helpful logging

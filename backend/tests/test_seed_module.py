@@ -1,8 +1,4 @@
 import logging
-from decimal import Decimal
-import runpy
-
-import pytest
 
 from app import seed
 
@@ -111,4 +107,3 @@ def test_run_module_main(monkeypatch, caplog, tmp_path):
     # confirm it ran and committed
     assert dummy.committed is True
     assert "Devises insérées avec succès" in caplog.text
-
