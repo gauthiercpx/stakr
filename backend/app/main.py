@@ -3,7 +3,6 @@
 import logging
 import os
 from pathlib import Path
-from typing import List
 
 from dotenv import load_dotenv
 from fastapi import FastAPI
@@ -14,43 +13,13 @@ from fastapi.staticfiles import StaticFiles
 from app.core.version import APP_VERSION
 from app.routers import auth, health
 
-# Configure module logger. Uvicorn/ASGI normally configures logging globally.
-# Here we get a named logger so messages appear in the normal log pipeline.
+# Configure a module logger. In typical deployments Uvicorn/ASGI configures
+# logging globally; here we get a named logger so messages appear in the
+# normal log pipeline.
 logger = logging.getLogger(__name__)
 
 # 1. Load environment variables from .env
 load_dotenv()
-
-
-def parse_cors_origins(raw_origins: str) -> List[str]:
-    """Parse a comma-separated CORS_ORIGINS string into a list of origins.
-
-    - trims fragments
-    - ignores empty fragments
-    - returns an empty list if input is empty
-    """
-    if not raw_origins:
-        return []
-    return [o.strip() for o in raw_origins.split(",") if o.strip()]
-
-
-def find_invalid_origins(origins: List[str]) -> List[str]:
-    """Return origins that look invalid (no scheme and not localhost).
-
-    This mirrors the check used in the module to warn about likely-misconfigured
-    origins. Kept small and pure so it is easy to unit-test.
-    """
-    return [
-        o
-        for o in origins
-        if not (
-            o.startswith("https://")
-            or o.startswith("localhost")
-            or o.startswith("http://localhost")
-            or o.startswith("https://localhost")
-        )
-    ]
-
 
 app = FastAPI(
     title="STAKR API",
@@ -73,13 +42,15 @@ app = FastAPI(
 # 2. CORS configuration (browser security)
 # Read CORS_ORIGINS from .env and split a comma-separated string into a list
 raw_origins = os.getenv("CORS_ORIGINS", "")
-origins = parse_cors_origins(raw_origins)
+if raw_origins:
+    # Split, trim and ignore empty fragments
+    origins = [o.strip() for o in raw_origins.split(",") if o.strip()]
+else:
+    origins = []
 
 # If no origins are provided, allow localhost by default to avoid blocking local dev
 if not origins:
-    # For local development we keep http://localhost; intentionally allow it.
-    # NOSONAR: dev-only exception; production must use HTTPS.
-    origins = ["http://localhost:5173"]  # NOSONAR: allow http for localhost dev
+    origins = ["http://localhost:5173"]
 
 # Basic validation & helpful logging
 # Warn if wildcard is used (may be acceptable in some envs but insecure in prod)
@@ -90,7 +61,16 @@ if "*" in origins:
     )
 
 # Warn about likely-misconfigured origins (no scheme)
-_invalid = find_invalid_origins(origins)
+_invalid = [
+    o
+    for o in origins
+    if not (
+        o.startswith("https://")
+        or o.startswith("localhost")
+        or o.startswith("http://localhost")
+        or o.startswith("https://localhost")
+    )
+]
 if _invalid:
     logger.warning("Some CORS origins look invalid or lack a scheme: %s", _invalid)
 
