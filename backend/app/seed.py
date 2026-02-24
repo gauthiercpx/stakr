@@ -1,8 +1,8 @@
+import logging
 from decimal import Decimal
+
 from app.core.database import get_session_factory
 from app.models.currency import Currency
-
-import logging
 
 logger = logging.getLogger(__name__)
 

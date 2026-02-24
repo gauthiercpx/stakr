@@ -1,8 +1,7 @@
 import enum
 
 import sqlalchemy as sa
-from sqlalchemy import Boolean, Column, String, Enum
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy import String
 
 from app.core.database import Base
 
@@ -24,5 +23,9 @@ class Asset(Base):
     name = sa.Column(String, nullable=False)
     currency_code = sa.Column(sa.String(3), sa.ForeignKey("currency.code"))
     current_price = sa.Column(sa.Numeric(precision=20, scale=4), nullable=False)
-    last_updated_at = sa.Column(sa.DateTime(timezone=True), server_default=sa.func.now(), onupdate=sa.func.now(),
-                                nullable=False)
+    last_updated_at = sa.Column(
+        sa.DateTime(timezone=True),
+        server_default=sa.func.now(),
+        onupdate=sa.func.now(),
+        nullable=False,
+    )

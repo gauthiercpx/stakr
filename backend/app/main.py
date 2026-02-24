@@ -1,8 +1,8 @@
 """Main FastAPI application for STAKR."""
 
+import logging
 import os
 from pathlib import Path
-import logging
 
 from dotenv import load_dotenv
 from fastapi import FastAPI
@@ -13,8 +13,8 @@ from fastapi.staticfiles import StaticFiles
 from app.core.version import APP_VERSION
 from app.routers import auth, health
 
-# Configure a module logger. In typical deployments Uvicorn/ASGI configures logging
-# globally; here we just get a named logger so messages appear in the normal log pipeline.
+# Configure module logger. Uvicorn/ASGI normally configures logging globally.
+# Here we get a named logger so messages appear in the normal log pipeline.
 logger = logging.getLogger(__name__)
 
 # 1. Load environment variables from .env
@@ -54,10 +54,23 @@ if not origins:
 # Basic validation & helpful logging
 # Warn if wildcard is used (may be acceptable in some envs but insecure in prod)
 if "*" in origins:
-    logger.warning("CORS configured with wildcard '*' — this allows any origin in browsers. Ensure this is intentional for your environment.")
+    logger.warning(
+        "CORS configured with wildcard '*' — this allows any origin in browsers. "
+        "Ensure this is intentional for your environment."
+    )
 
 # Warn about likely-misconfigured origins (no scheme)
-_invalid = [o for o in origins if not (o.startswith("http://") or o.startswith("https://") or o.startswith("localhost") or o.startswith("http://localhost") or o.startswith("https://localhost"))]
+_invalid = [
+    o
+    for o in origins
+    if not (
+        o.startswith("http://")
+        or o.startswith("https://")
+        or o.startswith("localhost")
+        or o.startswith("http://localhost")
+        or o.startswith("https://localhost")
+    )
+]
 if _invalid:
     logger.warning("Some CORS origins look invalid or lack a scheme: %s", _invalid)
 

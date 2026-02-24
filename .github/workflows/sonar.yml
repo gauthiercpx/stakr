@@ -2,9 +2,9 @@ name: CI & Sonar Analysis
 
 on:
   push:
-    branches: ["master"]
+    branches: [ "master" ]
   pull_request:
-    branches: ["master"]
+    branches: [ "master" ]
   workflow_dispatch:
 
 permissions:
@@ -70,6 +70,7 @@ jobs:
           projectBaseDir: .
           args: >
             -Dsonar.python.coverage.reportPaths=backend/coverage.xml
+            -Dsonar.coverage.exclusions=frontend/**,**/*.test.ts,**/*.test.tsx,**/*.spec.ts,**/*.spec.tsx
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
