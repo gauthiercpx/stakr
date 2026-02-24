@@ -61,7 +61,7 @@ jobs:
             --maxfail=1 \
             --disable-warnings \
             -q \
-            --cov=. \
+            --cov=app \
             --cov-report=xml:coverage.xml
 
       - name: SonarCloud Scan
@@ -70,7 +70,7 @@ jobs:
           projectBaseDir: .
           args: >
             -Dsonar.python.coverage.reportPaths=backend/coverage.xml
-            -Dsonar.coverage.exclusions=frontend/**,**/*.test.ts,**/*.test.tsx,**/*.spec.ts,**/*.spec.tsx
+            -Dsonar.coverage.exclusions=frontend/**
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

@@ -1,6 +1,7 @@
 import sqlalchemy as sa
 from sqlalchemy import Boolean, Column, String
 from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.orm import relationship
 
 from app.core.database import Base
 
@@ -33,3 +34,8 @@ class User(Base):
         nullable=False,
     )
     tos_accepted_at = Column(sa.DateTime(timezone=True), nullable=True)
+
+    # Relationship to Portfolio
+    portfolios = relationship(
+        "Portfolio", back_populates="user", cascade="all, delete-orphan"
+    )
