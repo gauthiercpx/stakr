@@ -115,3 +115,83 @@ The GitHub Actions workflow builds and pushes the backend image to ACR when:
 
 - `stakr-backend:sha-<full git sha>` (immutable)
 - `stakr-backend:latest`
+
+### Database Schema
+
+```mermaid
+erDiagram
+%% =========================
+%% 1. Bloc utilisateur (gauche)
+%% =========================
+    USER ||--o{ PORTFOLIO: owns
+%% =========================
+%% 2. Pont central (alignement vertical)
+%% POSITION au-dessus, TRANSACTION en dessous
+%% =========================
+    PORTFOLIO ||--o{ POSITION: contains
+    POSITION }o--|| ASSET: tracks
+    PORTFOLIO ||--o{ TRANSACTION: logs
+    TRANSACTION }o--|| ASSET: trades
+%% =========================
+%% 3. Référentiel (droite)
+%% =========================
+    CURRENCY ||--o{ ASSET: values
+    ASSET ||--o{ PRICE_HISTORY: history
+    ASSET ||--o{ DIVIDEND_EVENT: announces
+    CURRENCY ||--o{ DIVIDEND_EVENT: pays
+%% =========================
+%% ENTITIES
+%% =========================
+    USER {
+        uuid id PK
+        string email
+    }
+
+    PORTFOLIO {
+        uuid id PK
+        uuid user_id FK
+        string name
+    }
+
+    POSITION {
+        uuid id PK
+        uuid portfolio_id FK
+        string asset_ticker FK
+        numeric quantity
+    }
+
+    TRANSACTION {
+        uuid id PK
+        uuid portfolio_id FK
+        string asset_ticker FK
+        enum type
+        numeric quantity
+    }
+
+    ASSET {
+        string ticker PK
+        string(3) currency_code FK
+        string name
+        enum asset_type
+    }
+
+    PRICE_HISTORY {
+        uuid id PK
+        string asset_ticker FK
+        numeric price
+        datetime timestamp
+    }
+
+    DIVIDEND_EVENT {
+        uuid id PK
+        string asset_ticker FK
+        string currency_code FK
+        numeric amount_per_share
+        date ex_date
+    }
+
+    CURRENCY {
+        string(3) code PK
+        string symbol
+    }
+```

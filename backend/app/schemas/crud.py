@@ -6,21 +6,21 @@ from app.schemas.user import UserCreate
 
 
 def get_user(db: Session, user_id: int):
-    """Récupère un user par son ID"""
+    """Retrieve a user by ID."""
     return db.query(User).filter(User.id == user_id).first()
 
 
 def get_user_by_email(db: Session, email: str):
-    """Récupère un user par son email (utile pour le login)"""
+    """Retrieve a user by email (used for login)."""
     return db.query(User).filter(User.email == email).first()
 
 
 def create_user(db: Session, user: UserCreate):
-    """Crée un nouvel utilisateur en hachant son mot de passe"""
-    # 1. On hache le mot de passe (on ne stocke jamais en clair !)
+    """Create a new user, hashing their password."""
+    # 1. Hash the password (never store plaintext)
     hashed_password = get_password_hash(user.password)
 
-    # 2. On prépare l'objet pour la BDD
+    # 2. Prepare DB user object
     db_user = User(
         email=user.email,
         hashed_password=hashed_password,
@@ -30,8 +30,8 @@ def create_user(db: Session, user: UserCreate):
         is_active=True,
     )
 
-    # 3. On sauvegarde
+    # 3. Persist
     db.add(db_user)
     db.commit()
-    db.refresh(db_user)  # On recharge pour avoir l'ID généré par la BDD
+    db.refresh(db_user)  # Reload to get DB-generated ID
     return db_user

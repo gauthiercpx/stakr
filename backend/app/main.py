@@ -81,7 +81,7 @@ app = FastAPI(
     version=APP_VERSION,
     description=(
         "Demo API for the STAKR project skeleton.\n"
-        "This specification documents health endpoints and a few examples."
+        "This specification documents health and authentication endpoints."
     ),
     contact={
         "name": "STAKR Team",

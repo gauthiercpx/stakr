@@ -10,19 +10,19 @@ from app.core.database import Base
 class Portfolio(Base):
     __tablename__ = "portfolio"
 
-    # Ajout du server_default pour correspondre à ta DB Azure
+    # Server default set to UUIDv7 to match the DB function
     id = Column(
         UUID(as_uuid=True),
         primary_key=True,
         default=uuid6.uuid7,
-        server_default=sa.text("uuidv7()"),  # <-- ICI
+        server_default=sa.text("uuidv7()"),
         index=True,
     )
 
-    # Ajout du ondelete="CASCADE" pour correspondre à l'Alembic
+    # Foreign key to User, cascade on delete to keep DB consistent
     user_id = Column(
         UUID(as_uuid=True),
-        sa.ForeignKey("user.id", ondelete="CASCADE"),  # <-- ICI
+        sa.ForeignKey("user.id", ondelete="CASCADE"),
         nullable=False,
     )
 
