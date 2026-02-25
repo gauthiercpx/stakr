@@ -11,7 +11,7 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
 from app.core.version import APP_VERSION
-from app.routers import auth, health
+from app.routers import asset, auth, health, portfolio, transaction
 
 # Configure a module logger. In typical deployments Uvicorn/ASGI configures
 # logging globally; here we get a named logger so messages appear in the
@@ -91,6 +91,11 @@ app = FastAPI(
     openapi_tags=[
         {"name": "Health", "description": "Liveness/readiness / ping endpoints"},
         {"name": "Auth", "description": "Authentication and user endpoints"},
+        {"name": "Portfolios", "description": "Portfolio management endpoints (CRUD)"},
+        {
+            "name": "Transactions",
+            "description": "Transaction management endpoints (CRUD)",
+        },
     ],
 )
 
@@ -106,6 +111,12 @@ app.add_middleware(
 app.include_router(health.router)
 # Note: the auth router is mounted with prefix '/auth'
 app.include_router(auth.router, prefix="/auth")
+
+app.include_router(portfolio.router)
+
+app.include_router(transaction.router)
+
+app.include_router(asset.router)
 
 # 4. Serve the frontend build (optional)
 # This backend is designed to be deployed separately from the frontend.
