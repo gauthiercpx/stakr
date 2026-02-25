@@ -12,6 +12,7 @@ from .price_history import PriceHistory
 from .transaction import Transaction, TransactionType
 from .user import User
 
+
 __all__ = [
     "User",
     "Asset",
