@@ -22,7 +22,7 @@ class Asset(Base):
     asset_type = sa.Column(sa.Enum(AssetType), nullable=False, default=AssetType.STOCK)
     name = sa.Column(String, nullable=False)
     currency_code = sa.Column(sa.String(3), sa.ForeignKey("currency.code"))
-    current_price = sa.Column(sa.Numeric(precision=20, scale=4), nullable=False)
+    current_price = sa.Column(sa.Numeric(precision=24, scale=10), nullable=False)
     last_updated_at = sa.Column(
         sa.DateTime(timezone=True),
         server_default=sa.func.now(),
