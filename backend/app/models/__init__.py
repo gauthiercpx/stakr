@@ -11,6 +11,7 @@ from .position import Position
 from .price_history import PriceHistory
 from .transaction import Transaction, TransactionType
 from .user import User
+from .position import Position
 
 
 __all__ = [
