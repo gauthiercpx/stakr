@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../api/client';
 import {
@@ -18,9 +18,9 @@ import PortfolioSummaryCard, {
   type PortfolioPeriod,
 } from './dashboard/components/PortfolioSummaryCard';
 import AccountActionsCard from './dashboard/components/AccountActionsCard';
-import ChartsPlaceholderCard from './dashboard/components/ChartsPlaceholderCard';
 import PortfolioChartCard from './dashboard/components/PortfolioChartCard';
 import DashboardActionModal from './dashboard/components/DashboardActionModal';
+import { readDashboardCache, writeDashboardCache } from '../utils/dashboardCache';
 import './dashboard/dashboard.css';
 
 interface User {
@@ -41,30 +41,35 @@ type DashboardAction = 'transaction' | 'asset' | 'portfolio' | null;
 export default function Dashboard({ onSessionInvalid }: DashboardProps) {
   const navigate = useNavigate();
   const { locale, t } = useI18n();
+  const cacheSeedRef = useRef(readDashboardCache());
+  const cachedSnapshot = cacheSeedRef.current;
 
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState<User | null>(cachedSnapshot?.user ?? null);
+  const [loading, setLoading] = useState(!cachedSnapshot);
   const [portfolioId, setPortfolioId] = useState<string | null>(() =>
-    localStorage.getItem(DASHBOARD_PORTFOLIO_KEY),
+    cachedSnapshot?.portfolioId ?? localStorage.getItem(DASHBOARD_PORTFOLIO_KEY),
   );
-  const [summary, setSummary] = useState<PortfolioSummary | null>(null);
-  const [positions, setPositions] = useState<PositionResponse[]>([]);
-  const [portfolios, setPortfolios] = useState<PortfolioResponse[]>([]);
+  const [summary, setSummary] = useState<PortfolioSummary | null>(cachedSnapshot?.summary ?? null);
+  const [positions, setPositions] = useState<PositionResponse[]>(cachedSnapshot?.positions ?? []);
+  const [portfolios, setPortfolios] = useState<PortfolioResponse[]>(cachedSnapshot?.portfolios ?? []);
   const [summaryLoading, setSummaryLoading] = useState(false);
   const [positionsLoading, setPositionsLoading] = useState(false);
   const [historiesLoading, setHistoriesLoading] = useState(false);
   const [historiesByTicker, setHistoriesByTicker] = useState<Record<string, PriceHistoryPoint[]>>(
-    {},
+    cachedSnapshot?.historiesByTicker ?? {},
   );
   const [summaryError, setSummaryError] = useState('');
-  const [selectedPeriod, setSelectedPeriod] = useState<PortfolioPeriod>('1M');
+  const [selectedPeriod, setSelectedPeriod] = useState<PortfolioPeriod>(
+    cachedSnapshot?.selectedPeriod ?? '1M',
+  );
   const [periodPnl, setPeriodPnl] = useState<{ amount: number; percent: number }>({
-    amount: 0,
-    percent: 0,
+    amount: cachedSnapshot?.periodPnl.amount ?? 0,
+    percent: cachedSnapshot?.periodPnl.percent ?? 0,
   });
-  const [lastPnlIsPositive, setLastPnlIsPositive] = useState(true);
+  const [lastPnlIsPositive, setLastPnlIsPositive] = useState(
+    (cachedSnapshot?.periodPnl.amount ?? 0) >= 0,
+  );
   const [periodPnlLoading, setPeriodPnlLoading] = useState(false);
-  const [shouldMountChart, setShouldMountChart] = useState(false);
   const [activeAction, setActiveAction] = useState<DashboardAction>(null);
 
   const numberLocale = locale === 'fr' ? 'fr-FR' : 'en-US';
@@ -197,6 +202,19 @@ export default function Dashboard({ onSessionInvalid }: DashboardProps) {
   }, [onSessionInvalid]);
 
   useEffect(() => {
+    writeDashboardCache({
+      user,
+      portfolioId,
+      portfolios,
+      summary,
+      positions,
+      historiesByTicker,
+      selectedPeriod,
+      periodPnl,
+    });
+  }, [historiesByTicker, periodPnl, portfolioId, portfolios, positions, selectedPeriod, summary, user]);
+
+  useEffect(() => {
     api
       .get('auth/users/me')
       .then(async (response) => {
@@ -312,21 +330,6 @@ export default function Dashboard({ onSessionInvalid }: DashboardProps) {
   }, [onSessionInvalid, portfolioId, positions]);
 
   useEffect(() => {
-    if (loading) {
-      setShouldMountChart(false);
-      return;
-    }
-
-    const timeoutId = window.setTimeout(() => {
-      setShouldMountChart(true);
-    }, 900);
-
-    return () => {
-      window.clearTimeout(timeoutId);
-    };
-  }, [loading]);
-
-  useEffect(() => {
     if (!portfolioId || !summary) {
       setPeriodPnl({ amount: 0, percent: 0 });
       return;
@@ -337,11 +340,6 @@ export default function Dashboard({ onSessionInvalid }: DashboardProps) {
         amount: asNumber(summary.global_pnl),
         percent: asNumber(summary.global_pnl_percent),
       });
-      return;
-    }
-
-    // On retarde le calcul historique (coûteux) pour laisser passer les animations d'entrée.
-    if (!shouldMountChart) {
       return;
     }
 
@@ -428,7 +426,6 @@ export default function Dashboard({ onSessionInvalid }: DashboardProps) {
     portfolioId,
     positions,
     selectedPeriod,
-    shouldMountChart,
     summary,
   ]);
 
@@ -448,7 +445,6 @@ export default function Dashboard({ onSessionInvalid }: DashboardProps) {
 
   const isPositivePnl = periodPnlLoading ? lastPnlIsPositive : pnlValue >= 0;
   const isPnlNeutral =
-    !shouldMountChart ||
     summaryLoading ||
     positionsLoading ||
     historiesLoading ||
@@ -558,28 +554,21 @@ export default function Dashboard({ onSessionInvalid }: DashboardProps) {
           </div>
 
           <FadeIn delay={0.24}>
-            {shouldMountChart ? (
-              <PortfolioChartCard
-                title={t('dashboard.charts.title')}
-                portfolioId={portfolioId}
-                positions={positions}
-                  historiesByTicker={historiesByTicker}
-                  historiesLoading={historiesLoading}
-                selectedPeriod={selectedPeriod}
-                periodLabel={t('dashboard.portfolio.period')}
-                periods={PERIODS}
-                onPeriodChange={setSelectedPeriod}
-                locale={locale}
-                noDataText={t('dashboard.charts.noData')}
-                emptyText={t('dashboard.portfolio.empty')}
-                tooltipLabel={t('dashboard.charts.tooltipLabel')}
-              />
-            ) : (
-              <ChartsPlaceholderCard
-                title={t('dashboard.charts.title')}
-                placeholder={t('common.loading')}
-              />
-            )}
+            <PortfolioChartCard
+              title={t('dashboard.charts.title')}
+              portfolioId={portfolioId}
+              positions={positions}
+              historiesByTicker={historiesByTicker}
+              historiesLoading={historiesLoading}
+              selectedPeriod={selectedPeriod}
+              periodLabel={t('dashboard.portfolio.period')}
+              periods={PERIODS}
+              onPeriodChange={setSelectedPeriod}
+              locale={locale}
+              noDataText={t('dashboard.charts.noData')}
+              emptyText={t('dashboard.portfolio.empty')}
+              tooltipLabel={t('dashboard.charts.tooltipLabel')}
+            />
           </FadeIn>
 
           <DashboardActionModal

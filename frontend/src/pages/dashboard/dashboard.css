@@ -96,23 +96,30 @@
 
 .portfolio__header {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 1rem;
   align-items: start;
   margin-bottom: 0.9rem;
+  width: 100%;
+}
+
+.portfolio__header > .dashboard-card__title,
+.portfolio__header > .portfolio__headerActions {
+  width: 100%;
 }
 
 .portfolio__headerActions {
-  display: flex;
-  align-items: center;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 0.6rem;
-  justify-content: flex-start;
-  flex-wrap: wrap;
+  align-items: stretch;
+  width: 100%;
 }
 
 .portfolio-select,
 .portfolio__createButton {
-  width: 220px;
-  min-width: 220px;
+  width: 100%;
+  min-width: 0;
 }
 
 /* PortfolioSelect custom */
@@ -176,8 +183,7 @@
   }
 
   .portfolio__headerActions {
-    flex-direction: column;
-    align-items: stretch;
+    grid-template-columns: 1fr;
   }
 
   .portfolio-select,

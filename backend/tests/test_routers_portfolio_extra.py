@@ -27,11 +27,11 @@ def fake_user():
 
 def test_get_portfolio_positions(monkeypatch):
     db = MagicMock()
-    # We need db.query to be called twice:
-    # once for Portfolio.exists and once for Position+Asset
+    # Three queries are expected: portfolio, positions, dividends aggregation.
     q_portfolio = MagicMock()
     q_positions = MagicMock()
-    db.query.side_effect = [q_portfolio, q_positions]
+    q_dividends = MagicMock()
+    db.query.side_effect = [q_portfolio, q_positions, q_dividends]
 
     # portfolio existence
     portfolio_exists = SimpleNamespace(
@@ -57,6 +57,7 @@ def test_get_portfolio_positions(monkeypatch):
     )
 
     q_positions.join.return_value.filter.return_value.all.return_value = [(pos, asset)]
+    q_dividends.filter.return_value.group_by.return_value.all.return_value = []
 
     app.dependency_overrides[get_db] = override_get_db_factory(db)
     app.dependency_overrides[deps.get_current_user] = lambda: fake_user()
@@ -74,7 +75,8 @@ def test_get_portfolio_summary(monkeypatch):
     db = MagicMock()
     q_portfolio = MagicMock()
     q_positions = MagicMock()
-    db.query.side_effect = [q_portfolio, q_positions]
+    q_dividends = MagicMock()
+    db.query.side_effect = [q_portfolio, q_positions, q_dividends]
 
     portfolio_id = uuid4()
     # portfolio exists
@@ -86,15 +88,29 @@ def test_get_portfolio_summary(monkeypatch):
     q_portfolio.filter.return_value.first.return_value = portfolio_obj
 
     # Two positions
-    pos1 = SimpleNamespace(quantity=Decimal("1"), average_buy_price=Decimal("5"))
-    asset1 = SimpleNamespace(current_price=Decimal("10"))
-    pos2 = SimpleNamespace(quantity=Decimal("2"), average_buy_price=Decimal("7"))
-    asset2 = SimpleNamespace(current_price=Decimal("11"))
+    pos1 = SimpleNamespace(
+        quantity=Decimal("1"),
+        average_buy_price=Decimal("5"),
+        asset_ticker="AAA",
+    )
+    asset1 = SimpleNamespace(ticker="AAA", current_price=Decimal("10"))
+    pos2 = SimpleNamespace(
+        quantity=Decimal("2"),
+        average_buy_price=Decimal("7"),
+        asset_ticker="BBB",
+    )
+    asset2 = SimpleNamespace(ticker="BBB", current_price=Decimal("11"))
+
+    monkeypatch.setattr(
+        "app.routers.portfolio.MarketDataService.get_current_price",
+        lambda _ticker: None,
+    )
 
     q_positions.join.return_value.filter.return_value.all.return_value = [
         (pos1, asset1),
         (pos2, asset2),
     ]
+    q_dividends.filter.return_value.group_by.return_value.all.return_value = []
 
     app.dependency_overrides[get_db] = override_get_db_factory(db)
     app.dependency_overrides[deps.get_current_user] = lambda: fake_user()

@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { clearDashboardCache } from '../utils/dashboardCache';
 
 // API base URL from Vite env (.env / .env.local)
 const BASE_URL = import.meta.env.VITE_API_URL;
@@ -9,6 +10,7 @@ export const REFRESH_TOKEN_KEY = 'refresh_token';
 export const clearAuthTokens = () => {
     localStorage.removeItem(ACCESS_TOKEN_KEY);
     localStorage.removeItem(REFRESH_TOKEN_KEY);
+    clearDashboardCache();
 };
 
 export const api = axios.create({
