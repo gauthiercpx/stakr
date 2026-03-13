@@ -10,6 +10,7 @@ import {api, ACCESS_TOKEN_KEY, clearAuthTokens} from './api/client';
 import Login from './pages/Login';
 import Signup from './pages/signup/Signup';
 import Dashboard from './pages/Dashboard';
+import PortfolioPage from './pages/Portfolio';
 import LandingPage from './pages/LandingPage';
 import NotFound from './pages/NotFound';
 import About from './pages/About/About.tsx';
@@ -184,6 +185,11 @@ function App() {
                         <Route path="/dashboard" element={
                             <RequireAuth isAuthenticated={isAuthenticated} redirectTo={location} isLoggingOut={isLoggingOut}>
                                 <Dashboard onSessionInvalid={logoutSilent}/>
+                            </RequireAuth>
+                        }/>
+                        <Route path="/portfolio/:portfolioId" element={
+                            <RequireAuth isAuthenticated={isAuthenticated} redirectTo={location} isLoggingOut={isLoggingOut}>
+                                <PortfolioPage onSessionInvalid={logoutSilent}/>
                             </RequireAuth>
                         }/>
                         <Route path="*" element={<NotFound/>}/>

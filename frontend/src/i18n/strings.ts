@@ -43,9 +43,43 @@ export type MessageKey =
     | 'dashboard.account.title'
     | 'dashboard.account.status.active'
     | 'dashboard.account.status.inactive'
+    | 'dashboard.assets.title'
+    | 'dashboard.assets.trigger'
+    | 'dashboard.assets.loading'
+    | 'dashboard.assets.empty'
     | 'dashboard.stacks.title'
     | 'dashboard.stacks.count'
     | 'dashboard.stacks.create'
+    | 'dashboard.portfolio.title'
+    | 'dashboard.portfolio.empty'
+    | 'dashboard.portfolio.loading'
+    | 'dashboard.portfolio.error'
+    | 'dashboard.portfolio.defaultName'
+    | 'dashboard.portfolio.period'
+    | 'dashboard.portfolio.select'
+    | 'dashboard.portfolio.open'
+    | 'dashboard.portfolio.dividends'
+    | 'dashboard.portfolio.kpi.totalValue'
+    | 'dashboard.portfolio.kpi.totalInvested'
+    | 'dashboard.portfolio.kpi.pnl'
+    | 'dashboard.actions.addTransaction'
+    | 'dashboard.actions.addAsset'
+    | 'dashboard.actions.addPortfolio'
+    | 'dashboard.actions.modalPlaceholder'
+    | 'dashboard.charts.title'
+    | 'dashboard.charts.placeholder'
+    | 'dashboard.charts.noData'
+    | 'dashboard.charts.tooltipLabel'
+    | 'portfolioPage.titleFallback'
+    | 'portfolioPage.backToDashboard'
+    | 'portfolioPage.empty'
+    | 'portfolioPage.table.asset'
+    | 'portfolioPage.table.ticker'
+    | 'portfolioPage.table.quantity'
+    | 'portfolioPage.table.avgPrice'
+    | 'portfolioPage.table.currentPrice'
+    | 'portfolioPage.table.value'
+    | 'portfolioPage.table.dividends'
     | 'common.signedOut'
     | 'common.accountCreated'
     | 'common.cancel'
@@ -150,9 +184,43 @@ const MESSAGES: Record<Locale, Record<MessageKey, string>> = {
         'dashboard.account.title': 'Mon Compte',
         'dashboard.account.status.active': '● Actif',
         'dashboard.account.status.inactive': '● Inactif',
+        'dashboard.assets.title': 'Aperçu des actifs',
+        'dashboard.assets.trigger': 'Actifs du portefeuille',
+        'dashboard.assets.loading': 'Chargement des actifs...',
+        'dashboard.assets.empty': 'Aucun actif dans ce portefeuille pour le moment.',
         'dashboard.stacks.title': 'Mes Stacks',
         'dashboard.stacks.count': '0',
         'dashboard.stacks.create': '+ Créer une Stack',
+        'dashboard.portfolio.title': 'Mon portfolio',
+        'dashboard.portfolio.empty': 'Crée ton premier portfolio pour afficher ta performance.',
+        'dashboard.portfolio.loading': 'Chargement du portfolio...',
+        'dashboard.portfolio.error': 'Impossible de charger le portfolio pour le moment.',
+        'dashboard.portfolio.defaultName': 'Portfolio principal',
+        'dashboard.portfolio.period': 'Période',
+        'dashboard.portfolio.select': 'Portfolio',
+        'dashboard.portfolio.open': 'Ouvrir le portefeuille complet',
+        'dashboard.portfolio.dividends': 'Dividendes perçus',
+        'dashboard.portfolio.kpi.totalValue': 'Valeur totale',
+        'dashboard.portfolio.kpi.totalInvested': 'Investi total',
+        'dashboard.portfolio.kpi.pnl': 'PnL global',
+        'dashboard.actions.addTransaction': '+ Ajouter une transaction',
+        'dashboard.actions.addAsset': '+ Ajouter un actif',
+        'dashboard.actions.addPortfolio': '+ Créer un portfolio',
+        'dashboard.actions.modalPlaceholder': 'Cette fonctionnalité arrive bientôt. Cette modale est un placeholder.',
+        'dashboard.charts.title': 'Graphiques',
+        'dashboard.charts.placeholder': 'Zone réservée aux graphiques (allocation, évolution, performance).',
+        'dashboard.charts.noData': 'Aucune donnée disponible pour cette période.',
+        'dashboard.charts.tooltipLabel': 'Valeur du portefeuille',
+        'portfolioPage.titleFallback': 'Portefeuille',
+        'portfolioPage.backToDashboard': 'Retour au dashboard',
+        'portfolioPage.empty': 'Aucune position dans ce portefeuille.',
+        'portfolioPage.table.asset': 'Actif',
+        'portfolioPage.table.ticker': 'Ticker',
+        'portfolioPage.table.quantity': 'Quantité',
+        'portfolioPage.table.avgPrice': 'Prix moyen',
+        'portfolioPage.table.currentPrice': 'Prix actuel',
+        'portfolioPage.table.value': 'Valeur',
+        'portfolioPage.table.dividends': 'Dividendes',
         'common.signedOut': 'Tu as bien été déconnecté.',
         'common.accountCreated': 'Compte créé avec succès. Bienvenue !',
         'common.cancel': 'Annuler',
@@ -261,9 +329,43 @@ const MESSAGES: Record<Locale, Record<MessageKey, string>> = {
         'dashboard.account.title': 'My account',
         'dashboard.account.status.active': '● Active',
         'dashboard.account.status.inactive': '● Inactive',
+        'dashboard.assets.title': 'Asset overview',
+        'dashboard.assets.trigger': 'Portfolio assets',
+        'dashboard.assets.loading': 'Loading assets...',
+        'dashboard.assets.empty': 'No assets in this portfolio yet.',
         'dashboard.stacks.title': 'My stacks',
         'dashboard.stacks.count': '0',
         'dashboard.stacks.create': '+ Create a stack',
+        'dashboard.portfolio.title': 'My portfolio',
+        'dashboard.portfolio.empty': 'Create your first portfolio to start tracking performance.',
+        'dashboard.portfolio.loading': 'Loading portfolio...',
+        'dashboard.portfolio.error': 'Could not load portfolio right now.',
+        'dashboard.portfolio.defaultName': 'Main portfolio',
+        'dashboard.portfolio.period': 'Period',
+        'dashboard.portfolio.select': 'Portfolio',
+        'dashboard.portfolio.open': 'Open full portfolio',
+        'dashboard.portfolio.dividends': 'Dividends received',
+        'dashboard.portfolio.kpi.totalValue': 'Total value',
+        'dashboard.portfolio.kpi.totalInvested': 'Total invested',
+        'dashboard.portfolio.kpi.pnl': 'Global PnL',
+        'dashboard.actions.addTransaction': '+ Add transaction',
+        'dashboard.actions.addAsset': '+ Add asset',
+        'dashboard.actions.addPortfolio': '+ Create portfolio',
+        'dashboard.actions.modalPlaceholder': 'This feature is coming soon. This modal is a placeholder.',
+        'dashboard.charts.title': 'Charts',
+        'dashboard.charts.placeholder': 'Chart area (allocation, performance, timeline) coming next.',
+        'dashboard.charts.noData': 'No data available for this period.',
+        'dashboard.charts.tooltipLabel': 'Portfolio value',
+        'portfolioPage.titleFallback': 'Portfolio',
+        'portfolioPage.backToDashboard': 'Back to dashboard',
+        'portfolioPage.empty': 'No positions in this portfolio.',
+        'portfolioPage.table.asset': 'Asset',
+        'portfolioPage.table.ticker': 'Ticker',
+        'portfolioPage.table.quantity': 'Quantity',
+        'portfolioPage.table.avgPrice': 'Average price',
+        'portfolioPage.table.currentPrice': 'Current price',
+        'portfolioPage.table.value': 'Value',
+        'portfolioPage.table.dividends': 'Dividends',
         'common.signedOut': 'You have been signed out.',
         'common.accountCreated': 'Account created successfully. Welcome!',
         'common.cancel': 'Cancel',

@@ -83,3 +83,34 @@ class MarketDataService:
         except Exception as e:
             logger.exception("Failed fetching dividends for %s: %s", ticker, e)
             return []
+
+    @staticmethod
+    def get_current_price(ticker: str) -> Optional[float]:
+        """
+        Récupère uniquement le prix actuel d'un actif le plus rapidement possible.
+        Idéal pour le rafraîchissement à la volée (Dashboard).
+        """
+        try:
+            asset = yf.Ticker(ticker)
+            price = None
+
+            # 1. Tentative ultra-rapide avec fast_info
+            try:
+                if hasattr(asset.fast_info, "last_price"):
+                    price = asset.fast_info.last_price
+                else:
+                    price = asset.fast_info.get("lastPrice")
+            except Exception:
+                pass
+
+            # 2. Fallback 100% fiable si fast_info est indisponible
+            if price is None:
+                hist = asset.history(period="1d")
+                if not hist.empty:
+                    price = float(hist["Close"].iloc[-1])
+
+            return float(price) if price is not None else None
+
+        except Exception as e:
+            logger.exception("Échec du rafraîchissement du prix pour %s: %s", ticker, e)
+            return None

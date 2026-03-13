@@ -1,0 +1,286 @@
+/* ── Page layout ──────────────────────────────────────────────── */
+
+.portfolio-page {
+  padding: 2.5rem 1.25rem 3rem;
+  max-width: 1120px;
+  margin: 0 auto;
+}
+
+/* ── Header ───────────────────────────────────────────────────── */
+
+.portfolio-page__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.portfolio-page__title {
+  margin: 0;
+  font-size: 1.75rem;
+  font-weight: 800;
+  line-height: 1.15;
+}
+
+/* ── State messages ───────────────────────────────────────────── */
+
+.portfolio-page__state {
+  margin-top: 2rem;
+  text-align: center;
+  color: #666;
+  font-size: 1rem;
+}
+
+.portfolio-page__state.is-error {
+  color: #c0392b;
+  font-weight: 700;
+}
+
+/* ── KPI grid ─────────────────────────────────────────────────── */
+
+.portfolio-page__kpis {
+  margin-top: 1rem;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+}
+
+.portfolio-page__kpiCard {
+  background: #fff;
+  border-radius: 1rem;
+  padding: 1rem 1.1rem;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+}
+
+.portfolio-page__kpiLabel {
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #888;
+}
+
+.portfolio-page__kpiValue {
+  margin-top: 0.4rem;
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #000;
+}
+
+@media (min-width: 800px) {
+  .portfolio-page__kpis {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* ── Table card ───────────────────────────────────────────────── */
+
+.portfolio-page__tableCard {
+  margin-top: 1rem;
+  background: #fff;
+  border-radius: 1rem;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+}
+
+.portfolio-page__tableScroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.portfolio-page__table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 680px;
+  font-size: 0.93rem;
+}
+
+.portfolio-page__table thead tr {
+  background: #f8f8f8;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.07);
+}
+
+.portfolio-page__table th {
+  padding: 0.85rem 1rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #888;
+  white-space: nowrap;
+}
+
+.portfolio-page__table th:first-child,
+.portfolio-page__table td:first-child {
+  padding-left: 1.25rem;
+}
+
+.portfolio-page__table th:last-child,
+.portfolio-page__table td:last-child {
+  padding-right: 1.25rem;
+}
+
+.portfolio-page__table th.is-right,
+.portfolio-page__table td.is-right {
+  text-align: right;
+}
+
+.portfolio-page__table tbody tr {
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  transition: background 0.12s;
+}
+
+.portfolio-page__table tbody tr:hover {
+  background: #fafafa;
+}
+
+.portfolio-page__table td {
+  padding: 0.85rem 1rem;
+  color: #111;
+  white-space: nowrap;
+}
+
+.portfolio-page__assetName {
+  font-weight: 700;
+}
+
+.portfolio-page__assetTicker {
+  font-size: 0.78rem;
+  color: #888;
+  font-weight: 600;
+  margin-top: 0.15rem;
+}
+
+.portfolio-page__pnlPositive {
+  color: #00a67f;
+  font-weight: 700;
+}
+
+.portfolio-page__pnlNegative {
+  color: #c0392b;
+  font-weight: 700;
+}
+
+.portfolio-page__empty {
+  padding: 1.5rem 1.25rem;
+  color: #888;
+  font-size: 0.95rem;
+}
+
+/* ── Position cards (mobile alternative to table) ────────────── */
+
+.portfolio-page__positionCards {
+  display: none;
+}
+
+.portfolio-page__positionCard {
+  background: #fff;
+  border-radius: 1rem;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+}
+
+.portfolio-page__positionCardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.9rem 1rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.portfolio-page__positionCardTitle {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.portfolio-page__positionCardPnl {
+  font-size: 0.95rem;
+  font-weight: 800;
+  text-align: right;
+  flex-shrink: 0;
+  padding-top: 0.1rem;
+}
+
+.portfolio-page__positionCardGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+}
+
+.portfolio-page__positionCardStat {
+  padding: 0.65rem 1rem;
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.portfolio-page__positionCardStat:nth-child(odd) {
+  border-right: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+/* Dernière stat seule sur sa ligne → pleine largeur */
+.portfolio-page__positionCardStat:last-child:nth-child(odd) {
+  grid-column: span 2;
+  border-right: none;
+}
+
+.portfolio-page__positionCardStatLabel {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #999;
+}
+
+.portfolio-page__positionCardStatValue {
+  margin-top: 0.2rem;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #111;
+}
+
+/* ── Mobile ───────────────────────────────────────────────────── */
+
+@media (max-width: 600px) {
+  .portfolio-page {
+    padding: 1.25rem 0.9rem 2.5rem;
+  }
+
+  .portfolio-page__header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .portfolio-page__title {
+    font-size: 1.4rem;
+  }
+
+  .portfolio-page__kpis {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .portfolio-page__kpiValue {
+    font-size: 1.05rem;
+  }
+
+  /* Swap table → cards */
+  .portfolio-page__tableCard {
+    display: none;
+  }
+
+  .portfolio-page__positionCards {
+    display: grid;
+    gap: 0.6rem;
+    margin-top: 1rem;
+  }
+}
+
+@media (max-width: 380px) {
+  .portfolio-page__kpis {
+    grid-template-columns: 1fr;
+  }
+}

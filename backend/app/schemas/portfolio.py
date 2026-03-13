@@ -25,5 +25,6 @@ class PortfolioSummary(BaseModel):
     total_invested: Decimal  # Somme totale investie (PRU * quantité)
     global_pnl: Decimal  # Profit/Perte total (en euros/dollars)
     global_pnl_percent: Decimal  # Pourcentage de gain/perte global
+    total_dividends_received: Decimal
 
     model_config = ConfigDict(from_attributes=True)

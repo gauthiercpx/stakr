@@ -17,5 +17,6 @@ class PositionResponse(BaseModel):
     asset_type: str
     currency_code: str
     current_price: Decimal
+    dividends_received: Decimal
 
     model_config = ConfigDict(from_attributes=True)

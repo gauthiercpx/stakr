@@ -4,15 +4,30 @@ from typing import List
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from app.api import deps
 from app.core.database import get_db
-from app.models import Asset, Portfolio, Position
+from app.models import Asset, DividendEvent, Portfolio, Position
 from app.schemas.portfolio import PortfolioCreate, PortfolioResponse, PortfolioSummary
 from app.schemas.position import PositionResponse
+from app.services.market_data import MarketDataService
 
 router = APIRouter(prefix="/portfolios", tags=["Portfolios"])
+
+
+@router.get("/", response_model=List[PortfolioResponse])
+def list_portfolios(
+    db: Session = Depends(get_db),
+    current_user=Depends(deps.get_current_user),
+):
+    return (
+        db.query(Portfolio)
+        .filter(Portfolio.user_id == current_user.id)
+        .order_by(Portfolio.created_at.desc())
+        .all()
+    )
 
 
 @router.post("/", response_model=PortfolioResponse, status_code=status.HTTP_201_CREATED)
@@ -55,9 +70,25 @@ def get_portfolio_positions(
         .all()
     )
 
+    tickers = [pos.asset_ticker for pos, _asset in results]
+    dividends_by_ticker = {}
+    if tickers:
+        rows = (
+            db.query(
+                DividendEvent.asset_ticker,
+                func.coalesce(func.sum(DividendEvent.amount_per_share), 0),
+            )
+            .filter(DividendEvent.asset_ticker.in_(tickers))
+            .group_by(DividendEvent.asset_ticker)
+            .all()
+        )
+        dividends_by_ticker = {ticker: amount for ticker, amount in rows}
+
     # 3. On reformate les données pour que Pydantic soit content
     response = []
     for pos, asset in results:
+        per_share_dividends = dividends_by_ticker.get(pos.asset_ticker, Decimal("0"))
+        dividends_received = pos.quantity * per_share_dividends
         response.append(
             {
                 "id": pos.id,
@@ -70,6 +101,7 @@ def get_portfolio_positions(
                 "asset_type": asset.asset_type,
                 "currency_code": asset.currency_code,
                 "current_price": asset.current_price,
+                "dividends_received": dividends_received,
             }
         )
 
@@ -100,14 +132,55 @@ def get_portfolio_summary(
         .all()
     )
 
+    # ==========================================
+    # 🚀 NOUVEAU : MISE À JOUR DES PRIX (ON-DEMAND)
+    # ==========================================
+    prices_updated = False
+    for pos, asset in results:
+        try:
+            new_price = MarketDataService.get_current_price(asset.ticker)
+
+            # Si le prix a changé, on met à jour l'objet en base
+            if new_price and new_price != asset.current_price:
+                asset.current_price = Decimal(str(new_price))
+                prices_updated = True
+        except Exception as e:
+            # Si Yahoo échoue, on ne fait pas planter l'API, on utilise l'ancien prix
+            print(f"Erreur de rafraîchissement pour {asset.ticker}: {e}")
+            pass
+
+    # On sauvegarde tous les nouveaux prix en une seule fois
+    if prices_updated:
+        db.commit()
+    # ==========================================
+
     total_value = Decimal("0.0")
     total_invested = Decimal("0.0")
+    total_dividends_received = Decimal("0.0")
+
+    tickers = [pos.asset_ticker for pos, _asset in results]
+    dividends_by_ticker = {}
+    if tickers:
+        rows = (
+            db.query(
+                DividendEvent.asset_ticker,
+                func.coalesce(func.sum(DividendEvent.amount_per_share), 0),
+            )
+            .filter(DividendEvent.asset_ticker.in_(tickers))
+            .group_by(DividendEvent.asset_ticker)
+            .all()
+        )
+        dividends_by_ticker = {ticker: amount for ticker, amount in rows}
 
     for pos, asset in results:
         # Valeur actuelle : Qté * Prix marché
         total_value += pos.quantity * asset.current_price
+
         # Valeur investie : Qté * PRU
         total_invested += pos.quantity * pos.average_buy_price
+        total_dividends_received += pos.quantity * dividends_by_ticker.get(
+            pos.asset_ticker, Decimal("0")
+        )
 
     # 3. Calculs finaux
     global_pnl = total_value - total_invested
@@ -123,4 +196,5 @@ def get_portfolio_summary(
         "total_invested": total_invested,
         "global_pnl": global_pnl,
         "global_pnl_percent": round(global_pnl_percent, 2),
+        "total_dividends_received": total_dividends_received,
     }
