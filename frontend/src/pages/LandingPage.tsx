@@ -41,7 +41,6 @@ export default function LandingPage({onLoginRequested, onSignupRequested}: Landi
 
             <main style={{padding: '3rem 2rem 4rem', maxWidth: '1100px', margin: '0 auto'}}>
 
-                {/* SECTION HÉROS */}
                 <section
                     style={{
                         display: 'grid',
@@ -51,9 +50,7 @@ export default function LandingPage({onLoginRequested, onSignupRequested}: Landi
                         marginBottom: '3.5rem',
                     }}
                 >
-                    {/* Colonne Gauche (Textes) */}
                     <div>
-                        {/* 1. Titre (Immédiat) */}
                         <FadeIn>
                             <h1
                                 style={{

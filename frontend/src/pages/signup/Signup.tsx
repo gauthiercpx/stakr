@@ -11,9 +11,10 @@ interface SignupProps {
   onSignupSuccess: () => void;
   onRequestClose?: () => void;
   onLoginRequested?: () => void;
+  displayMode?: 'page' | 'modal';
 }
 
-export default function Signup({ onSignupSuccess, onRequestClose }: SignupProps) {
+export default function Signup({ onSignupSuccess, onRequestClose, displayMode = 'page' }: SignupProps) {
   const { t } = useI18n();
   const form = useSignupForm({ t, onSignupSuccess });
 
@@ -51,7 +52,7 @@ export default function Signup({ onSignupSuccess, onRequestClose }: SignupProps)
     handleSignup,
   } = form;
 
-  const isModal = !!onRequestClose;
+  const isModal = displayMode === 'modal';
 
   const emailHasError = !!(fieldErrors['username'] || fieldErrors['email_mismatch']);
   const confirmEmailHasError = !!(fieldErrors['confirm_email'] || fieldErrors['email_mismatch']);

@@ -57,6 +57,7 @@ function App() {
     // -- MODAL ANIMATION LOGIC --
     const targetSize = location.pathname === '/signup' ? 'lg' : 'sm';
     const [activeModalSize, setActiveModalSize] = useState<'sm' | 'lg'>(targetSize);
+    const hadBackgroundLocationRef = useRef(false);
 
     // Extraction du background location
     const backgroundLocation = useMemo(() => {
@@ -69,6 +70,14 @@ function App() {
         if (!backgroundLocation) {
             setActiveModalSize(targetSize);
         }
+    }, [backgroundLocation, targetSize]);
+
+    useEffect(() => {
+        const hasBackground = !!backgroundLocation;
+        if (hasBackground && !hadBackgroundLocationRef.current) {
+            setActiveModalSize(targetSize);
+        }
+        hadBackgroundLocationRef.current = hasBackground;
     }, [backgroundLocation, targetSize]);
 
     // Ping server until it reports ready
@@ -86,13 +95,20 @@ function App() {
         return () => { cancelled = true; };
     }, []);
 
-    const logout = () => {
+    const logout = ({showToast}: {showToast: boolean}) => {
         setIsLoggingOut(true);
         clearAuthTokens();
         setIsAuthenticated(false);
-        setShowSignedOutToast(true);
+        if (showToast) {
+            setShowSignedOutToast(true);
+        } else {
+            setShowSignedOutToast(false);
+        }
         navigate('/', {replace: true, state: {}});
     };
+
+    const logoutExplicit = () => logout({showToast: true});
+    const logoutSilent = () => logout({showToast: false});
 
     useEffect(() => {
         if (location.pathname !== '/') return;
@@ -114,11 +130,13 @@ function App() {
     const transitionKey = backgroundLocation ? (backgroundLocation as Location).pathname : location.pathname;
 
     const handleLoginSuccess = () => {
+        setShowSignedOutToast(false);
         setIsAuthenticated(true);
         navigate(redirectToRef.current, {replace: true});
     };
 
     const handleSignupSuccess = () => {
+        setShowSignedOutToast(false);
         setIsAuthenticated(true);
         setShowAccountCreatedToast(true);
         navigate('/dashboard', {replace: true});
@@ -139,7 +157,7 @@ function App() {
 
             <AppLayout
                 isAuthenticated={isAuthenticated}
-                onLogout={logout}
+                onLogout={logoutExplicit}
                 onLoginRequested={() => navigate('/login', {state: {backgroundLocation: location}})}
                 onSignupRequested={() => navigate('/signup', {state: {backgroundLocation: location}})}
             >
@@ -153,10 +171,19 @@ function App() {
                                 />
                         }/>
                         <Route path="/login" element={isAuthenticated ? <Navigate to="/dashboard" replace/> : <Login onLoginSuccess={handleLoginSuccess}/>}/>
-                        <Route path="/signup" element={isAuthenticated ? <Navigate to="/dashboard" replace/> : <Signup onSignupSuccess={handleSignupSuccess}/>}/>
+                        <Route
+                            path="/signup"
+                            element={
+                                isAuthenticated ? (
+                                    <Navigate to="/dashboard" replace/>
+                                ) : (
+                                    <Signup onSignupSuccess={handleSignupSuccess} displayMode="page"/>
+                                )
+                            }
+                        />
                         <Route path="/dashboard" element={
                             <RequireAuth isAuthenticated={isAuthenticated} redirectTo={location} isLoggingOut={isLoggingOut}>
-                                <Dashboard onLogout={logout}/>
+                                <Dashboard onSessionInvalid={logoutSilent}/>
                             </RequireAuth>
                         }/>
                         <Route path="*" element={<NotFound/>}/>
@@ -201,6 +228,7 @@ function App() {
                                             <Signup
                                                 onSignupSuccess={handleSignupSuccess}
                                                 onLoginRequested={() => navigate('/login', {state: {backgroundLocation}})}
+                                                displayMode="modal"
                                             />
                                         </FadeIn>
                                     }

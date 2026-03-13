@@ -12,10 +12,10 @@ interface User {
 }
 
 interface DashboardProps {
-    onLogout: () => void;
+    onSessionInvalid: () => void;
 }
 
-export default function Dashboard({ onLogout }: DashboardProps) {
+export default function Dashboard({ onSessionInvalid }: DashboardProps) {
     const { t } = useI18n();
 
     const [user, setUser] = useState<User | null>(null);
@@ -32,12 +32,11 @@ export default function Dashboard({ onLogout }: DashboardProps) {
                 if (import.meta.env.DEV) {
                     console.error('Session error:', error);
                 }
-                onLogout();
+                onSessionInvalid();
             });
-    }, [onLogout]);
+    }, [onSessionInvalid]);
 
     return (
-        /* 👇 On a enlevé le wrapper avec minHeight et fond gris car le Layout s'en occupe */
         <main style={{ padding: '3rem', maxWidth: '1000px', margin: '0 auto' }}>
             {loading ? (
                 <FadeIn direction="none">

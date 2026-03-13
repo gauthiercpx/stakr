@@ -22,6 +22,33 @@ export default function Modal({
                               }: ModalProps) {
     const reduce = useReducedMotion();
 
+    useEffect(() => {
+        if (!isOpen) {
+            return;
+        }
+
+        const {body, documentElement} = document;
+        const previousBodyOverflow = body.style.overflow;
+        const previousBodyPaddingRight = body.style.paddingRight;
+        const previousHtmlOverflow = documentElement.style.overflow;
+
+        // Compensate scrollbar removal to avoid horizontal layout shift.
+        const scrollbarWidth = window.innerWidth - documentElement.clientWidth;
+
+        body.style.overflow = 'hidden';
+        documentElement.style.overflow = 'hidden';
+
+        if (scrollbarWidth > 0) {
+            body.style.paddingRight = `${scrollbarWidth}px`;
+        }
+
+        return () => {
+            body.style.overflow = previousBodyOverflow;
+            body.style.paddingRight = previousBodyPaddingRight;
+            documentElement.style.overflow = previousHtmlOverflow;
+        };
+    }, [isOpen]);
+
     const overlayVariants: Variants = reduce
         ? ({hidden: {opacity: 0}, visible: {opacity: 1}, exit: {opacity: 0}} as unknown as Variants)
         : ({
