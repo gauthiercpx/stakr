@@ -11,7 +11,7 @@ export function useMobileMenu() {
     const close = () => setIsOpen(false);
     const toggle = () => setIsOpen((prev) => !prev);
 
-    // 1. Gestion de la touche Echap
+    // Close the menu with Escape.
     useEffect(() => {
         if (!isOpen) return;
         const onKeyDown = (e: KeyboardEvent) => {
@@ -21,7 +21,7 @@ export function useMobileMenu() {
         return () => window.removeEventListener('keydown', onKeyDown);
     }, [isOpen]);
 
-    // 2. Gestion du clic extérieur
+    // Close the menu on outside click/tap.
     useEffect(() => {
         if (!isOpen) return;
         const onPointerDown = (e: PointerEvent) => {
@@ -38,7 +38,7 @@ export function useMobileMenu() {
         return () => window.removeEventListener('pointerdown', onPointerDown);
     }, [isOpen]);
 
-    // 3. Gestion intelligente du Focus
+    // Restore focus to the trigger after closing.
     const prevIsOpenRef = useRef(isOpen);
     useEffect(() => {
         if (prevIsOpenRef.current === true && isOpen === false) {

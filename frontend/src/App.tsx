@@ -3,10 +3,7 @@ import type {Location} from 'react-router-dom';
 import {Navigate, Route, Routes, useLocation, useNavigate} from 'react-router-dom';
 import {AnimatePresence} from "framer-motion";
 
-// API & Client
 import {api, ACCESS_TOKEN_KEY, clearAuthTokens} from './api/client';
-
-// Pages
 import Login from './pages/Login';
 import Signup from './pages/signup/Signup';
 import Dashboard from './pages/Dashboard';
@@ -14,8 +11,6 @@ import PortfolioPage from './pages/Portfolio';
 import LandingPage from './pages/LandingPage';
 import NotFound from './pages/NotFound';
 import About from './pages/About/About.tsx';
-
-// Components
 import ServerWakingUp from './components/ServerWakingUp';
 import Modal from './components/Modal';
 import PageTransition from './components/PageTransition';
@@ -25,7 +20,6 @@ import ToastHost from './components/ToastHost';
 import AppLayout from './layouts/AppLayout';
 import FadeIn from "./components/animations/FadeIn.tsx";
 
-// --- HELPERS ---
 function RequireAuth({isAuthenticated, redirectTo, children, isLoggingOut}: any) {
     if (isLoggingOut) return <Navigate to="/" replace/>;
     if (!isAuthenticated) return <Navigate to="/login" replace state={{from: redirectTo}}/>;
@@ -40,33 +34,28 @@ function hasBackground(state: any): boolean {
     return state && typeof state === 'object' && 'backgroundLocation' in state;
 }
 
-// --- MAIN COMPONENT ---
 function App() {
     const navigate = useNavigate();
     const location = useLocation();
     const {t} = useI18n();
 
-    // -- AUTH STATES --
     const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => !!localStorage.getItem(ACCESS_TOKEN_KEY));
     const [isServerReady, setIsServerReady] = useState(false);
     const [isLoggingOut, setIsLoggingOut] = useState(false);
 
-    // -- UI STATES --
     const [showSignedOutToast, setShowSignedOutToast] = useState(false);
     const [showAccountCreatedToast, setShowAccountCreatedToast] = useState(false);
 
-    // -- MODAL ANIMATION LOGIC --
     const targetSize = location.pathname === '/signup' ? 'lg' : 'sm';
     const [activeModalSize, setActiveModalSize] = useState<'sm' | 'lg'>(targetSize);
     const hadBackgroundLocationRef = useRef(false);
 
-    // Extraction du background location
     const backgroundLocation = useMemo(() => {
         const maybeBg = hasBackground(location.state) ? location.state.backgroundLocation : undefined;
         return maybeBg && typeof maybeBg === 'object' ? maybeBg : undefined;
     }, [location.state]);
 
-    // ⚡️ SYNC DE LA TAILLE : On réinitialise quand la modale est fermée
+    // Reset modal size when no route is rendered in modal mode.
     useEffect(() => {
         if (!backgroundLocation) {
             setActiveModalSize(targetSize);
@@ -198,7 +187,6 @@ function App() {
                 </PageTransition>
             </AppLayout>
 
-            {/* --- MODAL SYSTEM --- */}
             <AnimatePresence>
                 {backgroundLocation && !isAuthenticated && (
                     <Modal
@@ -211,7 +199,7 @@ function App() {
                             mode="wait"
                             initial={true}
                             onExitComplete={() => {
-                                // On ne change la taille que lorsque le contenu précédent a disparu
+                                // Resize after the previous modal content has fully exited.
                                 setActiveModalSize(targetSize);
                             }}
                         >

@@ -7,18 +7,17 @@ from app.services.market_data import MarketDataService
 class AssetService:
     @staticmethod
     def get_or_create_asset(db: Session, ticker: str):
-        # 1. On cherche en base
+        # Reuse existing asset when already present in DB.
         asset = db.query(Asset).filter(Asset.ticker == ticker).first()
         if asset:
             return asset
 
-        # 2. Si pas là, on cherche sur le web
+        # Otherwise fetch market metadata and create a new row.
         info = MarketDataService.get_asset_info(ticker)
         if not info:
             raise ValueError(f"Actif {ticker} introuvable sur les marchés.")
 
-        # 3. On crée l'actif proprement
-        # Note: On part du principe que la CURRENCY existe déjà (ton seed)
+        # Currency rows are expected to be pre-seeded.
         new_asset = Asset(
             ticker=ticker,
             name=info["name"],

@@ -24,7 +24,7 @@ export default function Login({onLoginSuccess, onSignupRequested}: LoginProps) {
 
     const handleLogin = useCallback(
         async (evt?: SubmitEvent) => {
-             // Keep the SubmitEvent parameter present (no-op) so we keep using SubmitEvent instead of FormEvent
+             // Keep SubmitEvent typing explicit to avoid FormEvent fallback.
              void evt;
              const normalizedEmail = email.trim().toLowerCase();
 
@@ -111,7 +111,6 @@ export default function Login({onLoginSuccess, onSignupRequested}: LoginProps) {
                 </p>
             </div>
 
-            {/* Zone d'erreur */}
             <div aria-live="polite" style={{minHeight: '20px', marginBottom: '1rem'}}>
                 {error && (
                     <div
@@ -132,7 +131,7 @@ export default function Login({onLoginSuccess, onSignupRequested}: LoginProps) {
 
             <form
                 onSubmit={(e) => {
-                    // Prevent default on React synthetic event and pass the native SubmitEvent to our handler
+                    // Pass the native SubmitEvent to the submit handler.
                     e.preventDefault();
                     handleLogin(e.nativeEvent as SubmitEvent);
                 }}
@@ -194,7 +193,6 @@ export default function Login({onLoginSuccess, onSignupRequested}: LoginProps) {
                         </button>
                     </div>
 
-                    {/* 👇 Lien discret pour le mot de passe oublié 👇 */}
                     <div style={{display: 'flex', justifyContent: 'flex-end'}}>
                         <button
                             type="button"
@@ -219,7 +217,6 @@ export default function Login({onLoginSuccess, onSignupRequested}: LoginProps) {
                     </div>
                 </div>
 
-                {/* Bouton de soumission principal */}
                 <NeonButton
                     type="submit"
                     disabled={isDisabled}
@@ -235,7 +232,6 @@ export default function Login({onLoginSuccess, onSignupRequested}: LoginProps) {
                     }}
                 />
 
-                {/* 👇 Bouton de redirection vers Inscription 👇 */}
                 {onSignupRequested && (
                     <div style={{
                         marginTop: '1rem',
@@ -253,7 +249,7 @@ export default function Login({onLoginSuccess, onSignupRequested}: LoginProps) {
                                 background: 'none',
                                 border: 'none',
                                 padding: '0',
-                                color: '#000', // Contraste fort pour indiquer le lien
+                                color: '#000',
                                 fontWeight: 800,
                                 cursor: isLoading ? 'not-allowed' : 'pointer',
                                 textDecoration: 'underline',

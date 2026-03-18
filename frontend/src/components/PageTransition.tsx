@@ -6,7 +6,5 @@ export interface PageTransitionProps {
 }
 
 export default function PageTransition({ children }: PageTransitionProps) {
-  // Wrapper minimal : passe simplement les enfants.
-  // Ancienne implémentation d'animations (brouillon) archivée hors ligne si besoin.
   return <>{children}</>;
 }

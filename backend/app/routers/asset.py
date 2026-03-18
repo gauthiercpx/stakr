@@ -27,9 +27,9 @@ def search_assets(
 def sync_price_history(
     period: str = Query("1mo", description="Période (ex: 1mo, 6mo, 1y, max)"),
     db: Session = Depends(get_db),
-    current_user=Depends(deps.get_current_user),  # <-- LE CADENAS EST ICI
+    current_user=Depends(deps.get_current_user),
 ):
-    # Si tu as un champ is_superuser dans ton modèle User, tu peux faire :
+    # Restrict sync endpoints to admin users.
     if getattr(current_user, "is_superuser", False) is False:
         raise HTTPException(status_code=403, detail="Accès refusé.")
 
@@ -41,9 +41,7 @@ def sync_price_history(
     }
 
 
-@router.get(
-    "/{ticker}/history", response_model=PriceHistoryListResponse
-)  # <-- Retiré le List[] ici
+@router.get("/{ticker}/history", response_model=PriceHistoryListResponse)
 def get_asset_history(
     ticker: str,
     db: Session = Depends(get_db),
@@ -56,7 +54,7 @@ def get_asset_history(
         .all()
     )
 
-    # On retourne l'objet complet pour matcher le schéma PriceHistoryListResponse
+    # Return the full payload matching PriceHistoryListResponse.
     return {"ticker": ticker, "count": len(history), "history": history}
 
 

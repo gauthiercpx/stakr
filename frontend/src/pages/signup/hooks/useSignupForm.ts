@@ -103,7 +103,7 @@ export function useSignupForm({ t, onSignupSuccess }: UseSignupFormParams) {
 
   const activeError = computeActiveError();
 
-  // Validation helpers (on blur)
+  // Validation helpers triggered on blur.
   const validateFirstName = useCallback(() => {
     const formatted = formatFirstName(firstName);
     if (formatted !== firstName) setFirstName(formatted);
@@ -149,13 +149,13 @@ export function useSignupForm({ t, onSignupSuccess }: UseSignupFormParams) {
         try {
           e.currentTarget.value = lower;
         } catch {
-          // ignore
+          // Ignore direct DOM update failures.
         }
       } else if (emailRef.current) {
         try {
           emailRef.current.value = lower;
         } catch {
-          // ignore
+          // Ignore direct DOM update failures.
         }
       }
 
@@ -176,7 +176,7 @@ export function useSignupForm({ t, onSignupSuccess }: UseSignupFormParams) {
         try {
           confirmEmailRef.current.value = lowerConfirm;
         } catch {
-          // ignore
+          // Ignore direct DOM update failures.
         }
       }
       setConfirmEmail(lowerConfirm);
@@ -202,13 +202,13 @@ export function useSignupForm({ t, onSignupSuccess }: UseSignupFormParams) {
         try {
           e.currentTarget.value = lower;
         } catch {
-          // ignore
+          // Ignore direct DOM update failures.
         }
       } else if (confirmEmailRef.current) {
         try {
           confirmEmailRef.current.value = lower;
         } catch {
-          // ignore
+          // Ignore direct DOM update failures.
         }
       }
 
@@ -265,7 +265,7 @@ export function useSignupForm({ t, onSignupSuccess }: UseSignupFormParams) {
     return true;
   }, [clearFieldError, confirmPassword, password, setFieldError, t]);
 
-  // onChange clearing
+  // Clear field-level errors live once values become valid.
   const onFirstNameChange = useCallback(
     (raw: string) => {
       setFirstName(raw);

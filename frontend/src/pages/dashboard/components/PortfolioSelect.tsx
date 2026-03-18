@@ -1,4 +1,4 @@
-    import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 
 interface PortfolioOption {
@@ -18,7 +18,7 @@ export default function PortfolioSelect({ options, value, onChange }: PortfolioS
 
   const selected = options.find((o) => o.id === value);
 
-  // Fermeture au clic extérieur
+  // Close when clicking outside.
   useEffect(() => {
     if (!open) return;
     const handler = (e: MouseEvent) => {
@@ -30,7 +30,7 @@ export default function PortfolioSelect({ options, value, onChange }: PortfolioS
     return () => document.removeEventListener('mousedown', handler);
   }, [open]);
 
-  // Fermeture à Escape
+  // Close on Escape.
   useEffect(() => {
     if (!open) return;
     const handler = (e: KeyboardEvent) => {

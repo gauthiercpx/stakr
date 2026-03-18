@@ -1,7 +1,7 @@
 import React from 'react';
 import NeonButton from '../components/NeonButton';
 import {useI18n} from '../i18n/useI18n';
-import FadeIn from '../components/animations/FadeIn'; // 👈 On importe l'animation
+import FadeIn from '../components/animations/FadeIn';
 
 interface LandingPageProps {
     onLoginRequested: () => void;
@@ -106,7 +106,6 @@ export default function LandingPage({onLoginRequested, onSignupRequested}: Landi
                             </h1>
                         </FadeIn>
 
-                        {/* 2. Sous-titre (Délai 0.1s) */}
                         <FadeIn delay={0.1}>
                             <p
                                 style={{
@@ -119,7 +118,6 @@ export default function LandingPage({onLoginRequested, onSignupRequested}: Landi
                             </p>
                         </FadeIn>
 
-                        {/* 3. Boutons d'action (Délai 0.2s) */}
                         <FadeIn delay={0.2}>
                             <div
                                 style={{
@@ -175,7 +173,6 @@ export default function LandingPage({onLoginRequested, onSignupRequested}: Landi
                         </FadeIn>
                     </div>
 
-                    {/* Colonne Droite (Carte Preview) - Délai 0.3s */}
                     <FadeIn delay={0.3} fullWidth>
                         <div
                             style={{
@@ -184,7 +181,7 @@ export default function LandingPage({onLoginRequested, onSignupRequested}: Landi
                                 padding: '2.5rem',
                                 borderRadius: '1.8rem',
                                 boxShadow: '0 14px 32px rgba(0,0,0,0.3)',
-                                height: '100%' // Assure que l'animation prend toute la hauteur
+                                height: '100%'
                             }}
                         >
                             <h2 style={{marginTop: 0, color: '#bff104', fontSize: '0.9rem'}}>
@@ -218,7 +215,6 @@ export default function LandingPage({onLoginRequested, onSignupRequested}: Landi
                     </FadeIn>
                 </section>
 
-                {/* SECTION FEATURES (Cascade 0.4s -> 0.6s) */}
                 <section
                     style={{
                         display: 'grid',

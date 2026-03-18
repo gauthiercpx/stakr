@@ -1,4 +1,4 @@
-/* Import de Baloo 2 */
+/* Baloo 2 font */
 @import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700;800&display=swap');
 
 /* Prevent layout shifts/overflows when elements use padding/border widths */
@@ -30,7 +30,7 @@ body {
     color: #000000;
 }
 
-/* On s'assure que les titres sont bien gras */
+/* Keep headings visually strong */
 h1, h2, h3 {
     font-weight: 800;
 }
@@ -103,14 +103,14 @@ button, input {
     gap: 0.75rem;
 }
 
-/* --- BOUTON BURGER (Style restauré) --- */
+/* --- Burger Button --- */
 .stakr-nav__burgerBtn {
     display: none;
     align-items: center;
     justify-content: center;
     width: 2.8rem;
     height: 2.8rem;
-    /* 👇 RETOUR AU CARRÉ ARRONDIT (au lieu de 50%) */
+    /* Rounded square shape */
     border-radius: 0.9rem;
     border: 1px solid rgba(255, 255, 255, 0.18);
     background: rgba(255, 255, 255, 0.06);
@@ -124,7 +124,7 @@ button, input {
     background: rgba(255, 255, 255, 0.12);
 }
 
-/* Les lignes du burger (Animation élastique conservée) */
+/* Burger lines */
 .stakr-nav__burgerLines {
     width: 22px;
     height: 16px;
@@ -144,7 +144,7 @@ button, input {
     opacity 0.3s ease;
 }
 
-/* Positions Fermé */
+/* Closed state */
 .stakr-nav__burgerLines span:nth-child(1) {
     top: 0;
 }
@@ -157,7 +157,7 @@ button, input {
     top: 14px;
 }
 
-/* Positions Ouvert */
+/* Open state */
 .stakr-nav__burgerBtn.is-active .stakr-nav__burgerLines span:nth-child(1) {
     top: 7px;
     transform: rotate(135deg);
@@ -391,7 +391,7 @@ button, input {
 /* Active (show) state: subtle grey background + green text for readability */
 .stakr-passwordToggle[aria-pressed="true"] {
     background: rgba(191, 241, 4, 0.14); /* brand green tint */
-    color: #2b3a00; /* fixed color for both Afficher/Masquer labels */
+    color: #2b3a00; /* Fixed label color for show/hide state */
 }
 
 .stakr-passwordToggle[aria-pressed="true"]:hover {
@@ -405,37 +405,37 @@ button, input {
 }
 
 
-/* --- Navbar Animations (Dark Mode Style) --- */
+/* --- Navbar Animations --- */
 
-/* État par défaut (en haut de page) */
+/* Default state */
 .stakr-nav {
-    position: fixed; /* Fixée à l'écran */
-    top: 0; /* Collée en haut */
-    left: 0; /* Collée à gauche */
-    right: 0; /* Collée à droite */
-    width: 100%; /* Prend toute la largeur */
-    height: 4.5rem; /* Hauteur fixe pour prévoir le padding du Layout */
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: 4.5rem;
 
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 0 2rem;
 
-    z-index: 1000; /* Passe au-dessus de tout */
+    z-index: 1000;
 
-    /* Ton design noir et flou */
+    /* Dark glass look */
     background-color: rgba(0, 0, 0, 0.95);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-/* État quand on scrolle (Effet Verre Fumé) */
+/* Scrolled state */
 .stakr-nav.is-scrolled {
-    /* On devient un peu plus transparent pour voir le flou */
+    /* Slightly more transparent to reveal blur */
     background-color: rgba(0, 0, 0, 0.8);
 
-    /* Le flou augmente */
+    /* Stronger blur */
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
 
@@ -443,21 +443,20 @@ button, input {
     box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
 }
 
-/* On s'assure que le lien de la marque reste blanc */
+/* Keep brand link white */
 .stakr-nav__brand {
     color: white;
     text-decoration: none;
 }
 
-/* Le bouton burger doit être blanc aussi */
-/* --- BOUTON BURGER (Fix Animation) --- */
+/* --- Burger Button (Animation) --- */
 .stakr-nav__burgerBtn {
     display: none;
     align-items: center;
     justify-content: center;
     width: 2.8rem;
     height: 2.8rem;
-    border-radius: 0.9rem; /* Ton style carré arrondi */
+    border-radius: 0.9rem;
     border: 1px solid rgba(255, 255, 255, 0.18);
     background: rgba(255, 255, 255, 0.06);
     color: white;
@@ -465,7 +464,7 @@ button, input {
     transition: background 0.2s ease;
     z-index: 1001;
 
-    /* 👇 LE FIX MAGIQUE : Empêche le trait de sortir du bouton */
+    /* Prevent line overflow beyond button radius */
     overflow: hidden;
 }
 
@@ -473,14 +472,14 @@ button, input {
     background: rgba(255, 255, 255, 0.12);
 }
 
-/* Conteneur des lignes */
+/* Lines container */
 .stakr-nav__burgerLines {
-    width: 24px; /* Un peu plus large pour l'élégance */
-    height: 18px; /* Hauteur calculée pour que la croix soit parfaite */
+    width: 24px;
+    height: 18px;
     position: relative;
 }
 
-/* Les 3 traits */
+/* Three lines */
 .stakr-nav__burgerLines span {
     display: block;
     width: 100%;
@@ -490,15 +489,15 @@ button, input {
     position: absolute;
     left: 0;
 
-    /* Animation fluide et élastique */
+    /* Smooth spring-like animation */
     transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55),
     top 0.3s cubic-bezier(0.4, 0, 0.2, 1),
     opacity 0.3s ease;
 }
 
-/* --- POSITIONNEMENT --- */
+/* --- Positioning --- */
 
-/* État Fermé (Hamburger) */
+/* Closed state */
 .stakr-nav__burgerLines span:nth-child(1) {
     top: 0px;
 }
@@ -507,30 +506,30 @@ button, input {
     top: 8px;
 }
 
-/* Au centre exact (18px / 2 - 1px) */
+/* Centered line */
 .stakr-nav__burgerLines span:nth-child(3) {
     top: 16px;
 }
 
-/* État Ouvert (Croix) */
+/* Open state (cross) */
 .stakr-nav__burgerBtn.is-active .stakr-nav__burgerLines span:nth-child(1) {
-    top: 8px; /* Va au centre */
+    top: 8px;
     transform: rotate(135deg);
 }
 
 .stakr-nav__burgerBtn.is-active .stakr-nav__burgerLines span:nth-child(2) {
     top: 8px;
     opacity: 0;
-    /* On l'envoie loin à gauche, mais caché par l'overflow du bouton */
+    /* Move line out while hidden by overflow */
     transform: translateX(-40px);
 }
 
 .stakr-nav__burgerBtn.is-active .stakr-nav__burgerLines span:nth-child(3) {
-    top: 8px; /* Va au centre */
+    top: 8px;
     transform: rotate(-135deg);
 }
 
-/* Responsive : affichage uniquement sur mobile */
+/* Show burger only on mobile */
 @media (max-width: 768px) {
     .stakr-nav__burgerBtn {
         display: inline-flex;
@@ -693,7 +692,7 @@ button, input {
 /* Active (show) state: subtle grey background + green text for readability */
 .stakr-passwordToggle[aria-pressed="true"] {
     background: rgba(191, 241, 4, 0.14); /* brand green tint */
-    color: #2b3a00; /* fixed color for both Afficher/Masquer labels */
+    color: #2b3a00; /* Fixed label color in active show/hide state */
 }
 
 .stakr-passwordToggle[aria-pressed="true"]:hover {

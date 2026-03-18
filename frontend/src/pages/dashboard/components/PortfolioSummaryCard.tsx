@@ -88,7 +88,8 @@ export default function PortfolioSummaryCard({
                         label={createPortfolioLabel}
                         onClick={onCreatePortfolio}
                         variant="solid"
-                        style={{minWidth: 220, backgroundColor: '#000', color: '#bff104'}}
+                        className="portfolio__createButton"
+                        style={{width: '100%', backgroundColor: '#000', color: '#bff104'}}
                     />
                 </div>
             </div>

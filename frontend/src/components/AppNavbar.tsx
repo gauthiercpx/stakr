@@ -4,7 +4,6 @@ import {motion, AnimatePresence, useScroll, useTransform, type Variants} from 'f
 import {useMobileMenu} from '../hooks/useMobileMenu';
 import {useNavbarAnimation} from '../hooks/useNavbarAnimation';
 import {useI18n} from '../i18n/useI18n';
-// 👈 Plus besoin d'importer NeonButton ici !
 
 export type AppNavbarMobileActionsRender = (helpers: { closeMenu: () => void }) => React.ReactNode;
 
@@ -33,7 +32,7 @@ export default function AppNavbar({
     const {t} = useI18n();
     const {scrollY} = useScroll();
 
-    // --- 1. CONFIGURATION DES ANIMATIONS (HOOKS TOP LEVEL) ---
+    // Keep motion hooks at top-level to preserve hook ordering.
     const navWidth = useTransform(scrollY, [0, 100], ["100%", "92%"]);
     const navTop = useTransform(scrollY, [0, 100], ["0rem", "1.5rem"]);
     const navRadius = useTransform(scrollY, [0, 100], ["0rem", "1.2rem"]);
@@ -48,7 +47,6 @@ export default function AppNavbar({
         hidden: {y: "-150%", opacity: 0},
     };
 
-    // --- 2. LOGIQUE ENFANTS ---
     const resolvedMobileActions = typeof mobileActions === 'function'
         ? (mobileActions as AppNavbarMobileActionsRender)({closeMenu: close})
         : mobileActions;
@@ -125,7 +123,6 @@ export default function AppNavbar({
                                 style={{color: '#bff104'}}>. </span></>)}
                         </Link>
 
-                        {/* 👇 C'est redevenu ultra simple ! 👇 */}
                         <div className="stakr-nav__desktop">
                             {desktopActions}
                         </div>

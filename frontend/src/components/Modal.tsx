@@ -3,7 +3,7 @@ import {motion, useReducedMotion} from 'framer-motion';
 import type {Variants} from 'framer-motion';
 import {createPortal} from 'react-dom';
 import NeonButton from './NeonButton';
-import LanguageToggle from "./LanguageToggle.tsx"; // 👈 On importe NeonButton !
+import LanguageToggle from './LanguageToggle.tsx';
 
 export interface ModalProps {
     isOpen: boolean;
@@ -63,7 +63,7 @@ export default function Modal({
             visible: {opacity: 1, y: 0, scale: 1},
             exit: {
                 opacity: 0,
-                y: 20, // 👈 Glisse légèrement vers le bas
+                y: 20,
                 scale: 0.96,
                 transition: {duration: 0.2, ease: 'easeIn'}
             }
@@ -119,7 +119,7 @@ export default function Modal({
                 animate="visible"
                 exit="exit"
                 transition={{
-                    layout: {type: "spring", bounce: 0, duration: 0.4}, // 0 bounce = pas de déformation élastique
+                    layout: {type: 'spring', bounce: 0, duration: 0.4},
                     opacity: {duration: 0.2}
                 }}
                 role="dialog"
@@ -141,11 +141,8 @@ export default function Modal({
                 }}
             >
                 <div style={{position: 'absolute', top: '1rem', left: '1rem', zIndex: 10}}>
-
-                    <LanguageToggle
-                        mode="modal"/> {/* 👈 Sélecteur de langue pour faire miroir avec le bouton de langue en haut à gauche */}
+                    <LanguageToggle mode="modal"/>
                 </div>
-                {/* 👇 Bouton Fermer (NeonButton) en haut à droite 👇 */}
                 <div style={{position: 'absolute', top: '1rem', right: '1rem', zIndex: 10}}>
                     <NeonButton
                         onClick={onRequestClose}
@@ -161,11 +158,11 @@ export default function Modal({
                         }}
                         label={
                             <svg
-                                viewBox="0 0 24 24" // 👈 LA CORRECTION EST ICI
+                                viewBox="0 0 24 24"
                                 width="22" height="22"
                                 fill="none" stroke="currentColor"
                                 strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
-                                style={{display: 'block'}} // 👈 Enlève l'espacement fantôme des SVG
+                                style={{display: 'block'}}
                             >
                                 <path d="M6 18L18 6M6 6l12 12"/>
                             </svg>
@@ -181,7 +178,6 @@ export default function Modal({
                     </div>
                 )}
 
-                {/* Le conteneur du contenu (avec son padding de 2rem) */}
                 <div style={{padding: '2rem'}}>
                     {children}
                 </div>

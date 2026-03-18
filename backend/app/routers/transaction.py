@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
-from app.api import deps  # <-- auth dependency (current user)
+from app.api import deps
 from app.core.database import get_db
-from app.models import Portfolio  # <-- verify which user owns the portfolio
+from app.models import Portfolio
 from app.schemas.transaction import TransactionCreate, TransactionResponse
 from app.services.portfolio_service import PortfolioService
 
@@ -16,9 +16,9 @@ router = APIRouter(prefix="/transactions", tags=["Transactions"])
 def create_transaction(
     transaction_in: TransactionCreate,
     db: Session = Depends(get_db),
-    current_user=Depends(deps.get_current_user),  # <-- security lock
+    current_user=Depends(deps.get_current_user),
 ):
-    # 1. Vérifie que le portefeuille existe et qu'il t'appartient
+    # Ensure the portfolio exists and belongs to the current user.
     portfolio = (
         db.query(Portfolio)
         .filter(
@@ -36,7 +36,6 @@ def create_transaction(
             ),
         )
 
-    # 2. Appelle le service métier pour ajouter la transaction
     try:
         new_tx = PortfolioService.add_transaction(
             db=db,

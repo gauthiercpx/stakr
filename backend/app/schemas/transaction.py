@@ -5,7 +5,7 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
-from app.models.transaction import TransactionType  # Ton Enum
+from app.models.transaction import TransactionType
 
 
 class TransactionCreate(BaseModel):
@@ -43,5 +43,5 @@ class TransactionResponse(BaseModel):
     transaction_date: datetime
     created_at: datetime
 
-    # Permet à Pydantic de lire un objet SQLAlchemy
+    # Allow model creation directly from SQLAlchemy objects.
     model_config = ConfigDict(from_attributes=True)

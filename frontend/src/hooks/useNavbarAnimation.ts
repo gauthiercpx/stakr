@@ -4,7 +4,7 @@ export function useNavbarAnimation(isMenuOpen: boolean) {
     const [isScrolled, setIsScrolled] = useState(false);
     const [isHidden, setIsHidden] = useState(false);
 
-    // On initialise avec la position actuelle
+    // Initialize with the current scroll position.
     const lastScrollY = useRef(typeof window !== 'undefined' ? window.scrollY : 0);
 
     useEffect(() => {
@@ -12,24 +12,20 @@ export function useNavbarAnimation(isMenuOpen: boolean) {
             const currentScrollY = window.scrollY;
             const previousScrollY = lastScrollY.current;
 
-            // 1. Effet Glass (Flou) dès 10px
+            // Enable compact navbar styling after a small scroll threshold.
             setIsScrolled(currentScrollY > 10);
 
             // 2. Logique Smart Navbar
             if (isMenuOpen) {
-                // Si menu ouvert -> Toujours visible
                 setIsHidden(false);
             }
             else if (currentScrollY < 60) {
-                // Si tout en haut -> Toujours visible
                 setIsHidden(false);
             }
             else if (currentScrollY > previousScrollY) {
-                // Si on descend (et qu'on n'est pas en haut) -> CACHER
                 setIsHidden(true);
             }
             else {
-                // Si on remonte -> AFFICHER
                 setIsHidden(false);
             }
 

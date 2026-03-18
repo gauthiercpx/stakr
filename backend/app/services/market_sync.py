@@ -12,10 +12,10 @@ class MarketSyncService:
     @staticmethod
     def sync_all_price_histories(db: Session, period: str = "1mo") -> int:
         """
-        Parcourt tous les actifs en base et télécharge leur historique de prix.
+        Fetch price history for every tracked asset.
 
-        period: "1mo" (1 mois), "1y" (1 an), "max", etc.
-        Retourne le nombre total d'entrées insérées.
+        period examples: "1mo", "1y", "max".
+        Returns the number of inserted rows.
         """
         assets = db.query(Asset).all()
         total_added = 0
@@ -25,21 +25,21 @@ class MarketSyncService:
             ticker = str(asset.ticker)
 
             try:
-                # 1. On interroge Yahoo pour cet actif spécifique
+                # Query Yahoo Finance for this ticker.
                 ticker_data = yf.Ticker(ticker)
                 hist = ticker_data.history(period=period)
 
                 if hist.empty:
                     continue
 
-                # 2. On parcourt les jours renvoyés par Yahoo
+                # Iterate over returned time points.
                 for date, row in hist.iterrows():
                     record_date = date.to_pydatetime()
 
-                    # Convertit explicitement en float Python
+                    # Force plain float for DB serialization.
                     close_price = float(row["Close"])
 
-                    # 3. On vérifie si on a déjà ce prix en base
+                    # Skip duplicates if a row already exists.
                     existing_record = (
                         db.query(PriceHistory)
                         .filter(
@@ -49,7 +49,6 @@ class MarketSyncService:
                         .first()
                     )
 
-                    # 4. On insère si ça n'existe pas
                     if not existing_record:
                         new_price = PriceHistory(
                             asset_ticker=ticker,
@@ -59,16 +58,16 @@ class MarketSyncService:
                         db.add(new_price)
                         total_added += 1
 
-                # Sauvegarde des changements pour cet actif
+                # Commit per asset to keep progress even if another ticker fails.
                 db.commit()
 
             except Exception:
-                logger.exception("Erreur lors de la synchro de %s", ticker)
+                logger.exception("Failed to sync price history for %s", ticker)
                 try:
                     db.rollback()
                 except Exception:
                     # rollback should not crash the sync loop
-                    logger.exception("Échec du rollback pour %s", ticker)
+                    logger.exception("Rollback failed for %s", ticker)
 
         return total_added
 

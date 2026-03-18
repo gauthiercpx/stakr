@@ -8,10 +8,10 @@ from app.services.asset_service import AssetService
 class PortfolioService:
     @staticmethod
     def add_transaction(db: Session, portfolio_id, ticker, type, quantity, price, date):
-        # 1. S'assurer que l'actif existe
+        # Ensure the referenced asset exists.
         asset = AssetService.get_or_create_asset(db, ticker)
 
-        # 2. Enregistrer la transaction
+        # Persist the transaction.
         new_tx = Transaction(
             portfolio_id=portfolio_id,
             asset_ticker=asset.ticker,
@@ -22,7 +22,7 @@ class PortfolioService:
         )
         db.add(new_tx)
 
-        # 3. Mettre à jour la Position
+        # Update or create the aggregated position.
         pos = (
             db.query(Position)
             .filter(
@@ -34,7 +34,7 @@ class PortfolioService:
 
         if type == TransactionType.BUY:
             if not pos:
-                # Première fois qu'on achète cet actif
+                # First buy for this asset in the portfolio.
                 pos = Position(
                     portfolio_id=portfolio_id,
                     asset_ticker=asset.ticker,
@@ -43,7 +43,7 @@ class PortfolioService:
                 )
                 db.add(pos)
             else:
-                # Recalcul du PRU (moyenne pondérée)
+                # Weighted average cost update on buy.
                 total_cost = (pos.quantity * pos.average_buy_price) + (quantity * price)
                 pos.quantity += quantity
                 pos.average_buy_price = total_cost / pos.quantity
@@ -52,7 +52,7 @@ class PortfolioService:
             if not pos or pos.quantity < quantity:
                 raise ValueError("Quantité insuffisante pour vendre.")
             pos.quantity -= quantity
-            # On ne change pas le PRU lors d'une vente
+            # Average buy price remains unchanged on sell.
 
         db.commit()
         return new_tx

@@ -62,12 +62,11 @@ export default function LanguageToggle({
 
     const handleToggle: React.MouseEventHandler<HTMLButtonElement> = (e) => {
         toggleLocale();
-        // Sur desktop, on évite l’état "focus" qui reste après un clic souris.
-        // On conserve l’accessibilité clavier: un focus clavier reste géré via onFocus/onBlur.
+        // Clear focus after click to avoid sticky focus rings on pointer devices.
         e.currentTarget.blur();
     };
 
-    // --- Login mode: keep the previous smooth slider switch ---
+    // Modal mode uses the compact slider switch.
     if (isLogin) {
         const isEn = locale === 'en';
 
@@ -233,17 +232,17 @@ export default function LanguageToggle({
                 subtleHover={false}
                 className="language-toggle-btn"
                 style={{
-                    // On mobile take full width
+                    // On mobile, make the toggle span the full row.
                     width: isMobileWidth ? '100%' : undefined,
                     minWidth: isMobileWidth ? undefined : '6.2rem',
                     ...baseStyle,
                     ...style,
                 }}
-                // Prevent hover/focus visual effects on devices without hover
-                onMouseEnter={canHover ? undefined : (() => { /* no-op on touch */ })}
-                onMouseLeave={canHover ? undefined : (() => { /* no-op on touch */ })}
+                // Disable pointer-only hover/focus effects on touch devices.
+                onMouseEnter={canHover ? undefined : (() => {})}
+                onMouseLeave={canHover ? undefined : (() => {})}
                 onFocus={canHover ? undefined : ((e: React.FocusEvent<HTMLButtonElement>) => { (e.currentTarget as HTMLButtonElement).blur(); })}
-                onBlur={canHover ? undefined : (() => { /* no-op */ })}
+                onBlur={canHover ? undefined : (() => {})}
              />
          </span>
      );

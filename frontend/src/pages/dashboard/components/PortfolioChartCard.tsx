@@ -194,7 +194,7 @@ export default function PortfolioChartCard({
 
         if (!cancelled) setData(chartData);
       } catch {
-        // silent — l'absence de données est gérée par l'état vide
+        // Empty and error states are handled by the card state UI.
       } finally {
         if (!cancelled) setIsLoading(false);
       }
@@ -206,13 +206,13 @@ export default function PortfolioChartCard({
     };
   }, [historiesByTicker, historiesLoading, portfolioId, positions, selectedPeriod]);
 
-  // Calcul du domaine Y avec un peu de marge
+  // Add a small padding to keep min/max values away from chart bounds.
   const minValue = data.length ? Math.min(...data.map((d) => d.value)) : 0;
   const maxValue = data.length ? Math.max(...data.map((d) => d.value)) : 0;
   const padding = (maxValue - minValue) * 0.08 || maxValue * 0.05 || 10;
   const yDomain = [Math.max(0, minValue - padding), maxValue + padding];
 
-  // Variation totale pour colorer la courbe
+  // Color the curve based on net variation over the selected period.
   const firstValue = data[0]?.value ?? 0;
   const lastValue = data[data.length - 1]?.value ?? 0;
   const isPositive = lastValue >= firstValue;

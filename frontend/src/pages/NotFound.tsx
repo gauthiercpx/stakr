@@ -18,7 +18,7 @@ export default function NotFound() {
       <main
         style={{
           padding: '3rem 2rem 4rem',
-          paddingTop: 'calc(4.5rem + 1rem)', // space for fixed navbar
+          paddingTop: 'calc(4.5rem + 1rem)',
           maxWidth: '760px',
           margin: '0 auto',
           textAlign: 'center',

@@ -10,14 +10,42 @@ built with FastAPI and React, deployed on Azure.
 ## Screenshots
 
 - Landing — Desktop (FR)  
-  ![Landing page (FR)](docs/screenshots/landing_page.png)
+  <img src="docs/screenshots/landing_page.png" width="800" />
 
 - Landing — Desktop (EN)  
-  ![Landing page (EN)](docs/screenshots/landing_page_en.png)
+  <img src="docs/screenshots/landing_page_en.png" width="800" />
 
 - Landing — Mobile  
-  ![Landing page — mobile](docs/screenshots/landing_page_mobile.jpg)
+  <img src="docs/screenshots/landing_page_mobile.jpg" width="300" />
 
+- Dashboard — Desktop (FR)  
+  <img src="docs/screenshots/dashboard_desktop.png" width="800" />
+
+- Dashboard — Desktop (EN)  
+  <img src="docs/screenshots/dashboard_desktop_en.png" width="800" />
+
+- Dashboard — Mobile  
+  <img src="docs/screenshots/dashboard_mobile.png" width="300" />
+
+- Portfolio graph  
+  <img src="docs/screenshots/graph.png" width="700" />
+
+- Login (formulaire)  
+  <img src="docs/screenshots/login.png" width="450" />
+
+- Create account / Signup (modal)  
+  <img src="docs/screenshots/create_account.png" width="450" />
+
+- Mobile menu / menu burger (mobile) — capture d'interface  
+  <img src="docs/screenshots/menu_mobile.jpg" width="300" />
+- Landing — Desktop (FR)  
+  <img src="docs/screenshots/landing_page.png" height="400">
+
+- Landing — Desktop (EN)  
+  <img src="docs/screenshots/landing_page_en.png" height="400">
+
+- Landing — Mobile  
+  <img src="docs/screenshots/landing_page_mobile.jpg" height="400">
 - Dashboard — Desktop (FR)  
   ![Dashboard desktop (FR)](docs/screenshots/dashboard_desktop.png)
 
@@ -25,7 +53,10 @@ built with FastAPI and React, deployed on Azure.
   ![Dashboard desktop (EN)](docs/screenshots/dashboard_desktop_en.png)
 
 - Dashboard — Mobile  
-  ![Dashboard mobile](docs/screenshots/dashboard_mobile.jpg)
+  ![Dashboard mobile](docs/screenshots/dashboard_mobile.png)
+
+- Portfolio graph  
+  ![Portfolio graph](docs/screenshots/graph.png)
 
 - Login (formulaire)  
   ![Login](docs/screenshots/login.png)

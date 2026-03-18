@@ -6,7 +6,6 @@ import { SignupTextField } from './components/SignupTextField.tsx';
 import { SignupPasswordField } from './components/SignupPasswordField.tsx';
 import { useSignupForm } from './hooks/useSignupForm.ts';
 
-// Props provided by App.tsx
 interface SignupProps {
   onSignupSuccess: () => void;
   onRequestClose?: () => void;
