@@ -9,63 +9,24 @@ built with FastAPI and React, deployed on Azure.
 
 ## Screenshots
 
-- Landing — Desktop (FR)  
-  <img src="docs/screenshots/landing_page.png" width="800" />
+- Landing — Desktop (FR)
+  ![Landing desktop (FR)](docs/screenshots/landing_page.png)
 
-- Landing — Desktop (EN)  
-  <img src="docs/screenshots/landing_page_en.png" width="800" />
-
-- Landing — Mobile  
-  <img src="docs/screenshots/landing_page_mobile.jpg" width="300" />
-
-- Dashboard — Desktop (FR)  
-  <img src="docs/screenshots/dashboard_desktop.png" width="800" />
-
-- Dashboard — Desktop (EN)  
-  <img src="docs/screenshots/dashboard_desktop_en.png" width="800" />
-
-- Dashboard — Mobile  
-  <img src="docs/screenshots/dashboard_mobile.png" width="300" />
-
-- Portfolio graph  
-  <img src="docs/screenshots/graph.png" width="700" />
-
-- Login (formulaire)  
-  <img src="docs/screenshots/login.png" width="450" />
-
-- Create account / Signup (modal)  
-  <img src="docs/screenshots/create_account.png" width="450" />
-
-- Mobile menu / menu burger (mobile) — capture d'interface  
-  <img src="docs/screenshots/menu_mobile.jpg" width="300" />
-- Landing — Desktop (FR)  
-  <img src="docs/screenshots/landing_page.png" height="400">
-
-- Landing — Desktop (EN)  
-  <img src="docs/screenshots/landing_page_en.png" height="400">
-
-- Landing — Mobile  
-  <img src="docs/screenshots/landing_page_mobile.jpg" height="400">
-- Dashboard — Desktop (FR)  
+- Dashboard — Desktop (FR)
   ![Dashboard desktop (FR)](docs/screenshots/dashboard_desktop.png)
 
-- Dashboard — Desktop (EN)  
-  ![Dashboard desktop (EN)](docs/screenshots/dashboard_desktop_en.png)
-
-- Dashboard — Mobile  
-  ![Dashboard mobile](docs/screenshots/dashboard_mobile.png)
-
-- Portfolio graph  
+- Portfolio graph
   ![Portfolio graph](docs/screenshots/graph.png)
 
-- Login (formulaire)  
-  ![Login](docs/screenshots/login.png)
+### More screenshots
 
-- Create account / Signup (modal)  
-  ![Create account](docs/screenshots/create_account.png)
-
-- Mobile menu / menu burger (mobile) — capture d'interface  
-  ![Mobile menu](docs/screenshots/menu_mobile.jpg)
+- [Landing — Desktop (EN)](docs/screenshots/landing_page_en.png)
+- [Landing — Mobile](docs/screenshots/landing_page_mobile.jpg)
+- [Dashboard — Desktop (EN)](docs/screenshots/dashboard_desktop_en.png)
+- [Dashboard — Mobile](docs/screenshots/dashboard_mobile.png)
+- [Login (formulaire)](docs/screenshots/login.png)
+- [Create account / Signup (modal)](docs/screenshots/create_account.png)
+- [Mobile menu / burger (mobile)](docs/screenshots/menu_mobile.jpg)
 
 ---
 

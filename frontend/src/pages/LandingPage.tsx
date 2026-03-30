@@ -58,18 +58,20 @@ export default function LandingPage({onLoginRequested, onSignupRequested}: Landi
                                     lineHeight: 1.05,
                                     marginBottom: '1rem',
                                     color: '#000',
-                                    maxWidth: '34rem',
-                                    textWrap: 'balance',
+                                    maxWidth: '38rem',
+                                    minHeight: '4.4em',
                                 }}
                             >
-                                {t('landing.hero.title.line1')}
-                                <br/>
+                                <span style={{display: 'block'}}>
+                                    {t('landing.hero.title.line1')}
+                                </span>
+
                                 <span
                                     style={{
-                                        display: 'inline-flex',
+                                        display: 'flex',
+                                        flexWrap: 'wrap',
                                         alignItems: 'baseline',
                                         gap: '0.35rem',
-                                        whiteSpace: 'nowrap',
                                     }}
                                 >
                                     <span
@@ -79,7 +81,6 @@ export default function LandingPage({onLoginRequested, onSignupRequested}: Landi
                                             padding: '0 0.35rem',
                                             display: 'inline-block',
                                             lineHeight: 1,
-                                            verticalAlign: 'baseline',
                                             borderRadius: '0.2rem',
                                         }}
                                     >
@@ -91,17 +92,14 @@ export default function LandingPage({onLoginRequested, onSignupRequested}: Landi
                                                 padding: '0 0.15rem',
                                                 display: 'inline-block',
                                                 lineHeight: 1,
-                                                verticalAlign: 'baseline',
                                                 borderRadius: '0.2rem',
-                                                marginLeft: '0',
                                             }}
                                         >
                                             .
                                         </span>
                                     </span>
 
-                                    <span style={{display: 'inline-block'}}>{t('landing.hero.title.after')}</span>
-
+                                    <span>{t('landing.hero.title.after')}</span>
                                 </span>
                             </h1>
                         </FadeIn>
