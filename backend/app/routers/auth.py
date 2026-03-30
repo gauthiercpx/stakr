@@ -1,6 +1,6 @@
 from datetime import timedelta
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
@@ -9,6 +9,7 @@ from app.core import security
 from app.core.database import get_db
 from app.schemas import crud as crud_user
 from app.schemas import user as schemas_user
+from app.services.login_sync import run_user_market_sync
 
 router = APIRouter(tags=["Auth"])
 
@@ -46,6 +47,7 @@ def register(
     },
 )
 def login_access_token(
+    background_tasks: BackgroundTasks,
     form_data: OAuth2PasswordRequestForm = Depends(),
     db: Session = Depends(get_db),
 ) -> dict:
@@ -64,6 +66,9 @@ def login_access_token(
         data={"sub": user.email},
         expires_delta=access_token_expires,
     )
+
+    # Keep login response fast and trigger sync as best-effort background work.
+    background_tasks.add_task(run_user_market_sync, user.id)
 
     return {"access_token": access_token, "token_type": "bearer"}
 

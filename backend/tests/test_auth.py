@@ -190,3 +190,33 @@ class TestLogin:
         # JWT tokens have 3 parts separated by dots
         assert len(data["access_token"].split(".")) == 3
         assert len(data["access_token"].split(".")) == 3
+
+    def test_login_triggers_post_login_sync(self):
+        """Test that successful login schedules market sync."""
+        app.dependency_overrides[get_db] = override_get_db
+
+        with patch("app.routers.auth.crud_user.get_user_by_email") as mock_get:
+            with patch("app.core.security.verify_password") as mock_verify:
+                with patch("app.core.security.create_access_token") as mock_token:
+                    with patch("app.routers.auth.run_user_market_sync") as mock_sync:
+                        mock_user = MagicMock()
+                        mock_user.id = "00000000-0000-0000-0000-000000000001"
+                        mock_user.email = "user@example.com"
+                        mock_user.is_active = True
+                        mock_user.hashed_password = "hashed"
+
+                        mock_get.return_value = mock_user
+                        mock_verify.return_value = True
+                        mock_token.return_value = "test.jwt.token"
+
+                        response = client.post(
+                            "/auth/token",
+                            data={
+                                "username": "user@example.com",
+                                "password": "password123",
+                            },
+                        )
+
+        app.dependency_overrides.clear()
+        assert response.status_code == 200
+        mock_sync.assert_called_once_with(mock_user.id)

@@ -78,3 +78,35 @@ def test_sync_dividends_inserts_and_commits(monkeypatch):
     added = MarketSyncService.sync_dividends(db)
     assert added >= 0
     assert db.commit.called
+
+
+def test_sync_price_histories_for_tickers(monkeypatch):
+    db = MagicMock()
+    monkeypatch.setattr(
+        "app.services.market_sync.yf.Ticker",
+        lambda t: DummyTicker(
+            history=DummyHist({SimpleDate(2020, 1, 1): {"Close": 10.0}})
+        ),
+    )
+
+    added = MarketSyncService.sync_price_histories_for_tickers(
+        db, tickers=["TST", "TST"], period="1mo"
+    )
+    assert added >= 0
+    assert db.commit.called
+
+
+def test_sync_dividends_for_tickers(monkeypatch):
+    db = MagicMock()
+    fake_asset = MagicMock()
+    fake_asset.currency_code = "USD"
+    db.query.return_value.filter.return_value.first.return_value = fake_asset
+
+    dividends = DummySeries({SimpleDate(2020, 1, 1): 0.5})
+    monkeypatch.setattr(
+        "app.services.market_sync.yf.Ticker", lambda t: DummyTicker(dividends=dividends)
+    )
+
+    added = MarketSyncService.sync_dividends_for_tickers(db, tickers=["TST", "TST"])
+    assert added >= 0
+    assert db.commit.called
