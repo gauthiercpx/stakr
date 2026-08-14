@@ -31,22 +31,18 @@ def parse_cors_origins(raw_origins: str) -> list:
     return [o.strip() for o in raw_origins.split(",") if o.strip()]
 
 
+# Prefixes an origin may legitimately start with. "https://localhost" is not
+# listed because "https://" already covers it.
+_VALID_ORIGIN_PREFIXES = ("https://", "localhost", "http://localhost")
+
+
 def find_invalid_origins(origins: list) -> list:
     """Return origins that look invalid (no scheme and not localhost).
 
     This mirrors the check used in the module to warn about likely-misconfigured
     origins. Kept small and pure so it is easy to unit-test.
     """
-    return [
-        o
-        for o in origins
-        if not (
-            o.startswith("https://")
-            or o.startswith("localhost")
-            or o.startswith("http://localhost")
-            or o.startswith("https://localhost")
-        )
-    ]
+    return [o for o in origins if not o.startswith(_VALID_ORIGIN_PREFIXES)]
 
 
 # 2. CORS configuration (browser security)
