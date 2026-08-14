@@ -1,0 +1,20 @@
+# Direct development dependencies. THIS is the file you edit.
+#
+# dev-requirements.txt is generated from it and is a full lock covering the
+# runtime dependencies too, so `pip install -r dev-requirements.txt` alone sets
+# up a complete development environment. Regenerate after any change here:
+#
+#   docker run --rm -v "${PWD}/backend:/w" -w /w python:3.12-slim \
+#     sh -c "pip install -q uv && uv pip compile dev-requirements.in \
+#            --universal --generate-hashes -o dev-requirements.txt"
+
+-r requirements.in
+
+black==26.1.0
+flake8
+isort
+pytest
+pytest-cov
+# Required by fastapi.testclient.TestClient. Previously pulled in implicitly by
+# `fastapi[standard]`, which the runtime requirements no longer install.
+httpx==0.28.1

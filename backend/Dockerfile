@@ -27,14 +27,19 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends binutils \
     && rm -rf /var/lib/apt/lists/*
 
-# Dependency layer: invalidated only when requirements.txt changes.
+# Dependency layer: invalidated only when the lock changes.
 #
+# requirements.txt is a generated lock (see requirements.in): every transitive
+# package pinned and hashed.
+# --require-hashes verifies each downloaded artifact against the lock, so a
+# swapped-out or compromised release on PyPI fails the build instead of
+# shipping. It also fails loudly if the lock ever loses its hashes.
 # --no-cache-dir keeps pip's download cache out of the layer; CI caches whole
 # layers in the registry instead, so a build cache here would buy nothing.
 # --only-binary=:all: refuses source distributions, so a build can never
 # silently fall back to compiling a package from source.
 COPY requirements.txt ./
-RUN pip install --no-cache-dir --only-binary=:all: -r requirements.txt \
+RUN pip install --no-cache-dir --require-hashes --only-binary=:all: -r requirements.txt \
     # pip/setuptools are build-time only; dropping them from the venv keeps
     # ~28 MB out of every image pull.
     && (pip uninstall -y pip setuptools wheel 2>/dev/null || true)

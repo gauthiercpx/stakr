@@ -25,6 +25,9 @@ Dockerfile
 README.md
 tests
 dev-requirements.txt
+dev-requirements.in
+# Only the compiled lock is installed in the image.
+requirements.in
 pyproject.toml
 .flake8
 .coveragerc
