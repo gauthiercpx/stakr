@@ -1,17 +1,46 @@
-fastapi[standard]
-uvicorn
-click
-sqlalchemy
-psycopg2-binary
-pydantic-settings
-alembic
-uuid6
-python-dotenv
-passlib[bcrypt]
-# passlib 1.7.4 is not compatible with bcrypt 5.x
-bcrypt<5
-python-jose[cryptography]
-python-multipart
-email-validator
+# Runtime dependencies, pinned so image builds are reproducible and the
+# dependency layer stays cacheable across CI runs.
+#
+# Note: `fastapi[standard]` is deliberately NOT used. It pulls fastapi-cli,
+# rich and typer, none of which are imported at runtime -- they only bloat the
+# image and the cold-start import graph. Test-only extras (httpx, needed by
+# TestClient) live in dev-requirements.txt.
 
-yfinance
+# --- Web framework / ASGI server ---
+fastapi==0.141.1
+uvicorn==0.52.1
+# C HTTP parser; uvicorn auto-detects it and falls back to its pure-Python
+# parser when absent.
+httptools==0.8.0
+# Faster event loop. Linux/macOS only: it has no Windows wheels, and local
+# development on Windows must still be able to install this file.
+uvloop>=0.21,<1.0; sys_platform != "win32"
+
+# --- Database ---
+sqlalchemy==2.0.51
+alembic==1.19.1
+# The -binary wheel statically bundles libpq, so the image needs no libpq5
+# system package.
+psycopg2-binary==2.9.12
+
+# --- Config / validation ---
+pydantic==2.13.4
+pydantic-settings==2.15.0
+python-dotenv==1.2.2
+email-validator==2.3.0
+
+# --- Auth ---
+passlib[bcrypt]==1.7.4
+# passlib 1.7.4 is not compatible with bcrypt 5.x
+bcrypt==4.3.0
+python-jose[cryptography]==3.5.0
+python-multipart==0.0.32
+
+# --- Models ---
+uuid6==2025.0.1
+
+# --- Market data ---
+# Heavy (~233 MB with pandas/numpy/curl_cffi). Imported lazily inside the
+# service functions so it stays off the application boot path.
+yfinance==1.5.2
+requests==2.34.2

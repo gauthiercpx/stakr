@@ -1,4 +1,4 @@
-name: Backend - Build & Push to ACR
+name: Backend - Build, Migrate & Deploy
 
 on:
   push:
@@ -7,64 +7,50 @@ on:
       - master
     paths:
       - "backend/**"
-      - "Dockerfile"
       - ".github/workflows/backend-acr.yml"
   workflow_dispatch:
 
 permissions:
   contents: read
 
+# A newer push to the same branch supersedes an in-flight deploy. Without this,
+# two runs can race each other into `containerapp update` and the older image
+# can win.
+concurrency:
+  group: backend-deploy-${{ github.ref }}
+  cancel-in-progress: true
+
 env:
   RESOURCE_GROUP: rg-stakr-prod
   CONTAINER_APP_NAME: stakr-backend
   CONTAINER_ENV: env-stakr
   IMAGE_NAME: stakr-backend
+  MIGRATION_JOB_NAME: stakr-backend-migrate
 
 jobs:
-  build-and-push:
+  # Build and deploy share a single job: the deploy needs no source checkout of
+  # its own, and merging them saves a runner boot plus a second Azure login.
+  deploy:
+    name: Build, migrate and deploy
     runs-on: ubuntu-latest
 
     steps:
-      - name: Debug context
-        shell: bash
-        run: |
-          echo "ref=${GITHUB_REF}"
-          echo "ref_name=${GITHUB_REF_NAME}"
-          echo "sha=${GITHUB_SHA}"
-          echo "event=${GITHUB_EVENT_NAME}"
-
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Get backend version
+      - name: Resolve backend version
         id: version
         shell: bash
         run: |
           set -euo pipefail
-          VERSION=$(python -c "import re; p='backend/app/core/version.py'; s=open(p,'r',encoding='utf-8').read(); m=re.search(r'APP_VERSION\s*=\s*\"([^\"]+)\"', s); print(m.group(1) if m else '')")
+          VERSION=$(sed -n 's/^APP_VERSION[[:space:]]*=[[:space:]]*"\([^"]*\)".*/\1/p' \
+            backend/app/core/version.py | head -n 1)
           if [[ -z "$VERSION" ]]; then
-            echo "Could not extract APP_VERSION from backend/app/core/version.py" >&2
+            echo "::error file=backend/app/core/version.py::Could not extract APP_VERSION"
             exit 1
           fi
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "Backend version: $VERSION"
-
-      - name: Debug changed files
-        shell: bash
-        run: |
-          set -euo pipefail
-          # For push events, GitHub provides before/after SHAs.
-          BEFORE='${{ github.event.before }}'
-          AFTER='${{ github.sha }}'
-          echo "before=${BEFORE}"
-          echo "after=${AFTER}"
-          # If this is the first commit on a branch, BEFORE can be all zeros.
-          if [[ "${BEFORE}" =~ ^0{40}$ ]]; then
-            echo "First commit on branch (before is zeros). Listing files from HEAD:" 
-            git show --name-only --pretty=format: | sed '/^$/d' || true
-          else
-            git diff --name-only "${BEFORE}" "${AFTER}" || true
-          fi
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -76,73 +62,170 @@ jobs:
           username: ${{ secrets.REGISTRY_USERNAME }}
           password: ${{ secrets.REGISTRY_PASSWORD }}
 
+      # Build context is backend/ only. The frontend is deployed to Cloudflare
+      # Pages and is no longer built into this image, so a backend push no
+      # longer pays for `npm ci` + `vite build`.
       - name: Build & push backend image
         uses: docker/build-push-action@v6
         with:
-          context: .
-          file: ./Dockerfile
+          context: ./backend
+          file: ./backend/Dockerfile
           push: true
+          provenance: false
+          # Registry-backed layer cache. Ephemeral runners start with a cold
+          # Docker cache, so without this every run reinstalls the whole
+          # dependency tree.
+          cache-from: type=registry,ref=${{ secrets.AZURE_CONTAINER_REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache
+          cache-to: type=registry,ref=${{ secrets.AZURE_CONTAINER_REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache,mode=max
           tags: |
             ${{ secrets.AZURE_CONTAINER_REGISTRY }}/${{ env.IMAGE_NAME }}:sha-${{ github.sha }}
             ${{ secrets.AZURE_CONTAINER_REGISTRY }}/${{ env.IMAGE_NAME }}:v${{ steps.version.outputs.version }}
             ${{ secrets.AZURE_CONTAINER_REGISTRY }}/${{ env.IMAGE_NAME }}:latest
 
-  deploy:
-    name: Deploy to Azure Container Apps
-    needs: build-and-push
-    runs-on: ubuntu-latest
-
-    steps:
       - name: Log in to Azure
         uses: azure/login@v2
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: Deploy (update Container App)
+      - name: Ensure containerapp CLI extension
         shell: bash
         run: |
           set -euo pipefail
-
-          IMAGE="${{ secrets.AZURE_CONTAINER_REGISTRY }}/${{ env.IMAGE_NAME }}:sha-${{ github.sha }}"
-          echo "Deploying image: ${IMAGE}"
-
-          az extension add --name containerapp --upgrade --yes --allow-preview true
-
-          # Ensure the Container App exists (create once)
-          if ! az containerapp show --name "${{ env.CONTAINER_APP_NAME }}" --resource-group "${{ env.RESOURCE_GROUP }}" --only-show-errors 1>/dev/null; then
-            az containerapp create \
-              --name "${{ env.CONTAINER_APP_NAME }}" \
-              --resource-group "${{ env.RESOURCE_GROUP }}" \
-              --environment "${{ env.CONTAINER_ENV }}" \
-              --image "${IMAGE}" \
-              --registry-server "${{ secrets.AZURE_CONTAINER_REGISTRY }}" \
-              --registry-username "${{ secrets.REGISTRY_USERNAME }}" \
-              --registry-password "${{ secrets.REGISTRY_PASSWORD }}" \
-              --ingress external \
-              --target-port 8000 \
-              --only-show-errors
+          # `--upgrade` re-downloads the extension on every run; only install
+          # when it is actually missing.
+          if ! az extension show --name containerapp --only-show-errors >/dev/null 2>&1; then
+            az extension add --name containerapp --yes --only-show-errors
           fi
 
-          # Ensure the Container App can pull the private image
+      # Migrations run once per deploy, as their own short-lived job, instead of
+      # on every container start. This keeps Alembic off the cold-start path and
+      # guarantees the schema is current before the new image serves traffic.
+      - name: Apply database migrations
+        shell: bash
+        env:
+          IMAGE: ${{ secrets.AZURE_CONTAINER_REGISTRY }}/${{ env.IMAGE_NAME }}:sha-${{ github.sha }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          set -euo pipefail
+
+          if [[ -z "${DATABASE_URL}" ]]; then
+            echo "::error::Missing repository secret DATABASE_URL (required to run migrations)."
+            exit 1
+          fi
+
+          COMMON_ARGS=(
+            --name "${MIGRATION_JOB_NAME}"
+            --resource-group "${RESOURCE_GROUP}"
+            --image "${IMAGE}"
+            --command "python" "-m" "app.migrate"
+            --secrets "database-url=${DATABASE_URL}"
+            --env-vars "DATABASE_URL=secretref:database-url"
+            --registry-server "${{ secrets.AZURE_CONTAINER_REGISTRY }}"
+            --registry-username "${{ secrets.REGISTRY_USERNAME }}"
+            --registry-password "${{ secrets.REGISTRY_PASSWORD }}"
+            --only-show-errors
+          )
+
+          if az containerapp job show --name "${MIGRATION_JOB_NAME}" \
+              --resource-group "${RESOURCE_GROUP}" --only-show-errors >/dev/null 2>&1; then
+            az containerapp job update "${COMMON_ARGS[@]}"
+          else
+            az containerapp job create "${COMMON_ARGS[@]}" \
+              --environment "${CONTAINER_ENV}" \
+              --trigger-type Manual \
+              --replica-timeout 600 \
+              --replica-retry-limit 1 \
+              --cpu 0.5 --memory 1.0Gi
+          fi
+
+          echo "Starting migration job..."
+          EXECUTION=$(az containerapp job start \
+            --name "${MIGRATION_JOB_NAME}" \
+            --resource-group "${RESOURCE_GROUP}" \
+            --query name -o tsv --only-show-errors)
+          echo "Execution: ${EXECUTION}"
+
+          # `job start` returns as soon as the execution is queued, so poll it.
+          for _ in $(seq 1 60); do
+            STATUS=$(az containerapp job execution show \
+              --name "${MIGRATION_JOB_NAME}" \
+              --resource-group "${RESOURCE_GROUP}" \
+              --job-execution-name "${EXECUTION}" \
+              --query properties.status -o tsv --only-show-errors)
+            echo "Migration status: ${STATUS}"
+            case "${STATUS}" in
+              Succeeded) exit 0 ;;
+              Failed|Cancelled)
+                echo "::error::Migration job ${EXECUTION} finished with status ${STATUS}."
+                exit 1
+                ;;
+            esac
+            sleep 10
+          done
+
+          echo "::error::Migration job ${EXECUTION} did not finish within 10 minutes."
+          exit 1
+
+      - name: Deploy new revision
+        id: deploy
+        shell: bash
+        env:
+          IMAGE: ${{ secrets.AZURE_CONTAINER_REGISTRY }}/${{ env.IMAGE_NAME }}:sha-${{ github.sha }}
+        run: |
+          set -euo pipefail
+          echo "Deploying image: ${IMAGE}"
+
           az containerapp registry set \
-            --name "${{ env.CONTAINER_APP_NAME }}" \
-            --resource-group "${{ env.RESOURCE_GROUP }}" \
+            --name "${CONTAINER_APP_NAME}" \
+            --resource-group "${RESOURCE_GROUP}" \
             --server "${{ secrets.AZURE_CONTAINER_REGISTRY }}" \
             --username "${{ secrets.REGISTRY_USERNAME }}" \
             --password "${{ secrets.REGISTRY_PASSWORD }}" \
             --only-show-errors
 
-          # Deploy new revision.
-          # Migrations are handled by backend/entrypoint.sh on startup when DATABASE_URL is set.
+          # A revision suffix makes it possible to tell at a glance which commit
+          # a running revision came from.
           az containerapp update \
-            --name "${{ env.CONTAINER_APP_NAME }}" \
-            --resource-group "${{ env.RESOURCE_GROUP }}" \
+            --name "${CONTAINER_APP_NAME}" \
+            --resource-group "${RESOURCE_GROUP}" \
             --image "${IMAGE}" \
+            --revision-suffix "sha-$(echo "${GITHUB_SHA}" | cut -c1-8)" \
             --only-show-errors
 
           FQDN=$(az containerapp show \
-            --name "${{ env.CONTAINER_APP_NAME }}" \
-            --resource-group "${{ env.RESOURCE_GROUP }}" \
-            --query properties.configuration.ingress.fqdn -o tsv)
+            --name "${CONTAINER_APP_NAME}" \
+            --resource-group "${RESOURCE_GROUP}" \
+            --query properties.configuration.ingress.fqdn -o tsv --only-show-errors)
+          echo "fqdn=${FQDN}" >> "$GITHUB_OUTPUT"
 
-          echo "Deployed: https://${FQDN}"
+      - name: Smoke test
+        shell: bash
+        env:
+          FQDN: ${{ steps.deploy.outputs.fqdn }}
+        run: |
+          set -euo pipefail
+          # The app scales to zero, so the first request also pays for a cold
+          # start; retry rather than assuming an instant response.
+          for attempt in $(seq 1 20); do
+            CODE=$(curl -fsS -o /dev/null -w '%{http_code}' "https://${FQDN}/health" || true)
+            if [[ "${CODE}" == "200" ]]; then
+              echo "Health check passed on attempt ${attempt}."
+              exit 0
+            fi
+            echo "Attempt ${attempt}: /health returned '${CODE}'"
+            sleep 10
+          done
+          echo "::error::Health check never returned 200 for https://${FQDN}/health"
+          exit 1
+
+      - name: Summary
+        if: always()
+        shell: bash
+        run: |
+          {
+            echo "## Backend deploy"
+            echo ""
+            echo "- **Version:** ${{ steps.version.outputs.version }}"
+            echo "- **Image tag:** sha-${{ github.sha }}"
+            echo "- **URL:** https://${{ steps.deploy.outputs.fqdn }}"
+          } >> "$GITHUB_STEP_SUMMARY"

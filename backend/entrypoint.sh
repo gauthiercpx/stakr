@@ -1,30 +1,20 @@
 #!/usr/bin/env sh
 set -eu
 
-# Optional: Run migrations on startup.
-# - If DATABASE_URL isn't set: skip migrations (useful for local smoke tests / static serving)
-# - If SKIP_MIGRATIONS=1: skip migrations explicitly
-if [ "${SKIP_MIGRATIONS:-}" = "1" ]; then
-  echo "SKIP_MIGRATIONS=1; skipping migrations."
-elif [ -n "${DATABASE_URL:-}" ]; then
-  echo "Running Alembic migrations..."
-  if ! python -m alembic upgrade head; then
-    echo "ERROR: Alembic migrations failed."
-    echo "Tip: verify DATABASE_URL and ensure your env file is UTF-8 encoded."
-    exit 1
-  fi
-
-  echo "Running database seeding..."
-  if ! python -m app.seed; then
-    echo "WARNING: Seeding failed. Check app logs for details."
-    # Do not exit 1 here to avoid preventing the API from starting
-    # in cases where currencies already exist or the failure is non-critical.
-  else
-    echo "Seeding completed successfully."
-  fi
-else
-  echo "DATABASE_URL is not set; skipping migrations."
+# Migrations are a deploy-time concern, not a boot-time one.
+#
+# They used to run on every container start, which put two extra interpreter
+# boots (Alembic, then the seed script) in front of every cold start and let
+# concurrent replicas race each other into the same `upgrade head`. Production
+# now runs them once per deploy from the CI pipeline; see
+# .github/workflows/backend-acr.yml.
+#
+# Set RUN_MIGRATIONS=1 to restore the old inline behaviour -- docker-compose.dev
+# does this so a local stack still comes up with a migrated, seeded database.
+if [ "${RUN_MIGRATIONS:-0}" = "1" ]; then
+  echo "RUN_MIGRATIONS=1; applying migrations before start."
+  python -m app.migrate
 fi
 
 echo "Starting API..."
-exec python -m uvicorn app.main:app --host 0.0.0.0 --port 8000
+exec python -m uvicorn app.main:app --host 0.0.0.0 --port "${PORT:-8000}"

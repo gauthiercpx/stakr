@@ -2,9 +2,37 @@ import logging
 from typing import Dict, Optional
 
 import requests
-import yfinance as yf
 
 logger = logging.getLogger(__name__)
+
+# yfinance drags in pandas, numpy and curl_cffi (~233 MB installed, ~0.5-0.75 s
+# to import warm, more on a cold page cache). Importing it at module scope put
+# all of that on the application's boot path, which matters because the API
+# scales to zero on Azure Container Apps and every cold start pays for it.
+# It is loaded on first use instead, so only requests that actually reach
+# market data pay the cost.
+_yf_module = None
+
+
+def _yf():
+    """Return the yfinance module, importing it on first use."""
+    global _yf_module
+    if _yf_module is None:
+        import yfinance
+
+        _yf_module = yfinance
+    return _yf_module
+
+
+def __getattr__(name: str):
+    """Expose `yf` as a module attribute without importing it eagerly.
+
+    Keeps `app.services.market_data.yf` resolvable for callers and test
+    monkeypatching while preserving the lazy import.
+    """
+    if name == "yf":
+        return _yf()
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
 
 class MarketDataService:
@@ -15,7 +43,7 @@ class MarketDataService:
         Returns a dict with name, currency, type and price or None on error.
         """
         try:
-            asset = yf.Ticker(ticker)
+            asset = _yf().Ticker(ticker)
             info = asset.info
 
             # 1. Get raw Yahoo type (default EQUITY)
@@ -77,7 +105,7 @@ class MarketDataService:
     def get_dividends_history(ticker: str):
         """Return historical dividends as a pandas Series (Date -> Amount)."""
         try:
-            asset = yf.Ticker(ticker)
+            asset = _yf().Ticker(ticker)
             dividends = asset.dividends
             return dividends
         except Exception as e:
@@ -91,7 +119,7 @@ class MarketDataService:
         Useful for lightweight dashboard refreshes.
         """
         try:
-            asset = yf.Ticker(ticker)
+            asset = _yf().Ticker(ticker)
             price = None
 
             # Fast path via fast_info.

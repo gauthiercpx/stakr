@@ -2,13 +2,10 @@
 
 import logging
 import os
-from pathlib import Path
 
 from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
-from fastapi.staticfiles import StaticFiles
 
 from app.core.version import APP_VERSION
 from app.routers import asset, auth, health, portfolio, transaction
@@ -118,40 +115,5 @@ app.include_router(transaction.router)
 
 app.include_router(asset.router)
 
-# 4. Serve the frontend build (optional)
-# This backend is designed to be deployed separately from the frontend.
-# If you want a single-container demo (backend serving a built SPA), enable it
-# explicitly.
-SERVE_FRONTEND = os.getenv("SERVE_FRONTEND", "0") == "1"
-
-if SERVE_FRONTEND:
-    # In Docker, the root Dockerfile (if used) copies Vite's dist to /app/static.
-    _docker_static_dir = Path("/app/static")
-
-    # When running outside Docker (e.g. local dev),
-    # try a repo-relative `static/` directory.
-    _repo_root = Path(__file__).resolve().parent
-    while _repo_root.name not in {"backend", "app"} and _repo_root.parent != _repo_root:
-        _repo_root = _repo_root.parent
-
-    _candidate_local = (
-        _repo_root.parent / "static"
-        if _repo_root.name == "backend"
-        else Path.cwd() / "static"
-    )
-    _local_static_dir = _candidate_local
-
-    _static_dir = (
-        _docker_static_dir if _docker_static_dir.exists() else _local_static_dir
-    )
-    _index_file = _static_dir / "index.html"
-
-    if _static_dir.exists() and _index_file.exists():
-        app.mount(
-            "/", StaticFiles(directory=str(_static_dir), html=True), name="frontend"
-        )
-
-        # SPA fallback: send index.html for unknown (non-API) routes.
-        @app.get("/{full_path:path}", include_in_schema=False)
-        def spa_fallback(full_path: str):
-            return FileResponse(str(_index_file))
+# The API no longer serves the SPA. The frontend is deployed to Cloudflare
+# Pages, and the backend image contains no static bundle to mount.

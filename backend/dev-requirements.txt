@@ -4,3 +4,6 @@ flake8
 isort
 pytest
 pytest-cov
+# Required by fastapi.testclient.TestClient. Previously pulled in implicitly by
+# `fastapi[standard]`, which the runtime requirements no longer install.
+httpx==0.28.1

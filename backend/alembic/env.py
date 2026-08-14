@@ -33,7 +33,11 @@ config.set_main_option(
 )
 
 if config.config_file_name is not None:
-    fileConfig(config.config_file_name)
+    # disable_existing_loggers defaults to True, which silences every logger
+    # configured before Alembic runs. When migrations are driven from
+    # app.migrate that includes the seeding logger, so a failed seed would
+    # fail silently. Keep the callers' loggers alive.
+    fileConfig(config.config_file_name, disable_existing_loggers=False)
 
 # Metadata used by `alembic revision --autogenerate`
 target_metadata = Base.metadata
