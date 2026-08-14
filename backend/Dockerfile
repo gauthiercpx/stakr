@@ -28,9 +28,13 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 # Dependency layer: invalidated only when requirements.txt changes.
+#
+# --no-cache-dir keeps pip's download cache out of the layer; CI caches whole
+# layers in the registry instead, so a build cache here would buy nothing.
+# --only-binary=:all: refuses source distributions, so a build can never
+# silently fall back to compiling a package from source.
 COPY requirements.txt ./
-RUN --mount=type=cache,target=/root/.cache/pip \
-    pip install -r requirements.txt \
+RUN pip install --no-cache-dir --only-binary=:all: -r requirements.txt \
     # pip/setuptools are build-time only; dropping them from the venv keeps
     # ~28 MB out of every image pull.
     && (pip uninstall -y pip setuptools wheel 2>/dev/null || true)
