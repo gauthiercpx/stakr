@@ -1,12 +1,31 @@
 import logging
 from collections.abc import Iterable
 
-import yfinance as yf
 from sqlalchemy.orm import Session
 
 from app.models import Asset, DividendEvent, PriceHistory
 
 logger = logging.getLogger(__name__)
+
+# Imported lazily -- see the note in app/services/market_data.py.
+_yf_module = None
+
+
+def _yf():
+    """Return the yfinance module, importing it on first use."""
+    global _yf_module
+    if _yf_module is None:
+        import yfinance
+
+        _yf_module = yfinance
+    return _yf_module
+
+
+def __getattr__(name: str):
+    """Expose `yf` as a module attribute without importing it eagerly."""
+    if name == "yf":
+        return _yf()
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
 
 class MarketSyncService:
@@ -44,7 +63,7 @@ class MarketSyncService:
         total_added = 0
         for ticker in MarketSyncService._normalize_tickers(tickers):
             try:
-                ticker_data = yf.Ticker(ticker)
+                ticker_data = _yf().Ticker(ticker)
                 hist = ticker_data.history(period=period)
 
                 if hist.empty:
@@ -100,7 +119,7 @@ class MarketSyncService:
                 if not asset:
                     continue
 
-                ticker_data = yf.Ticker(ticker)
+                ticker_data = _yf().Ticker(ticker)
                 div_series = ticker_data.dividends
 
                 if div_series.empty:

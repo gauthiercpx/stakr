@@ -60,57 +60,33 @@ Depending on how `api` is implemented (e.g. `src/api/client.ts`), you typically 
 
 - `VITE_API_URL=http://localhost:8000`
 
-## Docker
+## Local development
 
-For local development, prefer Vite (`npm run dev`) + Docker Compose for the API/DB.
+Prefer Vite (`npm run dev`) + Docker Compose for the API/DB.
 See the root `README.md`.
 
 ## Deployment
 
-### Manual deployment (Azure Container Registry)
+The frontend is deployed to **Cloudflare Pages**, which builds directly from
+the Git repository -- there is no GitHub Actions workflow and no container
+image involved.
 
-This project supports a manual ACR flow for the frontend image.
+| Setting          | Value              |
+| ---------------- | ------------------ |
+| Build command    | `npm run build`    |
+| Build output     | `dist`             |
+| Root directory   | `frontend`         |
 
-### Login to ACR
+Set `VITE_API_URL` to the backend URL (`https://api.stakr.me`) in the Pages
+project's environment variables. It is read at build time, so changing it
+requires a redeploy.
 
-```powershell
-az acr login --name stakrregistry
-```
-
-### Build & tag the image (set API URL)
-
-> Replace `vX.X.X` with the version you want to publish.
-
-```powershell
-docker build -t stakrregistry.azurecr.io/stakr-frontend:vX.X.X --build-arg VITE_API_URL="https://api.stakr.me" ./frontend
-```
-
-### Push the image
-
-```powershell
-docker push stakrregistry.azurecr.io/stakr-frontend:vX.X.X
-```
+> The previous Azure flow (nginx image pushed to ACR and served by a
+> `stakr-frontend` Container App) has been retired, along with
+> `frontend/Dockerfile` and `.github/workflows/frontend-acr.yml`.
 
 ## Versioning
 
 Frontend and backend are deployed independently, so version them independently.
 
 You can still use SemVer for your own release notes (`X.Y.Z`), but the current CD flow does **not** rely on git tags.
-
-## CI/CD (automatic ACR push)
-
-The GitHub Actions workflow builds and pushes the frontend image to ACR when:
-
-- a commit is pushed/merged to `main`, and
-- something under `frontend/` changed.
-
-### Required GitHub secrets
-
-- `ACR_LOGIN_SERVER` (example: `stakrregistry.azurecr.io`)
-- `ACR_USERNAME`
-- `ACR_PASSWORD`
-
-### Image tags published
-
-- `stakr-frontend:sha-<full git sha>` (immutable)
-- `stakr-frontend:latest`

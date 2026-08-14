@@ -79,12 +79,14 @@ This is the easiest way to avoid DB connectivity problems from containers.
 ```powershell
 # From repo root
 
-docker build -t stakr:local .
-
-docker compose -f docker-compose.dev.yml up -d
+docker compose -f docker-compose.dev.yml up -d --build
 
 docker compose -f docker-compose.dev.yml logs -f api
 ```
+
+> The compose stack sets `RUN_MIGRATIONS=1`, so the API applies Alembic
+> migrations and seeds reference data on start. Production does this once per
+> deploy from CI instead, to keep it off the container's cold-start path.
 
 2) Start the frontend (Vite dev server)
 
@@ -110,9 +112,9 @@ container with an env file.
 ```powershell
 # From repo root
 
-docker build -t stakr:local .
+docker build -t stakr:local ./backend
 
-docker run --rm -p 8000:8000 --env-file backend\.env.docker stakr:local
+docker run --rm -p 8000:8000 -e RUN_MIGRATIONS=1 --env-file backend\.env.docker stakr:local
 ```
 
 > On Windows/macOS, that `DATABASE_URL` should use `host.docker.internal`.

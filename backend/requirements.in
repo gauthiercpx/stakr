@@ -1,0 +1,55 @@
+# Direct runtime dependencies. THIS is the file you edit.
+#
+# requirements.txt is generated from it and is a full lock: every transitive
+# package pinned and hashed. Regenerate after any change here:
+#
+#   docker run --rm -v "${PWD}/backend:/w" -w /w python:3.12-slim \
+#     sh -c "pip install -q uv && uv pip compile requirements.in \
+#            --universal --generate-hashes -o requirements.txt"
+#
+# It is compiled in a Linux container so the resolution matches the runtime
+# image, and --universal keeps it installable on Windows for local dev.
+#
+# Note: `fastapi[standard]` is deliberately NOT used. It pulls fastapi-cli,
+# rich and typer, none of which are imported at runtime -- they only bloat the
+# image and the cold-start import graph. Test-only extras (httpx, needed by
+# TestClient) live in dev-requirements.in.
+
+# --- Web framework / ASGI server ---
+fastapi==0.141.1
+uvicorn==0.52.1
+# C HTTP parser; uvicorn auto-detects it and falls back to its pure-Python
+# parser when absent.
+httptools==0.8.0
+# Faster event loop. Linux/macOS only: it has no Windows wheels, and local
+# development on Windows must still be able to install this file.
+uvloop>=0.21,<1.0; sys_platform != "win32"
+
+# --- Database ---
+sqlalchemy==2.0.51
+alembic==1.19.1
+# The -binary wheel statically bundles libpq, so the image needs no libpq5
+# system package.
+psycopg2-binary==2.9.12
+
+# --- Config / validation ---
+pydantic==2.13.4
+pydantic-settings==2.15.0
+python-dotenv==1.2.2
+email-validator==2.3.0
+
+# --- Auth ---
+passlib[bcrypt]==1.7.4
+# passlib 1.7.4 is not compatible with bcrypt 5.x
+bcrypt==4.3.0
+python-jose[cryptography]==3.5.0
+python-multipart==0.0.32
+
+# --- Models ---
+uuid6==2025.0.1
+
+# --- Market data ---
+# Heavy (~233 MB with pandas/numpy/curl_cffi). Imported lazily inside the
+# service functions so it stays off the application boot path.
+yfinance==1.5.2
+requests==2.34.2

@@ -21,12 +21,29 @@ backend/
   app/                  # FastAPI application
   alembic/              # Alembic migrations
   tests/                # Test suite
-  requirements.txt      # Runtime dependencies
-  dev-requirements.txt  # Dev tooling
+  requirements.in       # Runtime dependencies (edit this)
+  requirements.txt      # Generated lock: every version pinned and hashed
+  dev-requirements.in   # Dev tooling (edit this)
+  dev-requirements.txt  # Generated lock, covers runtime deps too
   pyproject.toml        # Tooling config (black/isort/pytest)
-  Dockerfile            # Backend-only image (legacy)
-  entrypoint.sh         # Runs migrations (if DATABASE_URL set) then starts uvicorn
+  Dockerfile            # Backend image
+  entrypoint.sh         # Starts uvicorn (migrations only when RUN_MIGRATIONS=1)
 ```
+
+## Dependencies
+
+The `.txt` files are **generated locks** -- do not edit them by hand. Add or
+change a dependency in the matching `.in` file, then recompile:
+
+```powershell
+# From repo root. Compiled in a Linux container so the resolution matches the
+# runtime image; --universal keeps the lock installable on Windows too.
+docker run --rm -v "${PWD}/backend:/w" -w /w python:3.12-slim `
+  sh -c "pip install -q uv && uv pip compile requirements.in --universal --generate-hashes -o requirements.txt && uv pip compile dev-requirements.in --universal --generate-hashes -o dev-requirements.txt"
+```
+
+Installs are hash-verified (`--require-hashes`), so a swapped-out release on
+PyPI fails the install rather than shipping.
 
 ## Setup (Windows / PowerShell)
 
@@ -36,8 +53,8 @@ py -3.12 -m venv .venv
 . .\.venv\Scripts\Activate.ps1
 
 python -m pip install --upgrade pip
-python -m pip install -r backend\requirements.txt
-python -m pip install -r backend\dev-requirements.txt
+# The dev lock covers the runtime dependencies too, so this is the only install.
+python -m pip install --require-hashes -r backend\dev-requirements.txt
 ```
 
 ## Run the API (dev)
