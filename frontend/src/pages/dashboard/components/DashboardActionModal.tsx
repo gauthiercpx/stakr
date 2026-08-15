@@ -1,5 +1,6 @@
 import Modal from '../../../components/Modal';
 import NeonButton from '../../../components/NeonButton';
+import FadeText from '../../../components/FadeText';
 
 interface DashboardActionModalProps {
   isOpen: boolean;
@@ -21,7 +22,7 @@ export default function DashboardActionModal({
   return (
     <Modal isOpen={isOpen} onRequestClose={onClose} title={title} size="sm">
       <div style={{ display: 'grid', gap: '1rem' }}>
-        <p style={{ margin: 0, color: '#555' }}>{description}</p>
+        <p style={{ margin: 0, color: '#555' }}><FadeText>{description}</FadeText></p>
         <NeonButton label="OK" onClick={onClose} variant="solid" style={{ width: '100%' }} />
       </div>
     </Modal>

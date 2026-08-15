@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import type { PositionResponse } from '../../../api/portfolio';
 import NeonButton from '../../../components/NeonButton';
+import FadeText from '../../../components/FadeText';
 
 interface AccountActionsCardProps {
   title: string;
@@ -65,8 +66,8 @@ export default function AccountActionsCard({
   return (
     <section className="dashboard-card account-actions">
       <div className="account-actions__header">
-        <h2 className="dashboard-card__title">{title}</h2>
-        <span className="account-actions__badge">{activePositions.length}</span>
+        <h2 className="dashboard-card__title"><FadeText>{title}</FadeText></h2>
+        <FadeText as="span" className="account-actions__badge">{activePositions.length}</FadeText>
       </div>
 
       <div className="account-actions__content">
@@ -76,16 +77,16 @@ export default function AccountActionsCard({
           onClick={() => setIsOpen((current) => !current)}
           aria-expanded={isOpen}
         >
-          <span>{triggerLabel}</span>
+          <FadeText as="span">{triggerLabel}</FadeText>
           <span className="account-actions__triggerChevron">▾</span>
         </button>
 
         {isOpen && (
           <div className="account-actions__list">
             {isLoading ? (
-              <p className="account-actions__empty">{loadingText}</p>
+              <p className="account-actions__empty"><FadeText>{loadingText}</FadeText></p>
             ) : activePositions.length === 0 ? (
-              <p className="account-actions__empty">{emptyText}</p>
+              <p className="account-actions__empty"><FadeText>{emptyText}</FadeText></p>
             ) : (
               activePositions.map((position) => {
                 const value = (Number(position.quantity) || 0) * (Number(position.current_price) || 0);
@@ -94,18 +95,18 @@ export default function AccountActionsCard({
                   <article key={position.id} className="account-actions__item">
                     <div className="account-actions__itemTop">
                       <div>
-                        <div className="account-actions__itemName">{position.asset_name}</div>
-                        <div className="account-actions__itemTicker">{position.asset_ticker}</div>
+                        <FadeText as="div" className="account-actions__itemName">{position.asset_name}</FadeText>
+                        <FadeText as="div" className="account-actions__itemTicker">{position.asset_ticker}</FadeText>
                       </div>
-                      <div className="account-actions__itemValue">{formatCurrency(value)}</div>
+                      <FadeText as="div" className="account-actions__itemValue">{formatCurrency(value)}</FadeText>
                     </div>
                     <div className="account-actions__itemMeta">
-                      <span>
+                      <FadeText as="span">
                         {quantityLabel}: {formatQuantity(position.quantity)}
-                      </span>
-                      <span>
+                      </FadeText>
+                      <FadeText as="span">
                         {valueLabel}: {formatCurrency(Number(position.current_price) || 0)}
-                      </span>
+                      </FadeText>
                     </div>
                   </article>
                 );
@@ -117,14 +118,14 @@ export default function AccountActionsCard({
 
       <div className="account-actions__actions">
         <NeonButton
-          label={addAssetLabel}
+          label={<FadeText>{addAssetLabel}</FadeText>}
           onClick={onAddAsset}
           variant="solid"
           className="account-actions__btn"
           style={{ backgroundColor: '#bff104', color: '#000', padding: '0.68rem 1.1rem' }}
         />
         <NeonButton
-          label={addTransactionLabel}
+          label={<FadeText>{addTransactionLabel}</FadeText>}
           onClick={onAddTransaction}
           variant="solid"
           className="account-actions__btn"

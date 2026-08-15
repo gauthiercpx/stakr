@@ -116,6 +116,10 @@
   width: 100%;
 }
 
+.portfolio__headerActions--single {
+  grid-template-columns: minmax(0, 1fr);
+}
+
 .portfolio-select,
 .portfolio__createButton {
   width: 100%;

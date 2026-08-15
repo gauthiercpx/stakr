@@ -4,6 +4,7 @@ import {motion, AnimatePresence, useScroll, useTransform, type Variants} from 'f
 import {useMobileMenu} from '../hooks/useMobileMenu';
 import {useNavbarAnimation} from '../hooks/useNavbarAnimation';
 import {useI18n} from '../i18n/useI18n';
+import FadeText from './FadeText';
 
 export type AppNavbarMobileActionsRender = (helpers: { closeMenu: () => void }) => React.ReactNode;
 
@@ -119,7 +120,7 @@ export default function AppNavbar({
                 >
                     <div className="stakr-nav__content">
                         <Link to={brandTo} className="stakr-nav__brand" aria-label={resolvedBrandAria}>
-                            {brandContent ?? (<>{t('landing.hero.title.brand')}<span
+                            {brandContent ?? (<><FadeText as="span">{t('landing.hero.title.brand')}</FadeText><span
                                 style={{color: '#bff104'}}>. </span></>)}
                         </Link>
 

@@ -1,6 +1,7 @@
 import {useCallback, useEffect, useRef, useState} from 'react';
 import Modal from '../../../components/Modal';
 import NeonButton from '../../../components/NeonButton';
+import FadeText from '../../../components/FadeText';
 import {createPortfolio, type PortfolioResponse} from '../../../api/portfolio';
 import {useI18n} from '../../../i18n/useI18n';
 
@@ -104,7 +105,7 @@ export default function CreatePortfolioModal({
                 border: '1px solid #ffcdd2',
               }}
             >
-              {error}
+              <FadeText>{error}</FadeText>
             </div>
           )}
         </div>
@@ -113,7 +114,7 @@ export default function CreatePortfolioModal({
           htmlFor="create-portfolio-name"
           style={{fontSize: '0.9rem', fontWeight: 700, color: '#555'}}
         >
-          {t('dashboard.createPortfolio.nameLabel')}
+          <FadeText>{t('dashboard.createPortfolio.nameLabel')}</FadeText>
         </label>
 
         <input
@@ -144,9 +145,11 @@ export default function CreatePortfolioModal({
           disabled={isSubmitting || name.trim() === ''}
           variant="solid"
           label={
-            isSubmitting
-              ? t('dashboard.createPortfolio.submitting')
-              : t('dashboard.createPortfolio.submit')
+            <FadeText>
+              {isSubmitting
+                ? t('dashboard.createPortfolio.submitting')
+                : t('dashboard.createPortfolio.submit')}
+            </FadeText>
           }
           style={{
             padding: '1rem',
@@ -161,7 +164,7 @@ export default function CreatePortfolioModal({
           onClick={onClose}
           disabled={isSubmitting}
           variant="outline"
-          label={t('dashboard.createPortfolio.cancel')}
+          label={<FadeText>{t('dashboard.createPortfolio.cancel')}</FadeText>}
           style={{
             padding: '0.75rem',
             width: '100%',

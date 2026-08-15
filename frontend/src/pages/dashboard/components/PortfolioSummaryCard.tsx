@@ -1,4 +1,5 @@
 import NeonButton from '../../../components/NeonButton';
+import FadeText from '../../../components/FadeText';
 import PortfolioSelect from './PortfolioSelect';
 
 export type PortfolioPeriod = '1D' | '1W' | '1M' | '1Y' | 'ALL';
@@ -75,8 +76,8 @@ export default function PortfolioSummaryCard({
     return (
         <section className="dashboard-card">
             <div className="portfolio__header">
-                <h2 className="dashboard-card__title">{title}</h2>
-                <div className="portfolio__headerActions">
+                <h2 className="dashboard-card__title"><FadeText>{title}</FadeText></h2>
+                <div className={`portfolio__headerActions ${portfolios.length === 0 ? 'portfolio__headerActions--single' : ''}`}>
                     {portfolios.length > 0 && (
                         <PortfolioSelect
                             options={portfolios}
@@ -85,7 +86,7 @@ export default function PortfolioSummaryCard({
                         />
                     )}
                     <NeonButton
-                        label={createPortfolioLabel}
+                        label={<FadeText>{createPortfolioLabel}</FadeText>}
                         onClick={onCreatePortfolio}
                         variant="solid"
                         className="portfolio__createButton"
@@ -94,9 +95,9 @@ export default function PortfolioSummaryCard({
                 </div>
             </div>
 
-            {!hasPortfolio && !isLoading && <p className="portfolio__meta">{emptyText}</p>}
-            {!hasPortfolio && isLoading && <p className="portfolio__meta">{loadingText}</p>}
-            {error && <p className="portfolio__meta is-error">{error}</p>}
+            {!hasPortfolio && !isLoading && <p className="portfolio__meta"><FadeText>{emptyText}</FadeText></p>}
+            {!hasPortfolio && isLoading && <p className="portfolio__meta"><FadeText>{loadingText}</FadeText></p>}
+            {error && <p className="portfolio__meta is-error"><FadeText>{error}</FadeText></p>}
 
             {hasPortfolio && (
                 <div
@@ -108,25 +109,25 @@ export default function PortfolioSummaryCard({
                 >
                     <div className="portfolio__main">
                         <div className="portfolio__summaryTop">
-                            <div className="portfolio__totalLabel">{totalValueLabel}</div>
+                            <div className="portfolio__totalLabel"><FadeText>{totalValueLabel}</FadeText></div>
                             <div className="portfolio__summaryWithPnl">
-                                <div className="portfolio__totalValue">{totalValue}</div>
+                                <div className="portfolio__totalValue"><FadeText>{totalValue}</FadeText></div>
                                 <div
                                     className={`portfolio__pnlPill ${isPnlNeutral ? 'is-neutral' : isPositivePnl ? 'is-positive' : 'is-negative'} ${isPeriodPnlLoading ? 'is-loading' : ''}`}>
                                     <span>{isPnlNeutral ? '•' : isPositivePnl ? '▲' : '▼'}</span>
-                                    <span>{pnlValue}</span>
-                                    <span>({pnlPercent})</span>
+                                    <FadeText as="span">{pnlValue}</FadeText>
+                                    <FadeText as="span">({pnlPercent})</FadeText>
                                 </div>
                             </div>
                             <div className="portfolio__dividendsLine">
-                                <span className="portfolio__dividendsLabel">{dividendsLabel}</span>
-                                <span className="portfolio__dividendsValue">{dividendsValue}</span>
+                                <span className="portfolio__dividendsLabel"><FadeText>{dividendsLabel}</FadeText></span>
+                                <span className="portfolio__dividendsValue"><FadeText>{dividendsValue}</FadeText></span>
                             </div>
                         </div>
                     </div>
 
                     <div className="portfolio__periodRow">
-                        <span className="portfolio__periodLabel">{periodLabel}</span>
+                        <span className="portfolio__periodLabel"><FadeText>{periodLabel}</FadeText></span>
                         <div className="portfolio__periodButtons" role="tablist" aria-label={periodLabel}>
                             {periods.map((period) => (
                                 <button
@@ -146,8 +147,8 @@ export default function PortfolioSummaryCard({
                     <div className="portfolio__kpis">
                         {kpis.map((kpi) => (
                             <article className="portfolio__kpiCard" key={kpi.title}>
-                                <div className="portfolio__kpiLabel">{kpi.title}</div>
-                                <div className="portfolio__kpiValue">{kpi.value}</div>
+                                <div className="portfolio__kpiLabel"><FadeText>{kpi.title}</FadeText></div>
+                                <div className="portfolio__kpiValue"><FadeText>{kpi.value}</FadeText></div>
                             </article>
                         ))}
                     </div>
@@ -156,7 +157,7 @@ export default function PortfolioSummaryCard({
 
             {hasPortfolio && (
                 <NeonButton
-                    label={viewPortfolioLabel}
+                    label={<FadeText>{viewPortfolioLabel}</FadeText>}
                     onClick={onViewPortfolio}
                     variant="solid"
                     style={{width: '100%', marginTop: '0.9rem', backgroundColor: '#000', color: '#bff104'}}

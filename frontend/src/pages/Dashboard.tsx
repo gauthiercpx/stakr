@@ -13,6 +13,7 @@ import {
 } from '../api/portfolio';
 import { useI18n } from '../i18n/useI18n';
 import FadeIn from '../components/animations/FadeIn';
+import FadeText from '../components/FadeText';
 import DashboardHero from './dashboard/components/DashboardHero';
 import PortfolioSummaryCard, {
   type PortfolioPeriod,
@@ -492,7 +493,7 @@ export default function Dashboard({ onSessionInvalid }: DashboardProps) {
     <main className="dashboard">
       {loading ? (
         <FadeIn direction="none">
-          <div className="dashboard__loading">{t('common.loading')}</div>
+          <div className="dashboard__loading"><FadeText>{t('common.loading')}</FadeText></div>
         </FadeIn>
       ) : (
         <>

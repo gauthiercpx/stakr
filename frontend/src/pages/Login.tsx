@@ -2,6 +2,7 @@ import {useState, useCallback} from 'react';
 import {api, ACCESS_TOKEN_KEY} from '../api/client';
 import {useI18n} from '../i18n/useI18n';
 import NeonButton from '../components/NeonButton';
+import FadeText from '../components/FadeText';
 
 interface LoginProps {
     onLoginSuccess: () => void;
@@ -95,7 +96,7 @@ export default function Login({onLoginSuccess, onSignupRequested}: LoginProps) {
                         color: '#000',
                     }}
                 >
-                    {t('login.title')}
+                    <FadeText>{t('login.title')}</FadeText>
                     <span style={{color: '#bff104'}}>.</span>
                 </h1>
                 <p
@@ -107,7 +108,7 @@ export default function Login({onLoginSuccess, onSignupRequested}: LoginProps) {
                         fontWeight: 600,
                     }}
                 >
-                    {t('login.subtitle')}
+                    <FadeText>{t('login.subtitle')}</FadeText>
                 </p>
             </div>
 
@@ -124,7 +125,7 @@ export default function Login({onLoginSuccess, onSignupRequested}: LoginProps) {
                             animation: 'fadeIn 0.3s',
                         }}
                     >
-                        {error}
+                        <FadeText>{error}</FadeText>
                     </div>
                 )}
             </div>
@@ -189,7 +190,7 @@ export default function Login({onLoginSuccess, onSignupRequested}: LoginProps) {
                             disabled={isLoading}
                             className="stakr-passwordToggle"
                         >
-                            {showPassword ? t('common.hide') : t('common.show')}
+                            <FadeText>{showPassword ? t('common.hide') : t('common.show')}</FadeText>
                         </button>
                     </div>
 
@@ -212,7 +213,7 @@ export default function Login({onLoginSuccess, onSignupRequested}: LoginProps) {
                                 fontFamily: 'inherit'
                             }}
                         >
-                            {t('login.forgotPassword')}
+                            <FadeText>{t('login.forgotPassword')}</FadeText>
                         </button>
                     </div>
                 </div>
@@ -221,7 +222,7 @@ export default function Login({onLoginSuccess, onSignupRequested}: LoginProps) {
                     type="submit"
                     disabled={isDisabled}
                     variant="solid"
-                    label={isLoading ? t('login.submit.loading') : t('login.submit')}
+                    label={<FadeText>{isLoading ? t('login.submit.loading') : t('login.submit')}</FadeText>}
                     style={{
                         marginTop: '0.5rem',
                         padding: '1rem',
@@ -239,7 +240,7 @@ export default function Login({onLoginSuccess, onSignupRequested}: LoginProps) {
                         fontSize: '0.95rem',
                         color: '#666'
                     }}>
-                        {t('login.noAccount')}
+                        <FadeText>{t('login.noAccount')}</FadeText>
                         {' '}
                         <button
                             type="button"
@@ -257,7 +258,7 @@ export default function Login({onLoginSuccess, onSignupRequested}: LoginProps) {
                                 fontFamily: 'inherit'
                             }}
                         >
-                            {t('login.createAccount')}
+                            <FadeText>{t('login.createAccount')}</FadeText>
                         </button>
                     </div>
                 )}

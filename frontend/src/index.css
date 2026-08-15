@@ -46,6 +46,28 @@ button, input {
     }
 }
 
+@keyframes stakr-fade-text {
+    0% {
+        opacity: 0;
+        filter: blur(4px);
+    }
+    100% {
+        opacity: 1;
+        filter: blur(0);
+    }
+}
+
+.stakr-fade-text {
+    display: inline-block;
+    animation: stakr-fade-text 260ms ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .stakr-fade-text {
+        animation: none;
+    }
+}
+
 @keyframes stakr-page-enter-right {
     from {
         opacity: 0;
