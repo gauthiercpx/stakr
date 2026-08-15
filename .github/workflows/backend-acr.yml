@@ -117,7 +117,11 @@ jobs:
             --name "${MIGRATION_JOB_NAME}"
             --resource-group "${RESOURCE_GROUP}"
             --image "${IMAGE}"
-            --command "python" "-m" "app.migrate"
+            # The image entrypoint takes `migrate` as a subcommand. Passing
+            # `--command python -m app.migrate` instead makes the az CLI treat
+            # `-m` as one of its own options and fail with
+            # "unrecognized arguments".
+            --args "migrate"
             --secrets "database-url=${DATABASE_URL}"
             --env-vars "DATABASE_URL=secretref:database-url"
             --registry-server "${{ secrets.AZURE_CONTAINER_REGISTRY }}"
