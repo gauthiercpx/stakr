@@ -1,1 +1,56 @@
+# Local development stack: PostgreSQL + the API.
+#
+#   docker build -t stakr:local .
+#   docker compose -f docker-compose.dev.yml up -d
+#   docker compose -f docker-compose.dev.yml logs -f api
+#
+# The frontend is not part of this stack: run it with `npm run dev` in frontend/.
+#
+# To iterate on the backend without rebuilding the image, start only the
+# database (`docker compose -f docker-compose.dev.yml up -d db`) and run
+# uvicorn on the host against backend/.env.
 
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: stakr-db
+    environment:
+      POSTGRES_USER: stakr
+      POSTGRES_PASSWORD: stakr
+      POSTGRES_DB: stakr
+    ports:
+      # Published on 5433: this machine already runs a PostgreSQL service on
+      # 5432, and binding both would fail. Point DATABASE_URL at 5433 to use
+      # this container instead of the installed server.
+      - "5433:5432"
+    volumes:
+      - stakr-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U stakr -d stakr"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  api:
+    image: stakr:local
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: stakr-api
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      # Inside the compose network the database is reachable as `db`.
+      DATABASE_URL: postgresql://stakr:stakr@db:5432/stakr
+      SECRET_KEY: dev-secret-key-change-me
+      CORS_ORIGINS: http://localhost:5173,http://127.0.0.1:5173
+      SERVE_FRONTEND: "0"
+      # Production applies migrations from the deploy pipeline; a local stack
+      # has no such step, so it migrates and seeds on start instead.
+      RUN_MIGRATIONS: "1"
+    ports:
+      - "8000:8000"
+
+volumes:
+  stakr-db-data:
