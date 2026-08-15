@@ -61,10 +61,20 @@ export type MessageKey =
     | 'dashboard.portfolio.kpi.totalValue'
     | 'dashboard.portfolio.kpi.totalInvested'
     | 'dashboard.portfolio.kpi.pnl'
+    | 'dashboard.portfolio.period'
     | 'dashboard.actions.addTransaction'
     | 'dashboard.actions.addAsset'
     | 'dashboard.actions.addPortfolio'
     | 'dashboard.actions.modalPlaceholder'
+    | 'dashboard.createPortfolio.title'
+    | 'dashboard.createPortfolio.nameLabel'
+    | 'dashboard.createPortfolio.namePlaceholder'
+    | 'dashboard.createPortfolio.nameRequired'
+    | 'dashboard.createPortfolio.nameTooLong'
+    | 'dashboard.createPortfolio.submit'
+    | 'dashboard.createPortfolio.submitting'
+    | 'dashboard.createPortfolio.cancel'
+    | 'dashboard.createPortfolio.error'
     | 'dashboard.charts.title'
     | 'dashboard.charts.placeholder'
     | 'dashboard.charts.noData'
@@ -202,10 +212,20 @@ const MESSAGES: Record<Locale, Record<MessageKey, string>> = {
         'dashboard.portfolio.kpi.totalValue': 'Valeur totale',
         'dashboard.portfolio.kpi.totalInvested': 'Montant investi',
         'dashboard.portfolio.kpi.pnl': 'PnL global',
+        'dashboard.portfolio.period': 'Période',
         'dashboard.actions.addTransaction': '+ Ajouter une transaction',
         'dashboard.actions.addAsset': '+ Ajouter un actif',
         'dashboard.actions.addPortfolio': '+ Créer un portfolio',
         'dashboard.actions.modalPlaceholder': 'Cette fonctionnalité arrive bientôt. Cette modale est un placeholder.',
+        'dashboard.createPortfolio.title': 'Créer un portfolio',
+        'dashboard.createPortfolio.nameLabel': 'Nom du portfolio',
+        'dashboard.createPortfolio.namePlaceholder': 'Ex. PEA, Crypto, Long terme...',
+        'dashboard.createPortfolio.nameRequired': 'Donne un nom à ton portfolio.',
+        'dashboard.createPortfolio.nameTooLong': 'Le nom ne peut pas dépasser 100 caractères.',
+        'dashboard.createPortfolio.submit': 'Créer le portfolio',
+        'dashboard.createPortfolio.submitting': 'Création...',
+        'dashboard.createPortfolio.cancel': 'Annuler',
+        'dashboard.createPortfolio.error': 'Impossible de créer le portfolio pour le moment.',
         'dashboard.charts.title': 'Graphiques',
         'dashboard.charts.placeholder': 'Zone réservée aux graphiques (allocation, évolution, performance).',
         'dashboard.charts.noData': 'Aucune donnée disponible pour cette période.',
@@ -346,10 +366,20 @@ const MESSAGES: Record<Locale, Record<MessageKey, string>> = {
         'dashboard.portfolio.kpi.totalValue': 'Total value',
         'dashboard.portfolio.kpi.totalInvested': 'Total invested',
         'dashboard.portfolio.kpi.pnl': 'Global PnL',
+        'dashboard.portfolio.period': 'Period',
         'dashboard.actions.addTransaction': '+ Add transaction',
         'dashboard.actions.addAsset': '+ Add asset',
         'dashboard.actions.addPortfolio': '+ Create portfolio',
         'dashboard.actions.modalPlaceholder': 'This feature is coming soon. This modal is a placeholder.',
+        'dashboard.createPortfolio.title': 'Create a portfolio',
+        'dashboard.createPortfolio.nameLabel': 'Portfolio name',
+        'dashboard.createPortfolio.namePlaceholder': 'e.g. Retirement, Crypto, Long term...',
+        'dashboard.createPortfolio.nameRequired': 'Give your portfolio a name.',
+        'dashboard.createPortfolio.nameTooLong': 'The name cannot exceed 100 characters.',
+        'dashboard.createPortfolio.submit': 'Create portfolio',
+        'dashboard.createPortfolio.submitting': 'Creating...',
+        'dashboard.createPortfolio.cancel': 'Cancel',
+        'dashboard.createPortfolio.error': 'Could not create the portfolio right now.',
         'dashboard.charts.title': 'Charts',
         'dashboard.charts.placeholder': 'Chart area (allocation, performance, timeline) coming next.',
         'dashboard.charts.noData': 'No data available for this period.',

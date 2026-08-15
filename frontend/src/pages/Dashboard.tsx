@@ -20,6 +20,7 @@ import PortfolioSummaryCard, {
 import AccountActionsCard from './dashboard/components/AccountActionsCard';
 import PortfolioChartCard from './dashboard/components/PortfolioChartCard';
 import DashboardActionModal from './dashboard/components/DashboardActionModal';
+import CreatePortfolioModal from './dashboard/components/CreatePortfolioModal';
 import { readDashboardCache, writeDashboardCache } from '../utils/dashboardCache';
 import './dashboard/dashboard.css';
 
@@ -36,7 +37,7 @@ interface DashboardProps {
 
 const DASHBOARD_PORTFOLIO_KEY = 'dashboard_portfolio_id';
 const PERIODS: readonly PortfolioPeriod[] = ['1D', '1W', '1M', '1Y', 'ALL'];
-type DashboardAction = 'transaction' | 'asset' | 'portfolio' | null;
+type DashboardAction = 'transaction' | 'asset' | null;
 
 export default function Dashboard({ onSessionInvalid }: DashboardProps) {
   const navigate = useNavigate();
@@ -71,6 +72,7 @@ export default function Dashboard({ onSessionInvalid }: DashboardProps) {
   );
   const [periodPnlLoading, setPeriodPnlLoading] = useState(false);
   const [activeAction, setActiveAction] = useState<DashboardAction>(null);
+  const [isCreatePortfolioOpen, setIsCreatePortfolioOpen] = useState(false);
 
   const numberLocale = locale === 'fr' ? 'fr-FR' : 'en-US';
   const hasPortfolio = !!portfolioId;
@@ -430,8 +432,18 @@ export default function Dashboard({ onSessionInvalid }: DashboardProps) {
   ]);
 
   const handleCreatePortfolio = useCallback(() => {
-    setActiveAction('portfolio');
+    setIsCreatePortfolioOpen(true);
   }, []);
+
+  const handlePortfolioCreated = useCallback((portfolio: PortfolioResponse) => {
+    // Show the new portfolio straight away, then reconcile with the server.
+    setPortfolios((current) =>
+      current.some((item) => item.id === portfolio.id) ? current : [portfolio, ...current],
+    );
+    setPortfolioId(portfolio.id);
+    localStorage.setItem(DASHBOARD_PORTFOLIO_KEY, portfolio.id);
+    loadPortfolios();
+  }, [loadPortfolios]);
 
   const displayName = user?.first_name || user?.email.split('@')[0] || 'User';
   const pnlValue = Number.isFinite(periodPnl.amount) ? periodPnl.amount : 0;
@@ -474,9 +486,7 @@ export default function Dashboard({ onSessionInvalid }: DashboardProps) {
   const activeModalTitle =
     activeAction === 'transaction'
       ? t('dashboard.actions.addTransaction')
-      : activeAction === 'asset'
-        ? t('dashboard.actions.addAsset')
-        : t('dashboard.actions.addPortfolio');
+      : t('dashboard.actions.addAsset');
 
   return (
     <main className="dashboard">
@@ -576,6 +586,13 @@ export default function Dashboard({ onSessionInvalid }: DashboardProps) {
             title={activeModalTitle}
             description={t('dashboard.actions.modalPlaceholder')}
             onClose={() => setActiveAction(null)}
+          />
+
+          <CreatePortfolioModal
+            isOpen={isCreatePortfolioOpen}
+            onClose={() => setIsCreatePortfolioOpen(false)}
+            onCreated={handlePortfolioCreated}
+            onSessionInvalid={onSessionInvalid}
           />
         </>
       )}
