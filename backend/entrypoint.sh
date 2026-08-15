@@ -19,7 +19,7 @@ fi
 # boots (Alembic, then the seed script) in front of every cold start and let
 # concurrent replicas race each other into the same `upgrade head`. Production
 # now runs them once per deploy from the CI pipeline; see
-# .github/workflows/backend-acr.yml.
+# .github/workflows/backend-deploy.yml.
 #
 # Set RUN_MIGRATIONS=1 to restore the old inline behaviour -- docker-compose.dev
 # does this so a local stack still comes up with a migrated, seeded database.

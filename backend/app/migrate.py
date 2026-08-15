@@ -8,7 +8,7 @@ each other into a concurrent ``alembic upgrade head``.
 
 This module does both in a single process, guarded by a PostgreSQL advisory
 lock so only one process migrates at a time. It is intended to be run as a
-deploy step (see ``.github/workflows/backend-acr.yml``) rather than on boot;
+deploy step (see ``.github/workflows/backend-deploy.yml``) rather than on boot;
 ``entrypoint.sh`` will still run it when ``RUN_MIGRATIONS=1`` for local
 development.
 """

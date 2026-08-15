@@ -7,8 +7,8 @@ The Stakr backend is a FastAPI service that powers authentication and stack data
 - DB migrations: **Alembic**
 - Tests: **pytest**
 
-> Note: In this repository, production is split. The backend is deployed as an API.
-> The backend can *also* serve a built frontend when `/app/static/index.html` is present (root Docker image build).
+> Note: production is split. This service is deployed as an API only, to Azure
+> Container Apps. The frontend is a separate Cloudflare Pages deployment.
 
 ---
 
@@ -100,12 +100,8 @@ python -m alembic upgrade head
 
 ## Docker
 
-### Recommended
-
-Use the **root** `Dockerfile` (builds frontend + backend).
-See `../README.md`.
-
-### Backend-only (legacy)
+The image is backend-only. The frontend is deployed to Cloudflare Pages and is
+not part of it.
 
 ```powershell
 cd backend
@@ -114,24 +110,42 @@ docker build -t stakr-backend:local .
 docker run --rm -p 8000:8000 --env-file .env.docker stakr-backend:local
 ```
 
-> The container runs `entrypoint.sh` which runs migrations only when `DATABASE_URL` is set.
+> `entrypoint.sh` starts uvicorn. It applies migrations first only when
+> `RUN_MIGRATIONS=1`; production applies them once per deploy instead, to keep
+> Alembic off the container's cold-start path. Run
+> `docker run ... stakr-backend:local migrate` to apply them and exit.
 
-## CI/CD (automatic ACR push)
+## CI/CD
 
-The GitHub Actions workflow builds and pushes the backend image to ACR when:
-- a commit is pushed/merged to `main`, and
-- something under `backend/` changed (or the root `Dockerfile` changed).
+`.github/workflows/backend-deploy.yml` runs on pushes to `main`/`master` that
+touch `backend/**`, in three dependent jobs:
+
+1. **build** -- builds the image and pushes it to GHCR
+2. **migrate** -- runs Alembic once, as a Container Apps job
+3. **deploy** -- rolls out a new revision, then smoke-tests `/health`
+
+A failed migration stops the deploy, so a new image never serves traffic
+against an old schema.
 
 ### Required GitHub secrets
 
-- `ACR_LOGIN_SERVER` (example: `stakrregistry.azurecr.io`)
-- `ACR_USERNAME`
-- `ACR_PASSWORD`
+| Secret | Purpose |
+| ------ | ------- |
+| `AZURE_CREDENTIALS` | Azure service principal for the CLI |
+| `DATABASE_URL` | Passed to the migration job |
+| `GHCR_PULL_TOKEN` | Classic PAT with `read:packages`, so Azure can pull the private image |
+
+Pushing to GHCR uses the job-scoped `GITHUB_TOKEN`; only the pull side needs a
+stored credential.
 
 ### Image tags published
 
-- `stakr-backend:sha-<full git sha>` (immutable)
-- `stakr-backend:latest`
+`ghcr.io/<owner>/stakr-backend`, tagged:
+
+- `sha-<full git sha>` (immutable, what gets deployed)
+- `v<APP_VERSION>`
+- `latest`
+- `buildcache` (layer cache, not runnable)
 
 ### Database Schema
 

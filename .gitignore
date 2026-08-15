@@ -1,7 +1,9 @@
 # IDE
 .idea/
+.vscode/
 
 # Python
+/venv/*
 .venv/
 .venv-py314/
 __pycache__/
@@ -13,8 +15,11 @@ backend/.env
 backend/.env.docker
 
 # Test/coverage artifacts
-backend/.coverage
-backend/coverage.xml
+# Unanchored, so these match wherever pytest is run from -- the repo root as
+# well as backend/.
+.coverage
+coverage.xml
+htmlcov/
 
 # OS
 .DS_Store

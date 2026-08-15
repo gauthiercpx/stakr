@@ -7,11 +7,13 @@ on:
       - master
     paths:
       - "backend/**"
-      - ".github/workflows/backend-acr.yml"
+      - ".github/workflows/backend-deploy.yml"
   workflow_dispatch:
 
 permissions:
   contents: read
+  # Required to push to GitHub Container Registry with GITHUB_TOKEN.
+  packages: write
 
 # A newer push to the same branch supersedes an in-flight deploy. Without this,
 # two runs can race each other into `containerapp update` and the older image
@@ -21,46 +23,66 @@ concurrency:
   cancel-in-progress: true
 
 env:
+  REGISTRY: ghcr.io
   RESOURCE_GROUP: rg-stakr-prod
   CONTAINER_APP_NAME: stakr-backend
   CONTAINER_ENV: env-stakr
-  IMAGE_NAME: stakr-backend
   MIGRATION_JOB_NAME: stakr-backend-migrate
 
 jobs:
-  # Build and deploy share a single job: the deploy needs no source checkout of
-  # its own, and merging them saves a runner boot plus a second Azure login.
-  deploy:
-    name: Build, migrate and deploy
+  # ---------------------------------------------------------------------
+  # 1) Build
+  # ---------------------------------------------------------------------
+  build:
+    name: Build & push image
     runs-on: ubuntu-latest
+    outputs:
+      image: ${{ steps.meta.outputs.image }}
+      repo: ${{ steps.meta.outputs.repo }}
+      version: ${{ steps.meta.outputs.version }}
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Resolve backend version
-        id: version
+      - name: Resolve image reference and version
+        id: meta
         shell: bash
         run: |
           set -euo pipefail
+
           VERSION=$(sed -n 's/^APP_VERSION[[:space:]]*=[[:space:]]*"\([^"]*\)".*/\1/p' \
             backend/app/core/version.py | head -n 1)
           if [[ -z "$VERSION" ]]; then
             echo "::error file=backend/app/core/version.py::Could not extract APP_VERSION"
             exit 1
           fi
-          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-          echo "Backend version: $VERSION"
+
+          # Registry paths must be lowercase; GitHub owner names need not be.
+          OWNER=$(echo "${GITHUB_REPOSITORY_OWNER}" | tr '[:upper:]' '[:lower:]')
+          REPO="${REGISTRY}/${OWNER}/stakr-backend"
+
+          {
+            echo "version=${VERSION}"
+            echo "repo=${REPO}"
+            echo "image=${REPO}:sha-${GITHUB_SHA}"
+          } >> "$GITHUB_OUTPUT"
+
+          echo "Backend version: ${VERSION}"
+          echo "Image: ${REPO}:sha-${GITHUB_SHA}"
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Log in to Azure Container Registry
+      # Pushing uses the job-scoped GITHUB_TOKEN, which expires with the run.
+      # Only the *pull* side needs a long-lived credential (see GHCR_PULL_TOKEN
+      # in the migrate and deploy jobs).
+      - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
         with:
-          registry: ${{ secrets.AZURE_CONTAINER_REGISTRY }}
-          username: ${{ secrets.REGISTRY_USERNAME }}
-          password: ${{ secrets.REGISTRY_PASSWORD }}
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       # Build context is backend/ only. The frontend is deployed to Cloudflare
       # Pages and is no longer built into this image, so a backend push no
@@ -75,12 +97,40 @@ jobs:
           # Registry-backed layer cache. Ephemeral runners start with a cold
           # Docker cache, so without this every run reinstalls the whole
           # dependency tree.
-          cache-from: type=registry,ref=${{ secrets.AZURE_CONTAINER_REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache
-          cache-to: type=registry,ref=${{ secrets.AZURE_CONTAINER_REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache,mode=max
+          cache-from: type=registry,ref=${{ steps.meta.outputs.repo }}:buildcache
+          cache-to: type=registry,ref=${{ steps.meta.outputs.repo }}:buildcache,mode=max
           tags: |
-            ${{ secrets.AZURE_CONTAINER_REGISTRY }}/${{ env.IMAGE_NAME }}:sha-${{ github.sha }}
-            ${{ secrets.AZURE_CONTAINER_REGISTRY }}/${{ env.IMAGE_NAME }}:v${{ steps.version.outputs.version }}
-            ${{ secrets.AZURE_CONTAINER_REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+            ${{ steps.meta.outputs.repo }}:sha-${{ github.sha }}
+            ${{ steps.meta.outputs.repo }}:v${{ steps.meta.outputs.version }}
+            ${{ steps.meta.outputs.repo }}:latest
+
+  # ---------------------------------------------------------------------
+  # 2) Migrate
+  # ---------------------------------------------------------------------
+  # Migrations run once per deploy, as their own short-lived Container Apps
+  # job, instead of on every container start. This keeps Alembic off the
+  # cold-start path and guarantees the schema is current before the new image
+  # serves traffic. A failure here stops the deploy job from running.
+  migrate:
+    name: Apply database migrations
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check required secrets
+        shell: bash
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          GHCR_PULL_TOKEN: ${{ secrets.GHCR_PULL_TOKEN }}
+        run: |
+          set -euo pipefail
+          MISSING=()
+          [[ -z "${DATABASE_URL}" ]] && MISSING+=("DATABASE_URL")
+          [[ -z "${GHCR_PULL_TOKEN}" ]] && MISSING+=("GHCR_PULL_TOKEN")
+          if (( ${#MISSING[@]} )); then
+            echo "::error::Missing repository secret(s): ${MISSING[*]}"
+            exit 1
+          fi
 
       - name: Log in to Azure
         uses: azure/login@v2
@@ -97,21 +147,15 @@ jobs:
             az extension add --name containerapp --yes --only-show-errors
           fi
 
-      # Migrations run once per deploy, as their own short-lived job, instead of
-      # on every container start. This keeps Alembic off the cold-start path and
-      # guarantees the schema is current before the new image serves traffic.
-      - name: Apply database migrations
+      - name: Run migration job
         shell: bash
         env:
-          IMAGE: ${{ secrets.AZURE_CONTAINER_REGISTRY }}/${{ env.IMAGE_NAME }}:sha-${{ github.sha }}
+          IMAGE: ${{ needs.build.outputs.image }}
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          GHCR_USERNAME: ${{ github.repository_owner }}
+          GHCR_PULL_TOKEN: ${{ secrets.GHCR_PULL_TOKEN }}
         run: |
           set -euo pipefail
-
-          if [[ -z "${DATABASE_URL}" ]]; then
-            echo "::error::Missing repository secret DATABASE_URL (required to run migrations)."
-            exit 1
-          fi
 
           COMMON_ARGS=(
             --name "${MIGRATION_JOB_NAME}"
@@ -124,9 +168,10 @@ jobs:
             --args "migrate"
             --secrets "database-url=${DATABASE_URL}"
             --env-vars "DATABASE_URL=secretref:database-url"
-            --registry-server "${{ secrets.AZURE_CONTAINER_REGISTRY }}"
-            --registry-username "${{ secrets.REGISTRY_USERNAME }}"
-            --registry-password "${{ secrets.REGISTRY_PASSWORD }}"
+            # The package is private, so the job needs credentials to pull it.
+            --registry-server "${REGISTRY}"
+            --registry-username "${GHCR_USERNAME}"
+            --registry-password "${GHCR_PULL_TOKEN}"
             --only-show-errors
           )
 
@@ -170,21 +215,47 @@ jobs:
           echo "::error::Migration job ${EXECUTION} did not finish within 10 minutes."
           exit 1
 
+  # ---------------------------------------------------------------------
+  # 3) Deploy
+  # ---------------------------------------------------------------------
+  deploy:
+    name: Deploy revision
+    needs: [build, migrate]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Log in to Azure
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Ensure containerapp CLI extension
+        shell: bash
+        run: |
+          set -euo pipefail
+          if ! az extension show --name containerapp --only-show-errors >/dev/null 2>&1; then
+            az extension add --name containerapp --yes --only-show-errors
+          fi
+
       - name: Deploy new revision
         id: deploy
         shell: bash
         env:
-          IMAGE: ${{ secrets.AZURE_CONTAINER_REGISTRY }}/${{ env.IMAGE_NAME }}:sha-${{ github.sha }}
+          IMAGE: ${{ needs.build.outputs.image }}
+          GHCR_USERNAME: ${{ github.repository_owner }}
+          GHCR_PULL_TOKEN: ${{ secrets.GHCR_PULL_TOKEN }}
         run: |
           set -euo pipefail
           echo "Deploying image: ${IMAGE}"
 
+          # The package is private, so the app needs stored credentials to pull
+          # it on every scale-from-zero, not just at deploy time.
           az containerapp registry set \
             --name "${CONTAINER_APP_NAME}" \
             --resource-group "${RESOURCE_GROUP}" \
-            --server "${{ secrets.AZURE_CONTAINER_REGISTRY }}" \
-            --username "${{ secrets.REGISTRY_USERNAME }}" \
-            --password "${{ secrets.REGISTRY_PASSWORD }}" \
+            --server "${REGISTRY}" \
+            --username "${GHCR_USERNAME}" \
+            --password "${GHCR_PULL_TOKEN}" \
             --only-show-errors
 
           # A revision suffix makes it possible to tell at a glance which commit
@@ -229,7 +300,7 @@ jobs:
           {
             echo "## Backend deploy"
             echo ""
-            echo "- **Version:** ${{ steps.version.outputs.version }}"
-            echo "- **Image tag:** sha-${{ github.sha }}"
+            echo "- **Version:** ${{ needs.build.outputs.version }}"
+            echo "- **Image:** \`${{ needs.build.outputs.image }}\`"
             echo "- **URL:** https://${{ steps.deploy.outputs.fqdn }}"
           } >> "$GITHUB_STEP_SUMMARY"
