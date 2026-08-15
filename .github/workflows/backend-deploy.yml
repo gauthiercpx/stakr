@@ -7,11 +7,13 @@ on:
       - master
     paths:
       - "backend/**"
-      - ".github/workflows/backend-acr.yml"
+      - ".github/workflows/backend-deploy.yml"
   workflow_dispatch:
 
 permissions:
   contents: read
+  # Required to push to GitHub Container Registry with GITHUB_TOKEN.
+  packages: write
 
 # A newer push to the same branch supersedes an in-flight deploy. Without this,
 # two runs can race each other into `containerapp update` and the older image
@@ -21,10 +23,10 @@ concurrency:
   cancel-in-progress: true
 
 env:
+  REGISTRY: ghcr.io
   RESOURCE_GROUP: rg-stakr-prod
   CONTAINER_APP_NAME: stakr-backend
   CONTAINER_ENV: env-stakr
-  IMAGE_NAME: stakr-backend
   MIGRATION_JOB_NAME: stakr-backend-migrate
 
 jobs:
@@ -38,29 +40,43 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Resolve backend version
-        id: version
+      - name: Resolve image reference and version
+        id: meta
         shell: bash
         run: |
           set -euo pipefail
+
           VERSION=$(sed -n 's/^APP_VERSION[[:space:]]*=[[:space:]]*"\([^"]*\)".*/\1/p' \
             backend/app/core/version.py | head -n 1)
           if [[ -z "$VERSION" ]]; then
             echo "::error file=backend/app/core/version.py::Could not extract APP_VERSION"
             exit 1
           fi
-          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-          echo "Backend version: $VERSION"
+
+          # Registry paths must be lowercase; GitHub owner names need not be.
+          OWNER=$(echo "${GITHUB_REPOSITORY_OWNER}" | tr '[:upper:]' '[:lower:]')
+          REPO="${REGISTRY}/${OWNER}/stakr-backend"
+
+          {
+            echo "version=${VERSION}"
+            echo "repo=${REPO}"
+            echo "image=${REPO}:sha-${GITHUB_SHA}"
+          } >> "$GITHUB_OUTPUT"
+
+          echo "Backend version: ${VERSION}"
+          echo "Image: ${REPO}:sha-${GITHUB_SHA}"
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Log in to Azure Container Registry
+      # GITHUB_TOKEN is scoped to this repository and expires with the job, so
+      # no long-lived registry credentials are stored anywhere.
+      - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
         with:
-          registry: ${{ secrets.AZURE_CONTAINER_REGISTRY }}
-          username: ${{ secrets.REGISTRY_USERNAME }}
-          password: ${{ secrets.REGISTRY_PASSWORD }}
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       # Build context is backend/ only. The frontend is deployed to Cloudflare
       # Pages and is no longer built into this image, so a backend push no
@@ -75,12 +91,12 @@ jobs:
           # Registry-backed layer cache. Ephemeral runners start with a cold
           # Docker cache, so without this every run reinstalls the whole
           # dependency tree.
-          cache-from: type=registry,ref=${{ secrets.AZURE_CONTAINER_REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache
-          cache-to: type=registry,ref=${{ secrets.AZURE_CONTAINER_REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache,mode=max
+          cache-from: type=registry,ref=${{ steps.meta.outputs.repo }}:buildcache
+          cache-to: type=registry,ref=${{ steps.meta.outputs.repo }}:buildcache,mode=max
           tags: |
-            ${{ secrets.AZURE_CONTAINER_REGISTRY }}/${{ env.IMAGE_NAME }}:sha-${{ github.sha }}
-            ${{ secrets.AZURE_CONTAINER_REGISTRY }}/${{ env.IMAGE_NAME }}:v${{ steps.version.outputs.version }}
-            ${{ secrets.AZURE_CONTAINER_REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+            ${{ steps.meta.outputs.repo }}:sha-${{ github.sha }}
+            ${{ steps.meta.outputs.repo }}:v${{ steps.meta.outputs.version }}
+            ${{ steps.meta.outputs.repo }}:latest
 
       - name: Log in to Azure
         uses: azure/login@v2
@@ -100,10 +116,13 @@ jobs:
       # Migrations run once per deploy, as their own short-lived job, instead of
       # on every container start. This keeps Alembic off the cold-start path and
       # guarantees the schema is current before the new image serves traffic.
+      #
+      # The package is public, so neither this job nor the app needs registry
+      # credentials to pull it.
       - name: Apply database migrations
         shell: bash
         env:
-          IMAGE: ${{ secrets.AZURE_CONTAINER_REGISTRY }}/${{ env.IMAGE_NAME }}:sha-${{ github.sha }}
+          IMAGE: ${{ steps.meta.outputs.image }}
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
           set -euo pipefail
@@ -124,9 +143,6 @@ jobs:
             --args "migrate"
             --secrets "database-url=${DATABASE_URL}"
             --env-vars "DATABASE_URL=secretref:database-url"
-            --registry-server "${{ secrets.AZURE_CONTAINER_REGISTRY }}"
-            --registry-username "${{ secrets.REGISTRY_USERNAME }}"
-            --registry-password "${{ secrets.REGISTRY_PASSWORD }}"
             --only-show-errors
           )
 
@@ -174,18 +190,10 @@ jobs:
         id: deploy
         shell: bash
         env:
-          IMAGE: ${{ secrets.AZURE_CONTAINER_REGISTRY }}/${{ env.IMAGE_NAME }}:sha-${{ github.sha }}
+          IMAGE: ${{ steps.meta.outputs.image }}
         run: |
           set -euo pipefail
           echo "Deploying image: ${IMAGE}"
-
-          az containerapp registry set \
-            --name "${CONTAINER_APP_NAME}" \
-            --resource-group "${RESOURCE_GROUP}" \
-            --server "${{ secrets.AZURE_CONTAINER_REGISTRY }}" \
-            --username "${{ secrets.REGISTRY_USERNAME }}" \
-            --password "${{ secrets.REGISTRY_PASSWORD }}" \
-            --only-show-errors
 
           # A revision suffix makes it possible to tell at a glance which commit
           # a running revision came from.
@@ -229,7 +237,7 @@ jobs:
           {
             echo "## Backend deploy"
             echo ""
-            echo "- **Version:** ${{ steps.version.outputs.version }}"
-            echo "- **Image tag:** sha-${{ github.sha }}"
+            echo "- **Version:** ${{ steps.meta.outputs.version }}"
+            echo "- **Image:** \`${{ steps.meta.outputs.image }}\`"
             echo "- **URL:** https://${{ steps.deploy.outputs.fqdn }}"
           } >> "$GITHUB_STEP_SUMMARY"
