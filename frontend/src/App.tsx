@@ -154,7 +154,10 @@ function App() {
                 <PageTransition transitionKey={transitionKey}>
                     <Routes location={routesLocation as Location}>
                         <Route path="/" element={
-                            isAuthenticated ? <Navigate to="/dashboard" replace/> :
+                            // While a modal route is open this renders the page *behind* it.
+                            // Redirecting here on auth would race with the post-login
+                            // navigation and strand the modal mid-exit.
+                            isAuthenticated && !backgroundLocation ? <Navigate to="/dashboard" replace/> :
                                 <LandingPage
                                     onLoginRequested={() => navigate('/login', {state: {backgroundLocation: location}})}
                                     onSignupRequested={() => navigate('/signup', {state: {backgroundLocation: location}})}
@@ -187,12 +190,19 @@ function App() {
                 </PageTransition>
             </AppLayout>
 
-            <AnimatePresence>
+            {/* Keyed on the auth state: signing in swaps the whole page behind the modal,
+                and an exit animation running across that swap never completes — it left an
+                invisible overlay covering the dashboard and the scroll lock stuck on.
+                Remounting the presence group drops the modal immediately on auth, while
+                the ordinary close path keeps its animation. */}
+            <AnimatePresence key={isAuthenticated ? 'authenticated' : 'anonymous'}>
                 {backgroundLocation && !isAuthenticated && (
                     <Modal
                         key="modal-stable-container"
                         isOpen
-                        onRequestClose={() => navigate(backgroundLocation.pathname)}
+                        // `replace` so closing unwinds the modal entry instead of
+                        // stacking a new one — otherwise Back re-opens the modal.
+                        onRequestClose={() => navigate(backgroundLocation as Location, {replace: true})}
                         size={activeModalSize}
                     >
                         <AnimatePresence
