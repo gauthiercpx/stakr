@@ -1,3 +1,5 @@
+import FadeText from '../../../components/FadeText';
+
 type Props = {
   name: string;
   value: string;
@@ -59,7 +61,7 @@ export function SignupPasswordField({
         disabled={disabled}
         className="stakr-passwordToggle"
       >
-        {toggleLabel}
+        <FadeText>{toggleLabel}</FadeText>
       </button>
     </div>
   );

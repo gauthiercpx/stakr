@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
+import FadeText from '../../../components/FadeText';
 
 interface PortfolioOption {
   id: string;
@@ -49,7 +50,7 @@ export default function PortfolioSelect({ options, value, onChange }: PortfolioS
         aria-haspopup="listbox"
         aria-expanded={open}
       >
-        <span className="portfolio-select__value">{selected?.name ?? '—'}</span>
+        <FadeText as="span" className="portfolio-select__value">{selected?.name ?? '—'}</FadeText>
         <svg
           className={`portfolio-select__chevron${open ? ' is-open' : ''}`}
           width="12"

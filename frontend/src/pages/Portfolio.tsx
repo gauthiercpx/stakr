@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import NeonButton from '../components/NeonButton';
+import FadeText from '../components/FadeText';
 import {
   getPortfolioPositions,
   getPortfolioSummary,
@@ -82,40 +83,43 @@ export default function PortfolioPage({ onSessionInvalid }: PortfolioPageProps) 
   return (
     <main className="portfolio-page">
       <div className="portfolio-page__header">
-        <h1 className="portfolio-page__title">{title}</h1>
+        <h1 className="portfolio-page__title"><FadeText>{title}</FadeText></h1>
         <NeonButton
-          label={t('portfolioPage.backToDashboard')}
+          label={<FadeText>{t('portfolioPage.backToDashboard')}</FadeText>}
           onClick={() => navigate('/dashboard')}
           variant="solid"
           style={{ backgroundColor: '#000', color: '#bff104' }}
         />
       </div>
 
-      {loading && <p className="portfolio-page__state">{t('common.loading')}</p>}
-      {error && <p className="portfolio-page__state is-error">{error}</p>}
+      {loading && <p className="portfolio-page__state"><FadeText>{t('common.loading')}</FadeText></p>}
+      {error && <p className="portfolio-page__state is-error"><FadeText>{error}</FadeText></p>}
 
       {!loading && !error && summary && (
         <section className="portfolio-page__kpis">
           <article className="portfolio-page__kpiCard">
-            <div className="portfolio-page__kpiLabel">{t('dashboard.portfolio.kpi.totalValue')}</div>
-            <div className="portfolio-page__kpiValue">{formatCurrency(summary.total_value)}</div>
+            <div className="portfolio-page__kpiLabel"><FadeText>{t('dashboard.portfolio.kpi.totalValue')}</FadeText></div>
+            <FadeText as="div" className="portfolio-page__kpiValue">{formatCurrency(summary.total_value)}</FadeText>
           </article>
           <article className="portfolio-page__kpiCard">
-            <div className="portfolio-page__kpiLabel">{t('dashboard.portfolio.kpi.totalInvested')}</div>
-            <div className="portfolio-page__kpiValue">{formatCurrency(summary.total_invested)}</div>
+            <div className="portfolio-page__kpiLabel"><FadeText>{t('dashboard.portfolio.kpi.totalInvested')}</FadeText></div>
+            <FadeText as="div" className="portfolio-page__kpiValue">{formatCurrency(summary.total_invested)}</FadeText>
           </article>
           <article className="portfolio-page__kpiCard">
-            <div className="portfolio-page__kpiLabel">{t('dashboard.portfolio.kpi.pnl')}</div>
-            <div className={`portfolio-page__kpiValue ${Number(summary.global_pnl) >= 0 ? 'portfolio-page__pnlPositive' : 'portfolio-page__pnlNegative'}`}>
+            <div className="portfolio-page__kpiLabel"><FadeText>{t('dashboard.portfolio.kpi.pnl')}</FadeText></div>
+            <FadeText
+              as="div"
+              className={`portfolio-page__kpiValue ${Number(summary.global_pnl) >= 0 ? 'portfolio-page__pnlPositive' : 'portfolio-page__pnlNegative'}`}
+            >
               {formatCurrency(summary.global_pnl)}{' '}
               <span style={{ fontSize: '0.85em', fontWeight: 700 }}>
                 ({formatNumber(summary.global_pnl_percent)}%)
               </span>
-            </div>
+            </FadeText>
           </article>
           <article className="portfolio-page__kpiCard">
-            <div className="portfolio-page__kpiLabel">{t('dashboard.portfolio.dividends')}</div>
-            <div className="portfolio-page__kpiValue">{formatCurrency(summary.total_dividends_received)}</div>
+            <div className="portfolio-page__kpiLabel"><FadeText>{t('dashboard.portfolio.dividends')}</FadeText></div>
+            <FadeText as="div" className="portfolio-page__kpiValue">{formatCurrency(summary.total_dividends_received)}</FadeText>
           </article>
         </section>
       )}
@@ -128,13 +132,13 @@ export default function PortfolioPage({ onSessionInvalid }: PortfolioPageProps) 
               <table className="portfolio-page__table">
                 <thead>
                   <tr>
-                    <th>{t('portfolioPage.table.asset')}</th>
-                    <th className="is-right">{t('portfolioPage.table.quantity')}</th>
-                    <th className="is-right">{t('portfolioPage.table.avgPrice')}</th>
-                    <th className="is-right">{t('portfolioPage.table.currentPrice')}</th>
-                    <th className="is-right">{t('portfolioPage.table.value')}</th>
+                    <th><FadeText>{t('portfolioPage.table.asset')}</FadeText></th>
+                    <th className="is-right"><FadeText>{t('portfolioPage.table.quantity')}</FadeText></th>
+                    <th className="is-right"><FadeText>{t('portfolioPage.table.avgPrice')}</FadeText></th>
+                    <th className="is-right"><FadeText>{t('portfolioPage.table.currentPrice')}</FadeText></th>
+                    <th className="is-right"><FadeText>{t('portfolioPage.table.value')}</FadeText></th>
                     <th className="is-right">PnL</th>
-                    <th className="is-right">{t('portfolioPage.table.dividends')}</th>
+                    <th className="is-right"><FadeText>{t('portfolioPage.table.dividends')}</FadeText></th>
                   </tr>
                 </thead>
                 <tbody>
@@ -149,17 +153,19 @@ export default function PortfolioPage({ onSessionInvalid }: PortfolioPageProps) 
                     return (
                       <tr key={position.id}>
                         <td>
-                          <div className="portfolio-page__assetName">{position.asset_name}</div>
-                          <div className="portfolio-page__assetTicker">{position.asset_ticker}</div>
+                          <FadeText as="div" className="portfolio-page__assetName">{position.asset_name}</FadeText>
+                          <FadeText as="div" className="portfolio-page__assetTicker">{position.asset_ticker}</FadeText>
                         </td>
-                        <td className="is-right">{formatNumber(position.quantity)}</td>
-                        <td className="is-right">{formatCurrency(position.average_buy_price)}</td>
-                        <td className="is-right">{formatCurrency(position.current_price)}</td>
-                        <td className="is-right">{formatCurrency(value)}</td>
-                        <td className={`is-right ${isPositive ? 'portfolio-page__pnlPositive' : 'portfolio-page__pnlNegative'}`}>
-                          {isPositive ? '+' : ''}{formatCurrency(pnl)}
+                        <td className="is-right"><FadeText>{formatNumber(position.quantity)}</FadeText></td>
+                        <td className="is-right"><FadeText>{formatCurrency(position.average_buy_price)}</FadeText></td>
+                        <td className="is-right"><FadeText>{formatCurrency(position.current_price)}</FadeText></td>
+                        <td className="is-right"><FadeText>{formatCurrency(value)}</FadeText></td>
+                        <td
+                          className={`is-right ${isPositive ? 'portfolio-page__pnlPositive' : 'portfolio-page__pnlNegative'}`}
+                        >
+                          <FadeText>{isPositive ? '+' : ''}{formatCurrency(pnl)}</FadeText>
                         </td>
-                        <td className="is-right">{formatCurrency(position.dividends_received)}</td>
+                        <td className="is-right"><FadeText>{formatCurrency(position.dividends_received)}</FadeText></td>
                       </tr>
                     );
                   })}
@@ -167,14 +173,14 @@ export default function PortfolioPage({ onSessionInvalid }: PortfolioPageProps) 
               </table>
             </div>
             {!positions.length && (
-              <p className="portfolio-page__empty">{t('portfolioPage.empty')}</p>
+              <p className="portfolio-page__empty"><FadeText>{t('portfolioPage.empty')}</FadeText></p>
             )}
           </section>
 
           {/* Cards — mobile */}
           <div className="portfolio-page__positionCards">
             {!positions.length && (
-              <p className="portfolio-page__state">{t('portfolioPage.empty')}</p>
+              <p className="portfolio-page__state"><FadeText>{t('portfolioPage.empty')}</FadeText></p>
             )}
             {positions.map((position) => {
               const qty = Number(position.quantity);
@@ -188,34 +194,34 @@ export default function PortfolioPage({ onSessionInvalid }: PortfolioPageProps) 
                 <article key={position.id} className="portfolio-page__positionCard">
                   <div className="portfolio-page__positionCardHeader">
                     <div className="portfolio-page__positionCardTitle">
-                      <div className="portfolio-page__assetName">{position.asset_name}</div>
-                      <div className="portfolio-page__assetTicker">{position.asset_ticker}</div>
+                      <FadeText as="div" className="portfolio-page__assetName">{position.asset_name}</FadeText>
+                      <FadeText as="div" className="portfolio-page__assetTicker">{position.asset_ticker}</FadeText>
                     </div>
-                    <div className={`portfolio-page__positionCardPnl ${isPositive ? 'portfolio-page__pnlPositive' : 'portfolio-page__pnlNegative'}`}>
+                    <FadeText as="div" className={`portfolio-page__positionCardPnl ${isPositive ? 'portfolio-page__pnlPositive' : 'portfolio-page__pnlNegative'}`}>
                       {isPositive ? '+' : ''}{formatCurrency(pnl)}
-                    </div>
+                    </FadeText>
                   </div>
 
                   <div className="portfolio-page__positionCardGrid">
                     <div className="portfolio-page__positionCardStat">
-                      <div className="portfolio-page__positionCardStatLabel">{t('portfolioPage.table.quantity')}</div>
-                      <div className="portfolio-page__positionCardStatValue">{formatNumber(position.quantity)}</div>
+                      <div className="portfolio-page__positionCardStatLabel"><FadeText>{t('portfolioPage.table.quantity')}</FadeText></div>
+                      <FadeText as="div" className="portfolio-page__positionCardStatValue">{formatNumber(position.quantity)}</FadeText>
                     </div>
                     <div className="portfolio-page__positionCardStat">
-                      <div className="portfolio-page__positionCardStatLabel">{t('portfolioPage.table.value')}</div>
-                      <div className="portfolio-page__positionCardStatValue">{formatCurrency(value)}</div>
+                      <div className="portfolio-page__positionCardStatLabel"><FadeText>{t('portfolioPage.table.value')}</FadeText></div>
+                      <FadeText as="div" className="portfolio-page__positionCardStatValue">{formatCurrency(value)}</FadeText>
                     </div>
                     <div className="portfolio-page__positionCardStat">
-                      <div className="portfolio-page__positionCardStatLabel">{t('portfolioPage.table.avgPrice')}</div>
-                      <div className="portfolio-page__positionCardStatValue">{formatCurrency(position.average_buy_price)}</div>
+                      <div className="portfolio-page__positionCardStatLabel"><FadeText>{t('portfolioPage.table.avgPrice')}</FadeText></div>
+                      <FadeText as="div" className="portfolio-page__positionCardStatValue">{formatCurrency(position.average_buy_price)}</FadeText>
                     </div>
                     <div className="portfolio-page__positionCardStat">
-                      <div className="portfolio-page__positionCardStatLabel">{t('portfolioPage.table.currentPrice')}</div>
-                      <div className="portfolio-page__positionCardStatValue">{formatCurrency(position.current_price)}</div>
+                      <div className="portfolio-page__positionCardStatLabel"><FadeText>{t('portfolioPage.table.currentPrice')}</FadeText></div>
+                      <FadeText as="div" className="portfolio-page__positionCardStatValue">{formatCurrency(position.current_price)}</FadeText>
                     </div>
                     <div className="portfolio-page__positionCardStat">
-                      <div className="portfolio-page__positionCardStatLabel">{t('portfolioPage.table.dividends')}</div>
-                      <div className="portfolio-page__positionCardStatValue">{formatCurrency(position.dividends_received)}</div>
+                      <div className="portfolio-page__positionCardStatLabel"><FadeText>{t('portfolioPage.table.dividends')}</FadeText></div>
+                      <FadeText as="div" className="portfolio-page__positionCardStatValue">{formatCurrency(position.dividends_received)}</FadeText>
                     </div>
                   </div>
                 </article>

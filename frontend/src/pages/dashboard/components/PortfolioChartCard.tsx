@@ -13,6 +13,7 @@ import {
   type PositionResponse,
 } from '../../../api/portfolio';
 import type { PortfolioPeriod } from './PortfolioSummaryCard';
+import FadeText from '../../../components/FadeText';
 
 interface ChartPoint {
   ts: number;
@@ -230,18 +231,18 @@ export default function PortfolioChartCard({
 
   return (
     <section className="dashboard-card charts">
-      <h2 className="dashboard-card__title">{title}</h2>
+      <h2 className="dashboard-card__title"><FadeText>{title}</FadeText></h2>
 
       <div className="charts__body">
         {!portfolioId && (
           <div className="charts__state">
-            <span>{emptyText}</span>
+            <FadeText as="span">{emptyText}</FadeText>
           </div>
         )}
 
         {portfolioId && data.length === 0 && !isLoading && (
           <div className="charts__state">
-            <span>{noDataText}</span>
+            <FadeText as="span">{noDataText}</FadeText>
           </div>
         )}
 
@@ -314,7 +315,7 @@ export default function PortfolioChartCard({
 
       {portfolioId && (
         <div className="portfolio__periodRow" style={{ marginTop: '0.9rem' }}>
-          <span className="portfolio__periodLabel">{periodLabel}</span>
+          <FadeText as="span" className="portfolio__periodLabel">{periodLabel}</FadeText>
           <div className="portfolio__periodButtons" role="tablist" aria-label={periodLabel}>
             {periods.map((period) => (
               <button

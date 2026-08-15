@@ -1,4 +1,5 @@
 import NeonButton from '../components/NeonButton';
+import FadeText from '../components/FadeText';
 import {useI18n} from '../i18n/useI18n';
 import {useNavigate} from 'react-router-dom';
 
@@ -46,16 +47,16 @@ export default function NotFound() {
           </div>
 
           <h1 style={{margin: 0, fontSize: '1.6rem', color: '#000'}}>
-            {t('notFound.title')}
+            <FadeText>{t('notFound.title')}</FadeText>
           </h1>
 
           <p style={{margin: '0.9rem auto 1.75rem', color: '#666', maxWidth: '32rem'}}>
-            {t('notFound.subtitle')}
+            <FadeText>{t('notFound.subtitle')}</FadeText>
           </p>
 
           <div style={{display: 'flex', justifyContent: 'center', gap: '0.75rem', flexWrap: 'wrap'}}>
             <NeonButton
-              label={t('notFound.goHome')}
+              label={<FadeText>{t('notFound.goHome')}</FadeText>}
               onClick={() => navigate('/')}
               variant="solid"
               style={{
@@ -66,7 +67,7 @@ export default function NotFound() {
             />
 
             <NeonButton
-              label={t('notFound.goBack')}
+              label={<FadeText>{t('notFound.goBack')}</FadeText>}
               onClick={() => navigate(-1)}
               variant="outline"
               style={{minWidth: 'clamp(10rem, 45vw, 12rem)'}}

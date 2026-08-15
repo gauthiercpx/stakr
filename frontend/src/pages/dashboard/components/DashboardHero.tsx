@@ -1,3 +1,5 @@
+import FadeText from '../../../components/FadeText';
+
 interface DashboardHeroProps {
   greeting: string;
   subtitle: string;
@@ -18,11 +20,11 @@ export default function DashboardHero({
   return (
     <section className="dashboard-hero">
       <h1 className="dashboard-hero__title">
-        {greeting} <span className="dashboard-hero__name">{displayName}</span> 👋
+        <FadeText>{greeting}</FadeText> <FadeText as="span" className="dashboard-hero__name">{displayName}</FadeText> 👋
       </h1>
-      <p className="dashboard-hero__subtitle">{subtitle}</p>
+      <p className="dashboard-hero__subtitle"><FadeText>{subtitle}</FadeText></p>
       <div className={`dashboard-hero__status ${isActive ? 'is-active' : 'is-inactive'}`}>
-        {isActive ? activeLabel : inactiveLabel}
+        <FadeText>{isActive ? activeLabel : inactiveLabel}</FadeText>
       </div>
     </section>
   );

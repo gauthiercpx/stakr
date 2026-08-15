@@ -3,6 +3,7 @@ import AppNavbar from '../components/AppNavbar';
 import Footer from '../components/Footer';
 import NeonButton from '../components/NeonButton';
 import LanguageToggle from '../components/LanguageToggle';
+import FadeText from '../components/FadeText';
 import {useI18n} from '../i18n/useI18n';
 
 interface AppLayoutProps {
@@ -28,24 +29,24 @@ export default function AppLayout({
         <>
             <LanguageToggle/>
             <NeonButton
-                label={t('nav.logout')}
+                label={<FadeText>{t('nav.logout')}</FadeText>}
                 onClick={onLogout}
                 variant="outline"
-                style={{minWidth: '10 rem'}}
+                style={{minWidth: '10rem'}}
             />
         </>
     ) : (
         <>
             <LanguageToggle/>
             <NeonButton
-                label={t('nav.signup')}
+                label={<FadeText>{t('nav.signup')}</FadeText>}
                 onClick={onSignupRequested}
                 title={t('landing.cta.signup')}
                 variant="outline"
                 style={{minWidth: '10rem'}}
             />
             <NeonButton
-                label={t('nav.login')}
+                label={<FadeText>{t('nav.login')}</FadeText>}
                 onClick={onLoginRequested}
                 variant="outline"
                 style={{minWidth: '10rem'}}
@@ -58,7 +59,7 @@ export default function AppLayout({
             <>
                 {/* Pour fermer le menu, on garde une petite fonction fléchée, c'est ok */}
                 <NeonButton
-                    label={t('nav.logout')}
+                    label={<FadeText>{t('nav.logout')}</FadeText>}
                     onClick={() => {
                         onLogout();
                         closeMenu();
@@ -71,7 +72,7 @@ export default function AppLayout({
         ) : (
             <>
                 <NeonButton
-                    label={t('nav.signup')}
+                    label={<FadeText>{t('nav.signup')}</FadeText>}
                     onClick={() => {
                         onSignupRequested();
                         closeMenu();
@@ -80,7 +81,7 @@ export default function AppLayout({
                     style={{width: '100%'}}
                 />
                 <NeonButton
-                    label={t('nav.login')}
+                    label={<FadeText>{t('nav.login')}</FadeText>}
                     onClick={() => {
                         onLoginRequested();
                         closeMenu();

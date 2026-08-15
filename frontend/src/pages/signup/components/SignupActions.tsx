@@ -1,4 +1,5 @@
 import type { TFunction } from '../../../i18n/types';
+import FadeText from '../../../components/FadeText';
 
 type Props = {
   t: TFunction;
@@ -31,7 +32,7 @@ export function SignupActions({ t, isDisabled, isLoading}: Props) {
           width: '100%',
         }}
       >
-        {isLoading ? t('signup.submit.loading') : t('signup.submit')}
+        <FadeText>{isLoading ? t('signup.submit.loading') : t('signup.submit')}</FadeText>
       </button>
 
 

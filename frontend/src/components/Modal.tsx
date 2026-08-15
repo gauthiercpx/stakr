@@ -4,6 +4,7 @@ import type {Variants} from 'framer-motion';
 import {createPortal} from 'react-dom';
 import NeonButton from './NeonButton';
 import LanguageToggle from './LanguageToggle.tsx';
+import FadeText from './FadeText';
 
 export interface ModalProps {
     isOpen: boolean;
@@ -238,10 +239,13 @@ export default function Modal({
                     flexDirection: 'column'
                 }}
             >
-                <div style={{position: 'absolute', top: '1rem', left: '1rem', zIndex: 10}}>
+                <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    padding: '1rem 1rem 0 1rem'
+                }}>
                     <LanguageToggle mode="modal"/>
-                </div>
-                <div style={{position: 'absolute', top: '1rem', right: '1rem', zIndex: 10}}>
                     <NeonButton
                         onClick={onRequestClose}
                         variant="outline"
@@ -269,14 +273,14 @@ export default function Modal({
                 </div>
 
                 {title && (
-                    <div style={{padding: '2rem 2rem 0.5rem 2rem'}}>
+                    <div style={{padding: '0.75rem 2rem 0.5rem 2rem'}}>
                         <h2 id={titleId} style={{margin: 0, fontSize: '1.5rem', fontWeight: 800}}>
-                            {title}
+                            <FadeText>{title}</FadeText>
                         </h2>
                     </div>
                 )}
 
-                <div style={{padding: '2rem'}}>
+                <div style={{padding: '0 2rem 2rem 2rem'}}>
                     {children}
                 </div>
 

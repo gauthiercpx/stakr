@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { useI18n } from '../i18n/useI18n';
 import { useEffect, useState } from 'react';
 import { api } from '../api/client';
+import FadeText from './FadeText';
 
 // Vite lets us import JSON in TS projects.
 import pkg from '../../package.json';
@@ -52,10 +53,10 @@ export default function Footer() {
       </div>
       <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
         <Link to="/about" style={{ color: '#333', textDecoration: 'none', fontWeight: 700 }}>
-          {t('nav.about')}
+          <FadeText>{t('nav.about')}</FadeText>
         </Link>
         <a href="/privacy" style={{ color: '#666', textDecoration: 'none' }}>
-          {t('common.comingSoon')}
+          <FadeText>{t('common.comingSoon')}</FadeText>
         </a>
       </div>
     </footer>
