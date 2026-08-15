@@ -1,6 +1,18 @@
 #!/usr/bin/env sh
 set -eu
 
+# `entrypoint.sh migrate` applies migrations and exits. The deploy pipeline's
+# Container Apps job runs the image this way.
+#
+# It is a subcommand rather than a container command override because the az
+# CLI parses any value starting with a dash as one of its own options, so
+# `--command "python" "-m" "app.migrate"` fails with
+# `unrecognized arguments: -m app.migrate`. Keeping the word dash-free sidesteps
+# the whole quoting problem.
+if [ "${1:-}" = "migrate" ]; then
+  exec python -m app.migrate
+fi
+
 # Migrations are a deploy-time concern, not a boot-time one.
 #
 # They used to run on every container start, which put two extra interpreter
