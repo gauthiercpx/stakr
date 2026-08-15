@@ -157,34 +157,59 @@ jobs:
         run: |
           set -euo pipefail
 
-          COMMON_ARGS=(
-            --name "${MIGRATION_JOB_NAME}"
-            --resource-group "${RESOURCE_GROUP}"
-            --image "${IMAGE}"
-            # The image entrypoint takes `migrate` as a subcommand. Passing
-            # `--command python -m app.migrate` instead makes the az CLI treat
-            # `-m` as one of its own options and fail with
-            # "unrecognized arguments".
-            --args "migrate"
-            --secrets "database-url=${DATABASE_URL}"
-            --env-vars "DATABASE_URL=secretref:database-url"
-            # The package is private, so the job needs credentials to pull it.
-            --registry-server "${REGISTRY}"
-            --registry-username "${GHCR_USERNAME}"
-            --registry-password "${GHCR_PULL_TOKEN}"
-            --only-show-errors
-          )
-
+          # `az containerapp job create` and `... job update` do NOT accept the
+          # same flags. update has no --secrets, --env-vars or --registry-*
+          # (it fails with "unrecognized arguments"); secrets and registry
+          # credentials are configured through their own subcommands, and env
+          # vars are --set-env-vars rather than --env-vars. So the two paths
+          # cannot share an argument list.
+          #
+          # Note --args "migrate": the image entrypoint takes it as a
+          # subcommand. Passing `--command python -m app.migrate` instead makes
+          # the az CLI treat `-m` as one of its own options and fail.
           if az containerapp job show --name "${MIGRATION_JOB_NAME}" \
               --resource-group "${RESOURCE_GROUP}" --only-show-errors >/dev/null 2>&1; then
-            az containerapp job update "${COMMON_ARGS[@]}"
+
+            # Refresh the credentials in place, so a rotated database password
+            # or PAT takes effect without recreating the job.
+            az containerapp job secret set \
+              --name "${MIGRATION_JOB_NAME}" \
+              --resource-group "${RESOURCE_GROUP}" \
+              --secrets "database-url=${DATABASE_URL}" \
+              --only-show-errors
+
+            az containerapp job registry set \
+              --name "${MIGRATION_JOB_NAME}" \
+              --resource-group "${RESOURCE_GROUP}" \
+              --server "${REGISTRY}" \
+              --username "${GHCR_USERNAME}" \
+              --password "${GHCR_PULL_TOKEN}" \
+              --only-show-errors
+
+            az containerapp job update \
+              --name "${MIGRATION_JOB_NAME}" \
+              --resource-group "${RESOURCE_GROUP}" \
+              --image "${IMAGE}" \
+              --args "migrate" \
+              --set-env-vars "DATABASE_URL=secretref:database-url" \
+              --only-show-errors
           else
-            az containerapp job create "${COMMON_ARGS[@]}" \
+            az containerapp job create \
+              --name "${MIGRATION_JOB_NAME}" \
+              --resource-group "${RESOURCE_GROUP}" \
               --environment "${CONTAINER_ENV}" \
               --trigger-type Manual \
               --replica-timeout 600 \
               --replica-retry-limit 1 \
-              --cpu 0.5 --memory 1.0Gi
+              --cpu 0.5 --memory 1.0Gi \
+              --image "${IMAGE}" \
+              --args "migrate" \
+              --secrets "database-url=${DATABASE_URL}" \
+              --env-vars "DATABASE_URL=secretref:database-url" \
+              --registry-server "${REGISTRY}" \
+              --registry-username "${GHCR_USERNAME}" \
+              --registry-password "${GHCR_PULL_TOKEN}" \
+              --only-show-errors
           fi
 
           echo "Starting migration job..."
